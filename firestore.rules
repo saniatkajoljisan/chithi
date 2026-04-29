@@ -1,0 +1,75 @@
+// ============================================================
+//  firestore.rules
+//  Paste the rules block below into:
+//  Firebase Console → Firestore Database → Rules
+// ============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── users collection ──────────────────────────────────────
+    // Public read (needed for username lookups on public page)
+    // Only the owner can write their own profile
+    match /users/{userId} {
+      allow read:   if true;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── usernames collection ──────────────────────────────────
+    // Public read for uniqueness check during signup
+    // Authenticated users can reserve a username (create only)
+    match /usernames/{username} {
+      allow read:   if true;
+      allow create: if request.auth != null;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── messages collection ───────────────────────────────────
+    match /messages/{messageId} {
+
+      // Anyone can send a message (no login required to write)
+      allow create: if
+        request.resource.data.keys().hasAll([
+          'toUserId', 'text', 'isAnonymous', 'deleteToken', 'expireAt'
+        ]) &&
+        request.resource.data.deleteToken == messageId &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 &&
+        request.resource.data.text.size() <= 1000 &&
+        request.resource.data.isAnonymous is bool &&
+        request.resource.data.deleteToken is string;
+
+      // The recipient can list/read their own inbox. Senders can only
+      // open the exact token document used by the unsend page.
+      allow get: if
+        (request.auth != null && resource.data.toUserId == request.auth.uid) ||
+        resource.data.deleteToken == messageId;
+      allow list: if
+        request.auth != null && resource.data.toUserId == request.auth.uid;
+
+      // Only the recipient can delete from the dashboard
+      allow delete: if
+        (request.auth != null && resource.data.toUserId == request.auth.uid) ||
+        resource.data.deleteToken == messageId;
+
+      // No edits allowed
+      allow update: if false;
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  NOTE: Sender "Unsend" Feature
+//
+//  The token-based delete (delete.html?token=XYZ) works by
+//  storing each message under its delete token as the document ID.
+//  That lets the sender read/delete only that exact document link
+//  without opening up the rest of the messages collection.
+//
+//  Anyone who knows the token can still unsend that one message,
+//  so treat the delete link like a secret.
+// ────────────────────────────────────────────────────────────

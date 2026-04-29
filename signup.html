@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up — Chithi</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+</head>
+<body class="auth-page">
+
+  <div class="bg-lines"></div>
+
+  <div class="auth-wrap">
+    <a href="index.html" class="logo auth-logo">
+      <span class="logo-icon">✉</span>
+      <span class="logo-text">Chithi</span>
+    </a>
+
+    <!-- Step 1: Account Info -->
+    <div class="auth-card" id="step-account">
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-sub">Start receiving anonymous letters today.</p>
+
+      <div id="auth-error" class="error-msg hidden"></div>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="At least 6 characters" autocomplete="new-password" />
+      </div>
+      <div class="form-group">
+        <label for="confirm-password">Confirm password</label>
+        <input type="password" id="confirm-password" placeholder="Repeat your password" autocomplete="new-password" />
+      </div>
+
+      <button class="btn-primary btn-full" id="btn-signup">
+        <span id="signup-btn-text">Continue →</span>
+        <span id="signup-spinner" class="spinner hidden"></span>
+      </button>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <button class="btn-google btn-full" id="btn-google-signup">
+        <span class="google-mark">G</span>
+        <span>Continue with Google</span>
+      </button>
+
+      <p class="auth-switch">Already have an account? <a href="login.html">Sign in</a></p>
+    </div>
+
+    <!-- Step 2: Choose Username -->
+    <div class="auth-card hidden" id="step-username">
+      <h1 class="auth-title">Choose a username</h1>
+      <p class="auth-sub">This becomes your personal Chithi link.</p>
+
+      <div id="username-error" class="error-msg hidden"></div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <div class="input-prefix-wrap">
+          <span class="input-prefix">chithi.me/u/</span>
+          <input type="text" id="username" placeholder="yourname" autocomplete="off" />
+        </div>
+        <div id="username-status" class="field-status"></div>
+      </div>
+
+      <button class="btn-primary btn-full" id="btn-save-username">
+        <span id="username-btn-text">Finish Setup →</span>
+        <span id="username-spinner" class="spinner hidden"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="clean-urls.js"></script>
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="auth.js"></script>
+</body>
+</html>
