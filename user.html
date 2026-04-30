@@ -6,9 +6,52 @@
   <title>Send a Letter — Chithi</title>
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+<style>
+  .floating-bg{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:0;
+}
+
+.float{
+  position:absolute;
+  opacity:0;
+  transform:scale(0.8);
+  transition:opacity 1.2s ease, transform 1.2s ease;
+  will-change:transform, opacity;
+}
+
+/* active state */
+.float.show{
+  opacity:0.9;
+  transform:scale(1) translateY(-20px);
+}
+</style>
 </head>
 <body class="user-page">
+<div class="floating-bg">
 
+  <!-- back layer (blurred, slow) -->
+  <div class="float b f1" style="left:8%; top:6%; font-size:3.2rem; --r:240deg;">💌</div>
+  <div class="float b f2" style="left:28%; top:14%; font-size:3.6rem; --r:90deg;">✨</div>
+  <div class="float b f3" style="left:62%; top:18%; font-size:4.2rem; --r:300deg;">💕</div>
+  <div class="float b f4" style="left:88%; top:10%; font-size:3.5rem; --r:210deg;">📝</div>
+
+  <!-- mid layer -->
+  <div class="float m f1" style="left:12%; top:42%; font-size:3.8rem; --r:110deg;">💌</div>
+  <div class="float m f2" style="left:34%; top:46%; font-size:3rem; --r:230deg;">🌸</div>
+  <div class="float m f3" style="left:66%; top:40%; font-size:3.6rem; --r:310deg;">🎈</div>
+  <div class="float m f4" style="left:82%; top:60%; font-size:3.4rem; --r:250deg;">📫</div>
+
+  <!-- front layer (sharp, faster) -->
+  <div class="float f f1" style="left:18%; top:72%; font-size:3.4rem; --r:220deg;">💕</div>
+  <div class="float f f2" style="left:30%; top:88%; font-size:4rem; --r:260deg;">🎈</div>
+  <div class="float f f3" style="left:55%; top:94%; font-size:3rem; --r:300deg;">❤️</div>
+  <div class="float f f4" style="left:90%; top:80%; font-size:3.3rem; --r:40deg;">🎉</div>
+
+</div>
   <div class="bg-lines"></div>
   <div class="ink-blot ink-blot-1"></div>
 
@@ -164,5 +207,69 @@
   <script src="clean-urls.js"></script>
   <script type="module" src="firebase-config.js"></script>
   <script type="module" src="sendMessage.js"></script>
+  <script>
+const container = document.querySelector(".floating-bg");
+
+const items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
+
+function createItem(){
+  const el = document.createElement("div");
+  el.className = "float";
+
+  el.innerText = items[Math.floor(Math.random()*items.length)];
+
+  // random position
+  el.style.left = Math.random() * 100 + "vw";
+  el.style.top = Math.random() * 100 + "vh";
+
+  // random size
+  el.style.fontSize = (18 + Math.random()*30) + "px";
+
+  container.appendChild(el);
+
+  // fade in
+  setTimeout(()=> el.classList.add("show"), 100);
+
+  // float drift
+  const driftX = (Math.random() - 0.5) * 60;
+  const driftY = (Math.random() - 0.5) * 60;
+
+  let x = 0;
+  let y = 0;
+
+  function move(){
+    x += driftX * 0.01;
+    y += driftY * 0.01;
+
+    el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+
+    requestAnimationFrame(move);
+  }
+
+  move();
+
+  // 👇 disappear randomly (key behavior)
+  const life = 3000 + Math.random()*5000;
+
+  setTimeout(()=>{
+    el.classList.remove("show");
+
+    setTimeout(()=>{
+      el.remove();
+    }, 1200);
+
+  }, life);
+}
+
+// spawn loop (random timing)
+function loop(){
+  createItem();
+
+  const next = 200 + Math.random()*800; // random spawn delay
+  setTimeout(loop, next);
+}
+
+loop();
+</script>
 </body>
 </html>
