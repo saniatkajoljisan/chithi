@@ -27,7 +27,7 @@
     <div id="delete-confirm" class="auth-card hidden text-center">
       <div class="delete-icon-wrap">🗑️</div>
       <h1 class="auth-title">Unsend this letter?</h1>
-      <p class="auth-sub">This will permanently delete your message. The recipient won't be able to read it anymore.</p>
+      <p class="auth-sub">This will permanently delete your Letter. The recipient won't be able to read it anymore.</p>
 
       <div class="message-preview-box" id="message-preview"></div>
       <div class="sender-letter-status hidden" id="sender-letter-status"></div>
@@ -38,6 +38,7 @@
         <span id="delete-btn-text">Yes, Delete It</span>
         <span id="delete-spinner" class="spinner hidden"></span>
       </button>
+      <button class="btn-ghost btn-sm" id="btn-send-another">Send another →</button>
       <a href="/chithi/index.html" class="btn-ghost btn-full" style="margin-top:0.75rem;">Never mind →</a>
     </div>
 
@@ -45,7 +46,8 @@
     <div id="delete-success" class="auth-card hidden text-center">
       <div class="success-icon large">✓</div>
       <h2>Message deleted</h2>
-      <p class="auth-sub">Your letter has been permanently removed.</p>
+      <p class="auth-sub">Your letter has been permanently Unsend.</p>
+      <button class="btn-ghost btn-sm" id="btn-send-another">Send another →</button>
       <a href="/chithi/index.html" class="btn-primary" style="margin-top:1.5rem;">Back to Chithi →</a>
     </div>
 
