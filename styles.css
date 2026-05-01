@@ -832,12 +832,14 @@ code { font-family: monospace; font-size: 0.88rem; background: var(--paper-dark)
   opacity: 0;
 }
 .color-choice span {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border: 2px solid transparent;
   border-radius: 50%;
   box-shadow: 0 1px 5px var(--shadow);
   flex-shrink: 0;
+  display: inline-block;
+  cursor: pointer;
 }
 .color-choice input:checked + span {
   border-color: var(--gold);
