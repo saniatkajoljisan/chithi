@@ -158,7 +158,7 @@ async function renderSenderStatus(msgData) {
     lines.push(reactionLabels[msgData.receiverReaction]);
   }
   if (msgData.replyText) lines.push(`${msgData.replierName || "Recipient"} replied: ${msgData.replyText}`);
-
+ 
   if (!lines.length) {
     statusEl.classList.add("hidden");
     return;
