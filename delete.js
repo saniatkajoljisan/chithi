@@ -61,7 +61,7 @@ async function init() {
     previewEl.textContent = `"${preview}"`;
     previewEl.classList.add(fontClass(msgData.fontKey));
     previewEl.classList.add(bgClass(msgData.bgKey));
-    renderSenderStatus(msgData);
+    await renderSenderStatus(msgData);
 
     showPanel("confirm");
   } catch (err) {
@@ -126,7 +126,8 @@ function bgClass(bgKey) {
   const allowedBgKeys = new Set(["paper", "rose", "mint", "sky"]);
   return `letter-bg-${allowedBgKeys.has(bgKey) ? bgKey : "paper"}`;
 }
-function renderSenderStatus(msgData) {
+
+async function renderSenderStatus(msgData) {
   if (!statusEl) return;
   const reactionLabels = {
     heart: "They Loved this letter. ❤️",
@@ -135,7 +136,23 @@ function renderSenderStatus(msgData) {
     spark: "They marked this letter as Special. 🥰"
   };
   const lines = [];
-  if (msgData.isRead) lines.push("Read by recipient.");
+
+  let recipientName = "recipient";
+  try {
+    const userDoc = await getDoc(doc(db, "users", msgData.toUserId));
+    if (userDoc.exists()) {
+      recipientName = userDoc.data().name || "recipient";
+    }
+  } catch (error) {
+    console.error("Error fetching recipient name:", error);
+  }
+
+  if (msgData.isRead) {
+    lines.push(`Seen by ${recipientName}.`);
+  } else {
+    lines.push("Delivered.");
+  }
+
   if (msgData.receiverReaction && reactionLabels[msgData.receiverReaction]) {
     lines.push(reactionLabels[msgData.receiverReaction]);
   }
