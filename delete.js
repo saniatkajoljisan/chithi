@@ -129,36 +129,51 @@ function bgClass(bgKey) {
 
 async function renderSenderStatus(msgData) {
   if (!statusEl) return;
-  const reactionLabels = {
-    heart: "They Loved this letter. ❤️",
-    smile: "This letter made them Smile. 🤣",
-    cry: "This letter made them Emotional. 😭",
-    spark: "They marked this letter as Special. 🥰"
-  };
+
   const lines = [];
 
   let recipientName = "recipient";
   try {
     const userDoc = await getDoc(doc(db, "users", msgData.toUserId));
     if (userDoc.exists()) {
-    const userData = userDoc.data();
-     recipientName = userData.displayName || userData.username || "recipient";
+      const userData = userDoc.data();
+      recipientName = userData.displayName || userData.username || "recipient";
     }
   } catch (error) {
     console.error("Error fetching recipient name:", error);
   }
 
+  // Reaction label generator (dynamic name)
+  const getReactionLabel = (reaction, name) => {
+    const labels = {
+      heart: `${name} loved this letter. ❤️`,
+      smile: `This letter made ${name} smile. 🤣`,
+      cry: `This letter made ${name} emotional. 😭`,
+      spark: `${name} marked this letter as special. 🥰`
+    };
+    return labels[reaction] || "";
+  };
+
+  const safeName = recipientName || "Recipient";
+
+  // Seen / Delivered
   if (msgData.isRead) {
-    lines.push(`Seen by ${recipientName}.`);
+    lines.push(`Seen by ${safeName}.`);
   } else {
-    lines.push("Delivered.");
+    lines.push("Letter Delivered.");
   }
 
-  if (msgData.receiverReaction && reactionLabels[msgData.receiverReaction]) {
-    lines.push(reactionLabels[msgData.receiverReaction]);
+  // Reaction
+  if (msgData.receiverReaction) {
+    const label = getReactionLabel(msgData.receiverReaction, safeName);
+    if (label) lines.push(label);
   }
-  if (msgData.replyText) lines.push(`${msgData.replierName || recipientName} replied: ${msgData.replyText}`);
- 
+
+  // Reply
+  if (msgData.replyText) {
+    lines.push(`${msgData.replierName || safeName} replied: ${msgData.replyText}`);
+  }
+
   if (!lines.length) {
     statusEl.classList.add("hidden");
     return;
