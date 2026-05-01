@@ -274,7 +274,7 @@ function renderMessages() {
 
   const total = allMessageDocs.length;
   const unread = allMessageDocs.filter(docSnap => !docSnap.data().isRead).length;
-  inboxCountEl.textContent = `${total} ${total === 1 ? "message" : "messages"}${unread ? ` · ${unread} unread` : ""}`;
+  inboxCountEl.textContent = `${total} ${total === 1 ? "letter" : "letters"}${unread ? ` · ${unread} unread` : ""}`;
 
   if (docs.length === 0 && total > 0) {
     messagesListEl.innerHTML = `<div class="inbox-empty compact"><p>No letters match this view.</p></div>`;
