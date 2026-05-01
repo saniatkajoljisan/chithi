@@ -129,10 +129,10 @@ function bgClass(bgKey) {
 function renderSenderStatus(msgData) {
   if (!statusEl) return;
   const reactionLabels = {
-    heart: "They loved this letter.",
-    smile: "This letter made them smile.",
-    cry: "This letter touched them.",
-    spark: "They marked this letter as special."
+    heart: "They Loved this letter. ❤️",
+    smile: "This letter made them Smile. 🤣",
+    cry: "This letter made them Emotional. 😭",
+    spark: "They marked this letter as Special. 🥰"
   };
   const lines = [];
   if (msgData.isRead) lines.push("Read by recipient.");
