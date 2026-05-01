@@ -49,14 +49,14 @@ const reactionChoices = ["heart", "smile", "cry", "spark"];
 const reactionLabels = {
   heart: "Loved",
   smile: "Smiled",
-  cry: "Touched",
+  cry: "Emotional",
   spark: "Special"
 };
 const reactionMarks = {
-  heart: "♥",
-  smile: "☺",
-  cry: "◌",
-  spark: "✦"
+  heart: "❤️",
+  smile: "🤣",
+  cry: "😭",
+  spark: "🥰"
 };
 
 // ─── Auth guard ──────────────────────────────────────────────
