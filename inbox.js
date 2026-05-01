@@ -117,7 +117,7 @@ btnSaveProfile?.addEventListener("click", saveProfile);
 // ─── Load messages (real-time listener) ──────────────────────
 function loadMessages(uid) {
   const q = query(
-    collection(db, "messages"),
+    collection(db, "letters"),
     where("toUserId", "==", uid)
   );
 
@@ -135,7 +135,7 @@ function loadMessages(uid) {
     if (snapshot.empty) {
       inboxEmptyEl.classList.remove("hidden");
       messagesListEl.classList.add("hidden");
-      inboxCountEl.textContent = "0 messages";
+      inboxCountEl.textContent = "0 letters";
       return;
     }
 
@@ -143,8 +143,8 @@ function loadMessages(uid) {
     messagesListEl.classList.remove("hidden");
     renderMessages();
   }, (err) => {
-    console.error("Error loading messages:", err);
-    inboxLoadingEl.innerHTML = "<p>Error loading messages. Please refresh.</p>";
+    console.error("Error loading letters:", err);
+    inboxLoadingEl.innerHTML = "<p>Error loading letters. Please refresh.</p>";
   });
 }
 
@@ -209,7 +209,7 @@ function buildMessageCard(docSnap) {
     const reply = prompt("Write a public reply for this letter:", msg.replyText || "");
     if (reply === null) return;
     const cleanReply = reply.trim();
-    if (cleanReply.length > 280) return alert("Reply is too long. Keep it under 280 characters.");
+    if (cleanReply.length > 500) return alert("Reply is too long. Keep it under 500 characters.");
     await updateDoc(doc(db, "messages", docSnap.id), {
       replyText: cleanReply,
       repliedAt: cleanReply ? serverTimestamp() : null
@@ -237,13 +237,13 @@ function buildMessageCard(docSnap) {
   // Delete button handler
   card.querySelector(".btn-delete").addEventListener("click", async (e) => {
     const msgId = e.currentTarget.dataset.id;
-    if (!confirm("Delete this message? This can't be undone.")) return;
+    if (!confirm("Delete this letter? This can't be undone.")) return;
     try {
       await deleteDoc(doc(db, "messages", msgId));
       // Real-time listener will update the list automatically
     } catch (err) {
       console.error("Delete error:", err);
-      alert("Failed to delete message. Please try again.");
+      alert("Failed to delete letter. Please try again.");
     }
   });
 
