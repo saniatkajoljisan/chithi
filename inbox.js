@@ -209,7 +209,7 @@ function buildMessageCard(docSnap) {
     const reply = prompt("Write a public reply for this letter:", msg.replyText || "");
     if (reply === null) return;
     const cleanReply = reply.trim();
-    if (cleanReply.length > 500) return alert("Reply is too long. Keep it under 500 characters.");
+    if (cleanReply.length > 280) return alert("Reply is too long. Keep it under 280 characters.");
     await updateDoc(doc(db, "messages", docSnap.id), {
       replyText: cleanReply,
       repliedAt: cleanReply ? serverTimestamp() : null
