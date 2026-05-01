@@ -172,7 +172,7 @@ function buildMessageCard(docSnap) {
       ${msg.isRead ? "" : `<span class="status-pill unread-pill">Unread</span>`}
     </div>
     <div class="message-text ${fontClass(msg.fontKey)}">${escapeHtml(msg.text)}</div>
-    ${msg.replyText ? `<div class="reply-card"><span>Your public reply</span><p>${escapeHtml(msg.replyText)}</p></div>` : ""}
+    ${msg.replyText ? `<div class="reply-card"><span>${escapeHtml(msg.replierName || "You")} replied:</span><p>${escapeHtml(msg.replyText)}</p></div>` : ""}
     <div class="message-meta">
       <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
         ${senderHTML}
@@ -205,13 +205,14 @@ function buildMessageCard(docSnap) {
     updateDoc(doc(db, "messages", docSnap.id), { isFavorite: !Boolean(msg.isFavorite) });
   });
 
-  card.querySelector(".btn-reply").addEventListener("click", async () => {
+    card.querySelector(".btn-reply").addEventListener("click", async () => {
     const reply = prompt("Write a public reply for this letter:", msg.replyText || "");
     if (reply === null) return;
     const cleanReply = reply.trim();
     if (cleanReply.length > 280) return alert("Reply is too long. Keep it under 280 characters.");
     await updateDoc(doc(db, "messages", docSnap.id), {
       replyText: cleanReply,
+      replierName: cleanReply ? (currentProfile.displayName || currentProfile.username) : "",
       repliedAt: cleanReply ? serverTimestamp() : null
     });
   });
