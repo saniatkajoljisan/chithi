@@ -185,7 +185,7 @@ function buildMessageCard(docSnap) {
         <button class="btn-card-action btn-reply" data-id="${docSnap.id}">Reply</button>
         <button class="btn-card-action btn-share" data-id="${docSnap.id}">Image</button>
         <button class="btn-card-action btn-report" data-id="${docSnap.id}">${msg.isReported ? "Unreport" : "Report"}</button>
-        <button class="btn-delete" data-id="${docSnap.id}" title="Delete this message">Delete</button>
+        <button class="btn-delete" data-id="${docSnap.id}" title="Delete this letter">Delete</button>
       </div>
     </div>
     <div class="reaction-row" aria-label="Reaction">
