@@ -141,7 +141,8 @@ async function renderSenderStatus(msgData) {
   try {
     const userDoc = await getDoc(doc(db, "users", msgData.toUserId));
     if (userDoc.exists()) {
-      recipientName = userDoc.data().name || "recipient";
+    const userData = userDoc.data();
+     recipientName = userData.displayName || userData.username || "recipient";
     }
   } catch (error) {
     console.error("Error fetching recipient name:", error);
