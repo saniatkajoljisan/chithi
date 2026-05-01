@@ -210,10 +210,11 @@ function buildMessageCard(docSnap) {
     if (reply === null) return;
     const cleanReply = reply.trim();
     if (cleanReply.length > 280) return alert("Reply is too long. Keep it under 280 characters.");
+    if (!cleanReply) return alert("Reply cannot be empty.");
     await updateDoc(doc(db, "messages", docSnap.id), {
       replyText: cleanReply,
-      replierName: cleanReply ? (currentProfile.displayName || currentProfile.username) : "",
-      repliedAt: cleanReply ? serverTimestamp() : null
+      replierName: currentProfile.displayName || currentProfile.username,
+      repliedAt: serverTimestamp()
     });
   });
 
