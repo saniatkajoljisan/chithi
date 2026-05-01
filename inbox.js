@@ -117,7 +117,7 @@ btnSaveProfile?.addEventListener("click", saveProfile);
 // ─── Load messages (real-time listener) ──────────────────────
 function loadMessages(uid) {
   const q = query(
-    collection(db, "letters"),
+    collection(db, "messages"),
     where("toUserId", "==", uid)
   );
 
