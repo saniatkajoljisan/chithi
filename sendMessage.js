@@ -215,19 +215,26 @@ function buildDeleteUrl(deleteToken) {
 
 // ─── Send another ────────────────────────────────────────────
 btnSendAnother?.addEventListener("click", () => {
-  // Reset form
-  messageTextEl.value   = "";
-  senderNameEl.value    = "";
+  // Reset form safely
+  if (messageTextEl) messageTextEl.value = "";
+  if (senderNameEl) senderNameEl.value = "";
+
   const defaultLanguageOption = document.querySelector('input[name="letter-language"][value="en"]');
   if (defaultLanguageOption) defaultLanguageOption.checked = true;
+
   const defaultStyleOption = document.querySelector('input[name="letter-style"][value="en-1"]');
   if (defaultStyleOption) defaultStyleOption.checked = true;
-  applyLanguage(getSelectedLanguage());
-  anonToggle.checked    = true;
-  senderNameGroup.style.display = "none";
-  charCountEl.textContent = "0";
-  successEl.classList.add("hidden");
-  formContainerEl.classList.remove("hidden");
+
+  if (typeof applyLanguage === "function") {
+    applyLanguage(getSelectedLanguage());
+  }
+
+  if (anonToggle) anonToggle.checked = true;
+  if (senderNameGroup) senderNameGroup.style.display = "none";
+  if (charCountEl) charCountEl.textContent = "0";
+
+  if (successEl) successEl.classList.add("hidden");
+  if (formContainerEl) formContainerEl.classList.remove("hidden");
 });
 
 // ─── Helpers ─────────────────────────────────────────────────
