@@ -267,23 +267,31 @@ document.querySelectorAll(".password-wrap").forEach(wrapper => {
 });
 
 /** Reset Password */
-import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
+// ─── RESET PASSWORD (separate page) ─────────────────────────
 const resetBtn = document.getElementById("btn-send-reset");
 
 resetBtn?.addEventListener("click", async () => {
-  const email = document.getElementById("reset-email").value;
+  hideError("auth-error");
+
+  const emailInput = document.getElementById("reset-email");
+  const email = emailInput?.value?.trim();
 
   if (!email) {
-    showError("Please enter your Email first.");
+    showError("auth-error", "Please enter your Email first.");
     return;
   }
 
   try {
     await sendPasswordResetEmail(auth, email);
-    showError("📩 Reset link sent! Check your email Inbox/Spam Folder.");
+
+    showError(
+      "auth-error",
+      "📩 Reset link sent! Check your email (Inbox/Spam)."
+    );
+
   } catch (err) {
-    showError(err.message);
+    console.error(err);
+    showError("auth-error", friendlyError(err.code));
   }
 });
 
