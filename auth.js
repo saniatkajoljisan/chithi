@@ -254,6 +254,17 @@ async function isUsernameTaken(username) {
   return snap.exists();
 }
 
+/** Password visibility */
+const passwordInput = document.getElementById("password");
+const togglePassword = document.getElementById("toggle-password");
+
+togglePassword?.addEventListener("click", () => {
+  const type = passwordInput.type === "password" ? "text" : "password";
+  passwordInput.type = type;
+
+  togglePassword.textContent = type === "password" ? "👁️" : "🙈";
+});
+
 /** Show a specific step div (signup is multi-step) */
 function showStep(stepId) {
   document.querySelectorAll("[id^='step-']").forEach(el => el.classList.add("hidden"));
