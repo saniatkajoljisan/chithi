@@ -266,6 +266,27 @@ document.querySelectorAll(".password-wrap").forEach(wrapper => {
   });
 });
 
+/** Reset Password */
+import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const resetBtn = document.getElementById("btn-send-reset");
+
+resetBtn?.addEventListener("click", async () => {
+  const email = document.getElementById("reset-email").value;
+
+  if (!email) {
+    showError("Please enter your Email first.");
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showError("📩 Reset link sent! Check your email Inbox/Spam Folder.");
+  } catch (err) {
+    showError(err.message);
+  }
+});
+
 /** Show a specific step div (signup is multi-step) */
 function showStep(stepId) {
   document.querySelectorAll("[id^='step-']").forEach(el => el.classList.add("hidden"));
