@@ -207,7 +207,7 @@ if (isLogin) {
 
     try {
       await sendPasswordResetEmail(auth, email);
-      showError("auth-error", "Password reset email sent. Check your inbox.");
+      showError("auth-error", "Password reset email sent. Check your inbox or Spam Folder.");
     } catch (err) {
       showError("auth-error", friendlyError(err.code));
     }
