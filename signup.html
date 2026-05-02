@@ -6,6 +6,25 @@
   <title>Sign Up — Chithi</title>
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+<style>
+  .password-wrap {
+  position: relative;
+}
+
+.password-wrap input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px;
+}
+</style>
 </head>
 <body class="auth-page">
 
@@ -30,7 +49,17 @@
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="At least 6 characters" autocomplete="new-password" />
+      
+        <div class="password-wrap">
+          <input 
+            type="password" 
+            id="password" 
+            placeholder="At least 6 characters" 
+            autocomplete="new-password" 
+          />
+          <span id="toggle-password" class="toggle-eye">👁️</span>
+        </div>
+      
       </div>
 
       <button class="btn-primary btn-full" id="btn-signup">
