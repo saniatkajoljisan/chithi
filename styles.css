@@ -884,6 +884,26 @@ code { font-family: monospace; font-size: 0.88rem; background: var(--paper-dark)
   font-size: 0.8rem;
   color: rgba(253,248,240,0.5);
 }
+.btn-copyy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(253,248,240,0.12);
+  color: black !important;
+  border: 1px solid rgba(253,248,240,0.25);
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  font-family: var(--font-body);
+}
+.btn-copyy:hover { background: rgba(253,248,240,0.2); }
+.link-banner-hint {
+  font-size: 0.8rem;
+  color: rgba(253,248,240,0.5);
+}
 .profile-panel {
   background: var(--paper-card);
   border: 1px solid var(--line-color);
