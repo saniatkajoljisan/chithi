@@ -325,20 +325,33 @@ code { font-family: monospace; font-size: 0.88rem; background: var(--paper-dark)
   pointer-events: none;
 }
 .style-choice-name {
-  font-size: 0.46rem;
-  color: var(--ink-faint);
-  text-align: center;
-  line-height: 1.2;
+  position: absolute;
+  bottom: 6px;             
+  left: 50%;
+  transform: translateX(-50%);
+
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.7); 
+  backdrop-filter: blur(4px);
+
+  color: var(--ink);
+  line-height: 1;
 }
 .style-card-sample {
+  position: relative;       
   display: grid;
   place-items: center;
+
   width: 100%;
-  min-height: 70px;
+  min-height: 80px;
   border-radius: 14px;
-  color: var(--ink);
+
   font-size: 1.35rem;
   font-weight: 600;
+  color: var(--ink);
 }
 .style-choice:has(input:checked) {
   border-color: var(--gold);
