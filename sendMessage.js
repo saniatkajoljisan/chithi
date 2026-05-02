@@ -191,6 +191,8 @@ function showSendSuccess(deleteToken) {
     formContainerEl?.classList.add("hidden");
     successEl?.classList.remove("hidden");
 
+    playSuccessPlane();
+
     if (btnCopyDelete) {
       btnCopyDelete.onclick = () => copyToClipboard(deleteUrl, btnCopyDelete);
     }
@@ -200,6 +202,8 @@ function showSendSuccess(deleteToken) {
     console.error("Post-send UI error:", err);
     formContainerEl?.classList.add("hidden");
     successEl?.classList.remove("hidden");
+
+    playSuccessPlane();
   }
 }
 
