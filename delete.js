@@ -146,10 +146,10 @@ async function renderSenderStatus(msgData) {
   // Reaction label generator (dynamic name)
   const getReactionLabel = (reaction, name) => {
     const labels = {
-      heart: `${name} loved this letter. ❤️`,
-      smile: `This letter made ${name} smile. 🤣`,
-      cry: `This letter made ${name} emotional. 😭`,
-      spark: `${name} marked this letter as special. 🥰`
+      heart: `${name} Loved it. ❤️`,
+      smile: `${name} Smiled. 🤣`,
+      cry: `${name} Cried. 😭`,
+      spark: `${name} got Angry. 🤬`
     };
     return labels[reaction] || "";
   };
@@ -160,7 +160,7 @@ async function renderSenderStatus(msgData) {
   if (msgData.isRead) {
     lines.push(`Seen by ${safeName}.`);
   } else {
-    lines.push("Letter Delivered.");
+    lines.push("Delivered ✔︎✔︎");
   }
 
   // Reaction
