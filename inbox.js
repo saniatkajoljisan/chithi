@@ -47,16 +47,16 @@ const allowedFontKeys = new Set(["hand-caveat", "hand-patrick", "hand-kalam", "n
 const allowedBgKeys = new Set(["paper", "rose", "mint", "sky"]);
 const reactionChoices = ["heart", "smile", "cry", "spark"];
 const reactionLabels = {
-  heart: "Loved",
-  smile: "Smiled",
+  heart: "Love",
+  smile: "Smile",
   cry: "Emotional",
-  spark: "Special"
+  spark: "Angry"
 };
 const reactionMarks = {
   heart: "❤️",
   smile: "🤣",
   cry: "😭",
-  spark: "🥰"
+  spark: "🤬"
 };
 
 // ─── Auth guard ──────────────────────────────────────────────
