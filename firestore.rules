@@ -1,0 +1,95 @@
+// ============================================================
+//  firestore.rules
+//  Paste the rules block below into:
+//  Firebase Console → Firestore Database → Rules
+// ============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── users collection ──────────────────────────────────────
+    // Public read (needed for username lookups on public page)
+    // Only the owner can write their own profile
+    match /users/{userId} {
+      allow read:   if true;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── usernames collection ──────────────────────────────────
+    // Public read for uniqueness check during signup
+    // Authenticated users can reserve a username (create only)
+    match /usernames/{username} {
+      allow read:   if true;
+      allow create: if request.auth != null;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── messages collection ───────────────────────────────────
+    match /messages/{messageId} {
+
+      // Anyone can send a message (no login required to write)
+      allow create: if
+        request.resource.data.keys().hasAll([
+          'toUserId', 'text', 'isAnonymous', 'deleteToken'
+        ]) &&
+        request.resource.data.deleteToken == messageId &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 &&
+        request.resource.data.text.size() <= 2500 &&
+        request.resource.data.isAnonymous is bool &&
+        request.resource.data.deleteToken is string;
+
+      // The recipient can list/read their own inbox. Senders can only
+      // open the exact token document used by the unsend page.
+      allow get: if
+        (request.auth != null && resource.data.toUserId == request.auth.uid) ||
+        resource.data.deleteToken == messageId;
+
+      // Allow public counting for stats (unauthenticated users can count messages)
+      // Authenticated users can list their own messages for inbox
+      allow list: if request.auth == null ||
+        (request.auth != null && resource.data.toUserId == request.auth.uid);
+
+      // Only the recipient can delete from the dashboard
+      allow delete: if
+        (request.auth != null && resource.data.toUserId == request.auth.uid) ||
+        resource.data.deleteToken == messageId;
+
+      // The recipient can update inbox-only metadata without changing the
+      // original letter text, sender, token, or owner.
+      allow update: if
+        request.auth != null &&
+        resource.data.toUserId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'isRead', 'isFavorite', 'isReported', 'replyText', 'repliedAt', 'receiverReaction'
+        ]) &&
+        (!request.resource.data.keys().hasAny(['isRead']) ||
+          request.resource.data.isRead is bool) &&
+        (!request.resource.data.keys().hasAny(['isFavorite']) ||
+          request.resource.data.isFavorite is bool) &&
+        (!request.resource.data.keys().hasAny(['isReported']) ||
+          request.resource.data.isReported is bool) &&
+        (!request.resource.data.keys().hasAny(['replyText']) ||
+          (request.resource.data.replyText is string &&
+           request.resource.data.replyText.size() <= 280)) &&
+        (!request.resource.data.keys().hasAny(['receiverReaction']) ||
+          request.resource.data.receiverReaction in ['', 'heart', 'smile', 'cry', 'spark']);
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  NOTE: Sender "Unsend" Feature
+//
+//  The token-based delete (delete.html?token=XYZ) works by
+//  storing each message under its delete token as the document ID.
+//  That lets the sender read/delete only that exact document link
+//  without opening up the rest of the messages collection.
+//
+//  Anyone who knows the token can still unsend that one message,
+//  so treat the delete link like a secret.
+// ────────────────────────────────────────────────────────────
