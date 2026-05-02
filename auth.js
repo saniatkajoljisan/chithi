@@ -74,11 +74,9 @@ if (isSignup) {
     hideError("auth-error");
     const email    = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
-    const confirm  = document.getElementById("confirm-password").value;
 
     // Basic validation
     if (!email || !password) return showError("auth-error", "Please fill in all fields.");
-    if (password !== confirm) return showError("auth-error", "Passwords don't match.");
     if (password.length < 6)  return showError("auth-error", "Password must be at least 6 characters.");
 
     setLoading("btn-signup", "signup-spinner", "signup-btn-text", true);
