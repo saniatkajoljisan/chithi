@@ -255,14 +255,15 @@ async function isUsernameTaken(username) {
 }
 
 /** Password visibility */
-const passwordInput = document.getElementById("password");
-const togglePassword = document.getElementById("toggle-password");
+document.querySelectorAll(".password-wrap").forEach(wrapper => {
+  const input = wrapper.querySelector("input");
+  const toggle = wrapper.querySelector(".toggle-eye");
 
-togglePassword?.addEventListener("click", () => {
-  const type = passwordInput.type === "password" ? "text" : "password";
-  passwordInput.type = type;
-
-  togglePassword.textContent = type === "password" ? "👁️" : "🙈";
+  toggle?.addEventListener("click", () => {
+    const type = input.type === "password" ? "text" : "password";
+    input.type = type;
+    toggle.textContent = type === "password" ? "👁️" : "🙈";
+  });
 });
 
 /** Show a specific step div (signup is multi-step) */
