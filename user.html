@@ -31,31 +31,33 @@
 }
 
   #paper-plane {
-  position: fixed;
-  font-size: 24px;
-  color: #ff4da6; 
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, 0);
+  font-size: 28px;
+  color: #ff4da6; /* 💗 pink */
   opacity: 0;
   pointer-events: none;
-  z-index: 999;
 }
 
-.fly {
-  animation: flyPlane 1.4s ease-out forwards;
+.fly-success {
+  animation: flySuccess 1.5s ease-out forwards;
 }
 
-@keyframes flyPlane {
+@keyframes flySuccess {
   0% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
+    transform: translate(-50%, 0) rotate(0deg) scale(1);
     opacity: 1;
   }
   40% {
-    transform: translate(120px, -80px) rotate(15deg) scale(1.1);
+    transform: translate(40px, -60px) rotate(15deg) scale(1.1);
   }
   70% {
-    transform: translate(260px, -150px) rotate(25deg);
+    transform: translate(120px, -120px) rotate(25deg);
   }
   100% {
-    transform: translate(420px, -220px) rotate(35deg) scale(0.9);
+    transform: translate(220px, -200px) rotate(35deg) scale(0.9);
     opacity: 0;
   }
 }
@@ -119,6 +121,9 @@
 
       <!-- Success state -->
       <div id="send-success" class="send-success hidden">
+        <div id="paper-plane">
+          <i class="fa-solid fa-paper-plane"></i>
+        </div>
         <div class="success-icon">✓</div>
         <h2>Letter sent!</h2>
         <p>Your letter has been delivered anonymously.</p>
@@ -201,9 +206,7 @@
             <span id="send-btn-text">Send Letter 💌</span>
             <span id="send-spinner" class="spinner hidden"></span>
           </button>
-          <div id="paper-plane">
-            <i class="fa-solid fa-paper-plane"></i>
-          </div>
+         
           <div style="display: flex; justify-content: center; width: 100%; margin-top: 15px;">
             <a href="signup.html" 
                style="background-color: #c29f7c; color: white; padding: 10px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
@@ -286,20 +289,14 @@ function loop(){
 
 loop();
 
-  const sendBtn = document.getElementById("btn-send");
-const plane = document.getElementById("paper-plane");
+ function playSuccessPlane() {
+  const plane = document.getElementById("paper-plane");
+  if (!plane) return;
 
-sendBtn?.addEventListener("click", () => {
-  const rect = sendBtn.getBoundingClientRect();
-
-  // button position থেকে plane start
-  plane.style.left = rect.left + "px";
-  plane.style.top = rect.top + "px";
-
-  plane.classList.remove("fly");
-  void plane.offsetWidth; // animation reset
-  plane.classList.add("fly");
-});
+  plane.classList.remove("fly-success");
+  void plane.offsetWidth; // reset animation
+  plane.classList.add("fly-success");
+}
 </script>
 </body>
 </html>
