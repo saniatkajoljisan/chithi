@@ -169,84 +169,94 @@
   <script src="clean-urls.js"></script>
   <script type="module" src="firebase-config.js"></script>
   <script type="module" src="inbox.js"></script>
-  <script>
-    const container = document.querySelector(".floating-bg");
-    
-    const items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
-    
-    function createItem(){
-      const el = document.createElement("div");
-      el.className = "float";
-    
-      el.innerText = items[Math.floor(Math.random()*items.length)];
-    
-      // random position
-      const padding = 60;
+ <script>
+const container = document.querySelector(".floating-bg");
 
-      const maxX = window.innerWidth - padding;
-      const maxY = window.innerHeight - padding;
-      
-      el.style.left = Math.random() * maxX + "px";
-      el.style.top = Math.random() * maxY + "px";
-    
-      // random size
-      el.style.fontSize = (18 + Math.random()*30) + "px";
-    
-      container.appendChild(el);
-    
-      // fade in
-      setTimeout(()=> el.classList.add("show"), 100);
-    
-      // float drift
-      const driftX = (Math.random() - 0.5) * 60;
-      const driftY = (Math.random() - 0.5) * 60;
-    
-      let x = 0;
-      let y = 0;
-    
-      function move(){
-        x += driftX * 0.01;
-        y += driftY * 0.01;
-    
-        const maxDrift = 30;
+const items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
 
-        const driftX = (Math.random() - 0.5) * maxDrift;
-        const driftY = (Math.random() - 0.5) * maxDrift;
-    
-        requestAnimationFrame(move);
-      }
-    
-      move();
-    
-      // 👇 disappear randomly (key behavior)
-      const life = 3000 + Math.random()*5000;
-    
-      setTimeout(()=>{
-        el.classList.remove("show");
-    
-        setTimeout(()=>{
-          el.remove();
-        }, 1200);
-    
-      }, life);
-    }
-    
-    // spawn loop (random timing)
-    function loop(){
-      createItem();
-    
-      const next = 200 + Math.random()*800; // random spawn delay
-      setTimeout(loop, next);
-    }
-    
-    loop();
+function createItem(){
+  const el = document.createElement("div");
+  el.className = "float";
 
-    (function () {
-    var yearEl = document.getElementById("year");
-    if (yearEl) {
-      yearEl.textContent = new Date().getFullYear();
-    }
-  })();
+  el.innerText = items[Math.floor(Math.random() * items.length)];
+
+  // =========================
+  // SAFE RANDOM POSITION
+  // =========================
+  const padding = 60;
+
+  const maxX = window.innerWidth - padding;
+  const maxY = window.innerHeight - padding;
+
+  const xPos = Math.random() * maxX;
+  const yPos = Math.random() * maxY;
+
+  el.style.left = xPos + "px";
+  el.style.top = yPos + "px";
+
+  el.style.position = "absolute";
+
+  // random size
+  el.style.fontSize = (18 + Math.random() * 30) + "px";
+
+  container.appendChild(el);
+
+  // fade in
+  setTimeout(() => el.classList.add("show"), 100);
+
+  // =========================
+  // SAFE DRIFT ANIMATION
+  // =========================
+  const driftX = (Math.random() - 0.5) * 40;
+  const driftY = (Math.random() - 0.5) * 40;
+
+  let x = 0;
+  let y = 0;
+
+  function move(){
+    x += driftX * 0.02;
+    y += driftY * 0.02;
+
+    el.style.transform = `translate(${x}px, ${y}px)`;
+
+    requestAnimationFrame(move);
+  }
+
+  move();
+
+  // =========================
+  // AUTO REMOVE
+  // =========================
+  const life = 3000 + Math.random() * 5000;
+
+  setTimeout(() => {
+    el.classList.remove("show");
+
+    setTimeout(() => {
+      el.remove();
+    }, 1200);
+
+  }, life);
+}
+
+// spawn loop
+function loop(){
+  createItem();
+  const next = 200 + Math.random() * 800;
+  setTimeout(loop, next);
+}
+
+loop();
+
+// =========================
+// YEAR FIX (safe)
+ // =========================
+(function () {
+  var yearEl = document.getElementById("year");
+  if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+  }
+})();
 </script>
 </body>
 </html>
