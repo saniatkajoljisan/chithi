@@ -213,9 +213,25 @@
       </div>
     </div>
 
-    <footer class="user-footer">
-      <p>Powered by <a href="index.html">Chithi</a> · You control your letters</p>
-    </footer>
+   <footer class="site-footer">
+
+  <p class="footer-sub">
+    <a href="about-us.html">About</a> • 
+    <a href="privacy.html">Privacy</a> • 
+    <a href="terms.html">Terms</a>
+  </p>
+
+  <p>
+    Creation of 
+    <span class="heart">
+      <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">
+        SK
+      </a> ♥
+    </span> 
+    for honest conversations — © Chithi <span id="year"></span>
+  </p>
+
+</footer>
   </div>
 
   <script>
@@ -290,6 +306,13 @@ loop();
   void plane.offsetWidth; // reset animation
   plane.classList.add("fly-success");
 }
+
+    (function () {
+    var yearEl = document.getElementById("year");
+    if (yearEl) {
+      yearEl.textContent = new Date().getFullYear();
+    }
+  })();
 </script>
    <script src="clean-urls.js"></script>
   <script type="module" src="firebase-config.js"></script>
