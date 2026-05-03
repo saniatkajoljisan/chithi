@@ -207,7 +207,7 @@ function renderReply(msg, recipientName, recipientInitial, recipientColor) {
 
 const replyTimeEl = document.createElement("div");
 replyTimeEl.className = "msg-time reply-time";
-replyTimeEl.textContent = formatTime(msg.replyAt || msg.createdAt);
+replyTimeEl.textContent = formatTime(msg.repliedAt || msg.createdAt);
 
 document.querySelector(".reply-bubble").appendChild(replyTimeEl);
 }
