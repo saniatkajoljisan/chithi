@@ -7,14 +7,11 @@
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
 <style>
-  .floating-bg{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  overflow:hidden;
-  z-index:0;
+  .floating-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
 }
-
 .float{
   position:absolute;
   opacity:0;
@@ -184,7 +181,8 @@
       el.innerText = items[Math.floor(Math.random()*items.length)];
     
       // random position
-      const padding = 40;
+      const padding = 60;
+
       const maxX = window.innerWidth - padding;
       const maxY = window.innerHeight - padding;
       
@@ -210,7 +208,10 @@
         x += driftX * 0.01;
         y += driftY * 0.01;
     
-        el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        const maxDrift = 30;
+
+        const driftX = (Math.random() - 0.5) * maxDrift;
+        const driftY = (Math.random() - 0.5) * maxDrift;
     
         requestAnimationFrame(move);
       }
