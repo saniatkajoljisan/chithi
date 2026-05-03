@@ -118,6 +118,12 @@ function renderBubble(msg) {
     ? msg.text.slice(0, 320) + "…"
     : msg.text;
   msgBubbleTextEl.textContent = preview;
+  msgBubbleEl.querySelector(".msg-bubble-time")?.remove();
+
+  const sentTimeEl = document.createElement("div");
+  sentTimeEl.className = "msg-time msg-bubble-time";
+  sentTimeEl.textContent = formatTime(msg.createdAt);
+  msgBubbleEl.appendChild(sentTimeEl);
 }
 
 // ─── Render: reaction float ──────────────────────────────────
@@ -196,8 +202,14 @@ function renderReply(msg, recipientName, recipientInitial, recipientColor) {
 
   // Reply text
   replyBubTextEl.textContent = msg.replyText;
-
   replyRowEl.classList.remove("hidden");
+  replyRowEl.querySelector(".reply-time")?.remove();
+
+const replyTimeEl = document.createElement("div");
+replyTimeEl.className = "msg-time reply-time";
+replyTimeEl.textContent = formatTime(msg.replyAt || msg.createdAt);
+
+document.querySelector(".reply-bubble").appendChild(replyTimeEl);
 }
 
 // ─── Confirm delete ──────────────────────────────────────────
@@ -226,6 +238,21 @@ function showPanel(name) {
     "not-found": notFoundEl
   };
   map[name]?.classList.remove("hidden");
+}
+
+// Time show on reply
+function formatTime(timestamp) {
+  if (!timestamp) return "";
+  const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  const day   = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year  = String(d.getFullYear()).slice(-2);
+  const hours = d.getHours();
+  const mins  = String(d.getMinutes()).padStart(2, "0");
+  const ampm  = hours >= 12 ? "PM" : "AM";
+  const h12   = String(hours % 12 || 12).padStart(2, "0");
+
+  return `${day}/${month}/${year} ${h12}:${mins} ${ampm}`;
 }
 
 // ─── Tiny helpers ────────────────────────────────────────────
