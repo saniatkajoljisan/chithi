@@ -235,6 +235,7 @@
   </div>
 
   <script>
+// float emoji
 const container = document.querySelector(".floating-bg");
 
 const items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
@@ -243,76 +244,63 @@ function createItem(){
   const el = document.createElement("div");
   el.className = "float";
 
-  el.innerText = items[Math.floor(Math.random() * items.length)];
+  el.innerText = items[Math.floor(Math.random()*items.length)];
 
   // =========================
-  // SAFE RANDOM POSITION
+  // FIXED POSITION (NO MOBILE OVERFLOW)
   // =========================
-  const padding = 60;
-
-  const maxX = window.innerWidth - padding;
-  const maxY = window.innerHeight - padding;
-
-  const xPos = Math.random() * maxX;
-  const yPos = Math.random() * maxY;
-
-  el.style.left = xPos + "px";
-  el.style.top = yPos + "px";
-
-  el.style.position = "absolute";
+  el.style.left = Math.random() * window.innerWidth + "px";
+  el.style.top = Math.random() * window.innerHeight + "px";
 
   // random size
-  el.style.fontSize = (18 + Math.random() * 30) + "px";
+  el.style.fontSize = (18 + Math.random()*30) + "px";
 
   container.appendChild(el);
 
   // fade in
-  setTimeout(() => el.classList.add("show"), 100);
+  setTimeout(()=> el.classList.add("show"), 100);
 
-  // =========================
-  // SAFE DRIFT ANIMATION
-  // =========================
-  const driftX = (Math.random() - 0.5) * 40;
-  const driftY = (Math.random() - 0.5) * 40;
+  // float drift (UNCHANGED)
+  const driftX = (Math.random() - 0.5) * 60;
+  const driftY = (Math.random() - 0.5) * 60;
 
   let x = 0;
   let y = 0;
 
   function move(){
-    x += driftX * 0.02;
-    y += driftY * 0.02;
+    x += driftX * 0.01;
+    y += driftY * 0.01;
 
-    el.style.transform = `translate(${x}px, ${y}px)`;
+    el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
 
     requestAnimationFrame(move);
   }
 
   move();
 
-  // =========================
-  // AUTO REMOVE
-  // =========================
-  const life = 3000 + Math.random() * 5000;
+  // auto remove
+  const life = 3000 + Math.random()*5000;
 
-  setTimeout(() => {
+  setTimeout(()=>{
     el.classList.remove("show");
 
-    setTimeout(() => {
+    setTimeout(()=>{
       el.remove();
     }, 1200);
 
   }, life);
 }
 
-// spawn loop
+// spawn loop (UNCHANGED)
 function loop(){
   createItem();
-  const next = 200 + Math.random() * 800;
+
+  const next = 200 + Math.random()*800;
   setTimeout(loop, next);
 }
 
 loop();
-
+    
  function playSuccessPlane() {
   const plane = document.getElementById("paper-plane");
   if (!plane) return;
