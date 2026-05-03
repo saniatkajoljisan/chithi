@@ -135,6 +135,14 @@ function renderReaction(msg) {
 function renderReceipt(msg, recipientInitial, recipientColor) {
   receiptRowEl.innerHTML = "";
 
+   // 🚨 NEW CONDITION: hide receipt if reacted OR replied
+  if (msg.receiverReaction || msg.replyText) {
+    receiptRowEl.classList.add("hidden");
+    return;
+  } else {
+    receiptRowEl.classList.remove("hidden");
+  }
+
   if (msg.isRead) {
     // ── SEEN: avatar circle + "Seen" label ──────────────────
     const label  = document.createElement("span");
