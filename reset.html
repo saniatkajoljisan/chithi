@@ -35,10 +35,37 @@
         <a href="login.html">Back to login</a>
       </p>
     </div>
+    <footer class="site-footer">
+
+  <p class="footer-sub">
+    <a href="about-us.html">About</a> • 
+    <a href="privacy.html">Privacy</a> • 
+    <a href="terms.html">Terms</a>
+  </p>
+
+  <p>
+    Creation of 
+    <span class="heart">
+      <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">
+        SK
+      </a> ♥
+    </span> 
+    for honest conversations — © Chithi <span id="year"></span>
+  </p>
+
+</footer>
   </div>
 
   <script src="clean-urls.js"></script>
   <script type="module" src="firebase-config.js"></script>
   <script type="module" src="auth.js"></script>
+  <script>
+    (function () {
+    var yearEl = document.getElementById("year");
+    if (yearEl) {
+      yearEl.textContent = new Date().getFullYear();
+    }
+  })();
+  </script>
 </body>
 </html>
