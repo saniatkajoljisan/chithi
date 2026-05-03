@@ -32,13 +32,14 @@
 
 html { font-size: 16px; scroll-behavior: smooth; }
 
-body {
+html, body {
   font-family: var(--font-body);
   background-color: var(--paper);
   color: var(--ink);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  width: 100%;
 }
 
 /* Ruled-paper background lines */
