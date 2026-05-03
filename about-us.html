@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us -Chithi</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+<style>
+  .floating-bg{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:0;
+}
+
+.float{
+  position:absolute;
+  opacity:0;
+  transform:scale(0.8);
+  transition:opacity 1.2s ease, transform 1.2s ease;
+  will-change:transform, opacity;
+}
+
+/* active state */
+.float.show{
+  opacity:0.9;
+  transform:scale(1) translateY(-20px);
+}
+
+.content-page {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      background: var(--paper);
+      min-height: 100vh;
+    }
+
+    .content-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-top: 2rem;
+    }
+
+    .content-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--ink);
+    }
+
+    .content-header p {
+      font-size: 1.2rem;
+      color: var(--ink-light);
+      font-style: italic;
+    }
+
+    .content-body {
+      font-family: var(--font-readable);
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--ink-light);
+    }
+
+    .content-body h2 {
+      font-size: 1.6rem;
+      color: var(--ink);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-family: var(--font-script);
+    }
+
+    .content-body h3 {
+      font-size: 1.2rem;
+      color: var(--ink);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      font-family: var(--font-script);
+    }
+
+    .content-body ul, .content-body ol {
+      margin-left: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .content-body li {
+      margin-bottom: 0.5rem;
+      line-height: 1.7;
+    }
+
+    .content-body p {
+      margin-bottom: 1rem;
+    }
+
+</style>
+</head>
+<body class="landing-page">
+<div class="floating-bg">
+
+  <!-- back layer (blurred, slow) -->
+  <div class="float b f1" style="left:8%; top:6%; font-size:3.2rem; --r:240deg;">💌</div>
+  <div class="float b f2" style="left:28%; top:14%; font-size:3.6rem; --r:90deg;">✨</div>
+  <div class="float b f3" style="left:62%; top:18%; font-size:4.2rem; --r:300deg;">💕</div>
+  <div class="float b f4" style="left:88%; top:10%; font-size:3.5rem; --r:210deg;">📝</div>
+
+  <!-- mid layer -->
+  <div class="float m f1" style="left:12%; top:42%; font-size:3.8rem; --r:110deg;">💌</div>
+  <div class="float m f2" style="left:34%; top:46%; font-size:3rem; --r:230deg;">🌸</div>
+  <div class="float m f3" style="left:66%; top:40%; font-size:3.6rem; --r:310deg;">🎈</div>
+  <div class="float m f4" style="left:82%; top:60%; font-size:3.4rem; --r:250deg;">📫</div>
+
+  <!-- front layer (sharp, faster) -->
+  <div class="float f f1" style="left:18%; top:72%; font-size:3.4rem; --r:220deg;">💕</div>
+  <div class="float f f2" style="left:30%; top:88%; font-size:4rem; --r:260deg;">🎈</div>
+  <div class="float f f3" style="left:55%; top:94%; font-size:3rem; --r:300deg;">❤️</div>
+  <div class="float f f4" style="left:90%; top:80%; font-size:3.3rem; --r:40deg;">🎉</div>
+
+</div>
+  <!-- Decorative background elements -->
+  <div class="bg-lines"></div>
+  <div class="ink-blot ink-blot-1"></div>
+  <div class="ink-blot ink-blot-2"></div>
+
+  <div class="landing-wrap">
+    <header class="site-header">
+      <div class="logo">
+        <span class="logo-icon">💌</span>
+        <span class="logo-text">Chithi</span>
+      </div>
+      <nav class="header-nav">
+        <a href="login.html" class="nav-link">Sign In</a>
+        <a href="signup.html" class="btn-primary btn-sm">Get Started</a>
+      </nav>
+    </header>
+
+  <div class="content-page">
+    <div class="content-header">
+      <h1>About Us</h1>
+      <p>Connecting hearts, one letter at a time.</p>
+    </div>
+
+    <div class="content-body">
+      <p>Welcome to <strong>Chithi</strong>—a simple, personal space designed for honest expression. Inspired by the timeless tradition of letter writing, Chithi brings back the depth and sincerity that often gets lost in fast, surface-level communication.</p>
+
+      <p>In a world where it's not always easy to say things out loud, Chithi gives your words a place to land.</p>
+
+      <h2>How it works</h2>
+      <p>Each user gets a unique, shareable link. Anyone with that link can send you a message—whether it's heartfelt, supportive, thoughtful, or even anonymous.</p>
+
+      <p style="text-align: center; margin: 2rem 0; font-weight: bold; color: var(--ink);">
+        No feeds. No likes. No algorithms.<br>
+        Just words that matter.
+      </p>
+
+      <h2>Our belief</h2>
+      <p>We believe that:</p>
+      <ul>
+        <li>Honest words build stronger connections</li>
+        <li>Anonymity, when used responsibly, can help people express what truly matters</li>
+        <li>Everyone deserves a safe, pressure-free space to share and receive emotions</li>
+      </ul>
+
+      <p>Chithi is not a social network. It's a focused, minimal experience—built for meaningful exchanges, not noise.</p>
+    </div>
+  </div>
+</div>
+  <footer class="site-footer">
+
+    <p class="footer-sub">
+      <a href="about-us.html">About</a> • 
+      <a href="privacy.html">Privacy</a> • 
+      <a href="terms.html">Terms</a>  
+       <p>
+  Creation of 
+  <span class="heart">
+    <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">
+      SK
+    </a> ♥
+  </span> 
+  for honest conversations — © Chithi <span id="year"></span>
+</p>
+    </p>
+  </footer>
+
+  <script>
+const container = document.querySelector(".floating-bg");
+
+const items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
+
+function createItem(){
+  const el = document.createElement("div");
+  el.className = "float";
+
+  el.innerText = items[Math.floor(Math.random()*items.length)];
+
+  // random position
+  el.style.left = Math.random() * 100 + "vw";
+  el.style.top = Math.random() * 100 + "vh";
+
+  // random size
+  el.style.fontSize = (18 + Math.random()*30) + "px";
+
+  container.appendChild(el);
+
+  // fade in
+  setTimeout(()=> el.classList.add("show"), 100);
+
+  // float drift
+  const driftX = (Math.random() - 0.5) * 60;
+  const driftY = (Math.random() - 0.5) * 60;
+
+  let x = 0;
+  let y = 0;
+
+  function move(){
+    x += driftX * 0.01;
+    y += driftY * 0.01;
+
+    el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+
+    requestAnimationFrame(move);
+  }
+
+  move();
+
+  // 👇 disappear randomly (key behavior)
+  const life = 3000 + Math.random()*5000;
+
+  setTimeout(()=>{
+    el.classList.remove("show");
+
+    setTimeout(()=>{
+      el.remove();
+    }, 1200);
+
+  }, life);
+}
+
+// spawn loop (random timing)
+function loop(){
+  createItem();
+
+  const next = 200 + Math.random()*800; // random spawn delay
+  setTimeout(loop, next);
+}
+
+loop();
+
+(function () {
+    var yearEl = document.getElementById("year");
+    if (yearEl) {
+      yearEl.textContent = new Date().getFullYear();
+    }
+  })();
+
+</script>
+
+  <script src="clean-urls.js"></script>
+</body>
+</html>
