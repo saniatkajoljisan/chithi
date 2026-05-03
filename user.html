@@ -243,56 +243,71 @@ function createItem(){
   const el = document.createElement("div");
   el.className = "float";
 
-  el.innerText = items[Math.floor(Math.random()*items.length)];
+  el.innerText = items[Math.floor(Math.random() * items.length)];
 
-  // random position
-  el.style.left = Math.random() * 100 + "vw";
-  el.style.top = Math.random() * 100 + "vh";
+  // =========================
+  // SAFE RANDOM POSITION
+  // =========================
+  const padding = 60;
+
+  const maxX = window.innerWidth - padding;
+  const maxY = window.innerHeight - padding;
+
+  const xPos = Math.random() * maxX;
+  const yPos = Math.random() * maxY;
+
+  el.style.left = xPos + "px";
+  el.style.top = yPos + "px";
+
+  el.style.position = "absolute";
 
   // random size
-  el.style.fontSize = (18 + Math.random()*30) + "px";
+  el.style.fontSize = (18 + Math.random() * 30) + "px";
 
   container.appendChild(el);
 
   // fade in
-  setTimeout(()=> el.classList.add("show"), 100);
+  setTimeout(() => el.classList.add("show"), 100);
 
-  // float drift
-  const driftX = (Math.random() - 0.5) * 60;
-  const driftY = (Math.random() - 0.5) * 60;
+  // =========================
+  // SAFE DRIFT ANIMATION
+  // =========================
+  const driftX = (Math.random() - 0.5) * 40;
+  const driftY = (Math.random() - 0.5) * 40;
 
   let x = 0;
   let y = 0;
 
   function move(){
-    x += driftX * 0.01;
-    y += driftY * 0.01;
+    x += driftX * 0.02;
+    y += driftY * 0.02;
 
-    el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+    el.style.transform = `translate(${x}px, ${y}px)`;
 
     requestAnimationFrame(move);
   }
 
   move();
 
-  // 👇 disappear randomly (key behavior)
-  const life = 3000 + Math.random()*5000;
+  // =========================
+  // AUTO REMOVE
+  // =========================
+  const life = 3000 + Math.random() * 5000;
 
-  setTimeout(()=>{
+  setTimeout(() => {
     el.classList.remove("show");
 
-    setTimeout(()=>{
+    setTimeout(() => {
       el.remove();
     }, 1200);
 
   }, life);
 }
 
-// spawn loop (random timing)
+// spawn loop
 function loop(){
   createItem();
-
-  const next = 200 + Math.random()*800; // random spawn delay
+  const next = 200 + Math.random() * 800;
   setTimeout(loop, next);
 }
 
