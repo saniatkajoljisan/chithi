@@ -184,8 +184,12 @@
       el.innerText = items[Math.floor(Math.random()*items.length)];
     
       // random position
-      el.style.left = Math.random() * 100 + "vw";
-      el.style.top = Math.random() * 100 + "vh";
+      const padding = 40;
+      const maxX = window.innerWidth - padding;
+      const maxY = window.innerHeight - padding;
+      
+      el.style.left = Math.random() * maxX + "px";
+      el.style.top = Math.random() * maxY + "px";
     
       // random size
       el.style.fontSize = (18 + Math.random()*30) + "px";
