@@ -365,32 +365,54 @@ function setProfileStatus(message, isError) {
 }
 
 async function shareMessageImage(msg) {
-  await document.fonts.ready;
   const canvas = document.createElement("canvas");
   const width  = 1080;
   const height = 1350;
-  canvas.width  = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
+  const ctx    = canvas.getContext("2d");
 
+  // Retina scaling — capped at 2x to avoid mobile memory crash
+  const scale = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width  = width * scale;
+  canvas.height = height * scale;
+  canvas.style.width  = width + "px";
+  canvas.style.height = height + "px";
+  ctx.scale(scale, scale);
+
+  // Force load every font variant before drawing
+  await Promise.all([
+    document.fonts.load("400 54px Caveat"),
+    document.fonts.load("400 48px 'Patrick Hand'"),
+    document.fonts.load("400 50px Kalam"),
+    document.fonts.load("700 50px Kalam"),
+    document.fonts.load("400 44px Lora"),
+    document.fonts.load("italic 400 44px Lora")
+  ]);
+  await document.fonts.ready;
+
+  // Extra delay for mobile rendering
+  await new Promise(r => setTimeout(r, 150));
+
+  // Background
   drawShareBackground(ctx, width, height, msg.bgKey);
 
-  // Map fontKey to a canvas-safe font that is guaranteed to be loaded
+  // Font map — all 4 letter styles
   const fontMap = {
     "hand-caveat":  "54px Caveat, cursive",
     "hand-patrick": "48px 'Patrick Hand', cursive",
     "hand-kalam":   "50px Kalam, cursive",
     "normal":       "44px Lora, Georgia, serif"
   };
-  const bodyFont   = fontMap[msg.fontKey] || "54px Caveat, cursive";
-  const labelFont  = "34px Kalam, cursive";
-  const replyFont  = "38px Kalam, cursive";
-  const brandFont  = "32px Kalam, cursive";
+  const bodyFont  = fontMap[msg.fontKey] || "54px Caveat, cursive";
+  const labelFont = "34px Kalam, cursive";
+  const replyFont = "38px Kalam, cursive";
+  const brandFont = "32px Kalam, cursive";
 
+  // Main letter text
   ctx.fillStyle = "#2c1e0f";
   ctx.font = bodyFont;
   wrapCanvasText(ctx, msg.text || "", 90, 190, width - 180, 72, 760);
 
+  // Sender label
   ctx.font = labelFont;
   ctx.fillStyle = "rgba(44,30,15,0.68)";
   ctx.fillText(
@@ -398,6 +420,7 @@ async function shareMessageImage(msg) {
     90, 1040
   );
 
+  // Reply block
   if (msg.replyText) {
     ctx.fillStyle = "rgba(44,30,15,0.9)";
     ctx.font = replyFont;
@@ -406,14 +429,29 @@ async function shareMessageImage(msg) {
     wrapCanvasText(ctx, msg.replyText, 90, 1190, width - 180, 48, 120);
   }
 
+  // Branding
   ctx.font = brandFont;
   ctx.fillStyle = "rgba(44,30,15,0.5)";
   ctx.fillText("Chithi", 90, 1270);
 
-  const link = document.createElement("a");
-  link.download = "chithi-letter.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+  // ── Download ─────────────────────────────────────────────
+  const dataUrl = canvas.toDataURL("image/png");
+
+  const isIOS    = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  if (isIOS || isSafari) {
+    // iOS Safari can't trigger download — open in new tab, user long-presses to save
+    window.open(dataUrl, "_blank");
+  } else {
+    // Android, Chrome, Firefox, Desktop — direct download
+    const link = document.createElement("a");
+    link.download = "chithi-letter.png";
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }
 
 function drawShareBackground(ctx, width, height, bgKey) {
