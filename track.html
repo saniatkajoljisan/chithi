@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Your Letter — Chithi</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════════
+       TRACK PAGE — mirrors delete.html styles
+       ══════════════════════════════════════════ */
+
+    .msg-thread {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 1.4rem 0 0.6rem;
+      position: relative;
+    }
+
+    .msg-bubble-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .msg-bubble {
+      position: relative;
+      max-width: 88%;
+      border-radius: 18px 18px 4px 18px;
+      padding: 1rem 1.15rem 0.85rem;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(44,30,15,0.10);
+      transition: box-shadow 0.2s;
+      word-break: break-word;
+      overflow: hidden;
+    }
+
+    .msg-bubble.letter-bg-paper { background: #fffdf7; border: 1px solid #e8dcc8; }
+    .msg-bubble.letter-bg-rose  { background: linear-gradient(135deg, #fff6f1, #ffe2dc); border: 1px solid #f5c5bc; }
+    .msg-bubble.letter-bg-mint  { background: linear-gradient(135deg, #f4fff8, #d9f1df); border: 1px solid #b5dfc0; }
+    .msg-bubble.letter-bg-sky   { background: linear-gradient(135deg, #f5fbff, #dbeeff); border: 1px solid #aacff5; }
+
+    .msg-bubble-text {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: #2c1e0f;
+      white-space: pre-wrap;
+    }
+    .msg-bubble-text.font-hand-caveat  { font-family: 'Caveat', cursive; font-size: 1.18rem; }
+    .msg-bubble-text.font-hand-patrick { font-family: 'Patrick Hand', cursive; font-size: 1.1rem; }
+    .msg-bubble-text.font-hand-kalam   { font-family: 'Kalam', cursive; font-size: 1.05rem; }
+    .msg-bubble-text.font-normal       { font-family: 'Lora', Georgia, serif; font-size: 0.97rem; line-height: 1.65; }
+
+    .msg-reaction-float {
+      display: inline-flex;
+      align-items: center;
+      background: #fff;
+      border: 1.5px solid #e8dcc8;
+      border-radius: 999px;
+      padding: 0.18rem 0.42rem;
+      font-size: 1.15rem;
+      box-shadow: 0 2px 8px rgba(44,30,15,0.13);
+      position: absolute;
+      bottom: -2px;
+      right: 14px;
+      z-index: 2;
+      animation: popIn 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .msg-reaction-float .reaction-emoji { line-height: 1; }
+
+    @keyframes popIn {
+      from { transform: scale(0.4); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .msg-receipt-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      margin-top: 1px !important;
+      padding-right: 2px;
+    }
+    .receipt-label {
+      font-size: 0.72rem;
+      color: #8c7a6b;
+      font-family: 'Lora', serif;
+      letter-spacing: 0.02em;
+    }
+    .receipt-avatar {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      border: 1.5px solid #fff;
+      box-shadow: 0 1px 4px rgba(44,30,15,0.18);
+    }
+    .receipt-ticks {
+      display: inline-flex;
+      align-items: center;
+      gap: -2px;
+      font-size: 0.8rem;
+      color: #8c7a6b;
+      letter-spacing: -3px;
+    }
+
+    .msg-reply-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.55rem;
+      margin-top: 10px;
+      align-self: flex-start;
+      max-width: 88%;
+    }
+    .reply-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      align-self: flex-end;
+      box-shadow: 0 2px 6px rgba(44,30,15,0.15);
+    }
+    .reply-bubble {
+      background: #f0ece4;
+      border: 1px solid #e8dcc8;
+      border-radius: 18px 18px 18px 4px;
+      padding: 0.75rem 1rem;
+      position: relative;
+      flex: 1;
+    }
+    .reply-bubble-name {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #8c7a6b;
+      font-family: 'Lora', serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.25rem;
+    }
+    .reply-bubble-text {
+      font-size: 0.97rem;
+      color: #2c1e0f;
+      line-height: 1.6;
+      font-family: 'Kalam', cursive;
+      word-break: break-word;
+    }
+
+    .thread-divider {
+      border: none;
+      border-top: 1px solid #e8dcc8;
+      margin: 1.4rem 0 1.2rem;
+    }
+
+    /* Time stamps */
+    .msg-time {
+      font-size: 0.68rem;
+      color: #a08c7a;
+      font-family: 'Lora', serif;
+      margin-top: 0.45rem;
+      letter-spacing: 0.01em;
+    }
+    .msg-bubble-time { text-align: left; }
+    .reply-time { text-align: right; }
+
+    /* ── Track input card ── */
+    .track-input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .track-input-wrap input {
+      text-align: center;
+      font-size: 1.5rem;
+      letter-spacing: 0.25em;
+      font-family: 'Kalam', cursive;
+      text-transform: uppercase;
+    }
+    .track-divider-text {
+      text-align: center;
+      color: #8c7a6b;
+      font-size: 0.8rem;
+      font-family: 'Lora', serif;
+      font-style: italic;
+      margin: 0.25rem 0;
+    }
+
+    /* ── Saved letters list ── */
+    .saved-letters-section {
+      margin-top: 1.5rem;
+    }
+    .saved-letters-label {
+      font-size: 0.72rem;
+      color: #8c7a6b;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+    .saved-letter-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fffdf7;
+      border: 1px solid #e8dcc8;
+      border-radius: 10px;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: box-shadow 0.15s, border-color 0.15s;
+      gap: 0.5rem;
+    }
+    .saved-letter-item:hover {
+      box-shadow: 0 2px 10px rgba(44,30,15,0.10);
+      border-color: #c29f7c;
+    }
+    .saved-letter-preview {
+      flex: 1;
+      min-width: 0;
+    }
+    .saved-letter-to {
+      font-size: 0.72rem;
+      color: #8c7a6b;
+      font-family: 'Lora', serif;
+      margin-bottom: 0.15rem;
+    }
+    .saved-letter-text {
+      font-size: 0.88rem;
+      color: #2c1e0f;
+      font-family: 'Kalam', cursive;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .saved-letter-code {
+      font-size: 0.72rem;
+      font-family: 'Kalam', cursive;
+      color: #c29f7c;
+      letter-spacing: 0.1em;
+      background: #f7ecd8;
+      border-radius: 5px;
+      padding: 0.1rem 0.4rem;
+      flex-shrink: 0;
+    }
+    .no-saved-msg {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8c7a6b;
+      font-family: 'Lora', serif;
+      font-style: italic;
+      padding: 0.5rem 0;
+    }
+
+    /* status header label */
+    .status-header-label {
+      font-size: 0.72rem;
+      color: #8c7a6b;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+
+    #track-result.auth-card { padding: 1.6rem 1.5rem 1.8rem; }
+    #track-result .auth-title { font-size: 1.6rem; margin-bottom: 0.2rem; }
+    #track-result .auth-sub   { margin-bottom: 0; font-size: 0.88rem; }
+
+    .hidden { display: none !important; }
+
+    .floating-bg {
+      position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+    }
+    .float {
+      position: absolute; opacity: 0; transform: scale(0.8);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+      will-change: transform, opacity;
+    }
+    .float.show { opacity: 0.9; transform: scale(1) translateY(-20px); }
+
+    /* back button */
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      color: #8c7a6b;
+      font-family: 'Lora', serif;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-bottom: 1rem;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .btn-back:hover { color: #2c1e0f; }
+  </style>
+</head>
+<body class="auth-page">
+<div class="floating-bg">
+  <div class="float b f1" style="left:8%; top:6%; font-size:3.2rem;">💌</div>
+  <div class="float b f2" style="left:28%; top:14%; font-size:3.6rem;">✨</div>
+  <div class="float b f3" style="left:62%; top:18%; font-size:4.2rem;">💕</div>
+  <div class="float b f4" style="left:88%; top:10%; font-size:3.5rem;">📝</div>
+  <div class="float m f1" style="left:12%; top:42%; font-size:3.8rem;">💌</div>
+  <div class="float m f2" style="left:34%; top:46%; font-size:3rem;">🌸</div>
+  <div class="float m f3" style="left:66%; top:40%; font-size:3.6rem;">🎈</div>
+  <div class="float m f4" style="left:82%; top:60%; font-size:3.4rem;">📫</div>
+  <div class="float f f1" style="left:18%; top:72%; font-size:3.4rem;">💕</div>
+  <div class="float f f2" style="left:30%; top:88%; font-size:4rem;">🎈</div>
+  <div class="float f f3" style="left:55%; top:94%; font-size:3rem;">❤️</div>
+  <div class="float f f4" style="left:90%; top:80%; font-size:3.3rem;">🎉</div>
+</div>
+
+  <div class="bg-lines"></div>
+
+  <div class="auth-wrap">
+    <a href="index.html" class="logo auth-logo">
+      <span class="logo-icon">💌</span>
+      <span class="logo-text">Chithi</span>
+    </a>
+
+    <!-- ── Input card ────────────────────────── -->
+    <div id="track-input-card" class="auth-card">
+      <h1 class="auth-title" style="text-align:center;">Track Your Letter</h1>
+      <p class="auth-sub" style="text-align:center; margin-bottom:1.2rem;">Enter your tracking code or pick from sent letters below.</p>
+
+      <div id="track-error" class="error-msg hidden"></div>
+
+      <div class="track-input-wrap">
+        <input
+          type="text"
+          id="track-code-input"
+          placeholder="e.g. A3F9"
+          maxlength="8"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+        />
+        <button class="btn-primary btn-full" id="btn-track">
+          <span id="track-btn-text">Track Letter →</span>
+          <span id="track-spinner" class="spinner hidden"></span>
+        </button>
+      </div>
+
+      <div class="track-divider-text">— or pick from your sent letters —</div>
+
+      <!-- Saved letters from localStorage -->
+      <div class="saved-letters-section">
+        <span class="saved-letters-label">Letters sent from this device</span>
+        <div id="saved-letters-list">
+          <p class="no-saved-msg">No letters saved on this device yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Loading ─────────────────────────── -->
+    <div id="track-loading" class="auth-card text-center hidden">
+      <div class="spinner-large"></div>
+      <p style="margin-top:1rem;">Looking up your letter…</p>
+    </div>
+
+    <!-- ── Result card ─────────────────────── -->
+    <div id="track-result" class="auth-card hidden">
+      <button class="btn-back" id="btn-back-to-input">← Back</button>
+      <h1 class="auth-title" style="text-align:center;">Your Letter</h1>
+      <p class="auth-sub" style="text-align:center;">Current status of your letter</p>
+
+      <!-- Messenger-style thread -->
+      <div class="msg-thread" id="msg-thread">
+        <div class="msg-bubble-row" id="msg-bubble-row">
+          <div class="msg-bubble letter-bg-paper" id="msg-bubble">
+            <div class="msg-bubble-text font-hand-caveat" id="msg-bubble-text"></div>
+          </div>
+          <div class="msg-reaction-float hidden" id="msg-reaction-float">
+            <span class="reaction-emoji" id="reaction-emoji"></span>
+          </div>
+        </div>
+
+        <div class="msg-receipt-row" id="msg-receipt-row"></div>
+
+        <div class="msg-reply-row hidden" id="msg-reply-row">
+          <div class="reply-avatar" id="reply-avatar"></div>
+          <div class="reply-bubble">
+            <div class="reply-bubble-name" id="reply-bubble-name"></div>
+            <div class="reply-bubble-text" id="reply-bubble-text"></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="thread-divider" />
+
+      <!-- Unsend -->
+      <p class="auth-sub" style="text-align:center; margin-bottom:1rem;">Want to permanently unsend this letter?</p>
+      <div id="unsend-error" class="error-msg hidden"></div>
+      <button class="btn-danger btn-full" id="btn-unsend">
+        <span id="unsend-btn-text">Yes, Unsend It</span>
+        <span id="unsend-spinner" class="spinner hidden"></span>
+      </button>
+      <button class="btn-ghost btn-full" id="btn-keep" style="margin-top:0.75rem;">Keep it →</button>
+    </div>
+
+    <!-- ── Unsent success ──────────────────── -->
+    <div id="track-unsent" class="auth-card hidden text-center">
+      <div class="success-icon large">✓</div>
+      <h2>Letter Unsent</h2>
+      <p class="auth-sub">Your letter has been permanently removed.</p>
+      <button class="btn-ghost btn-full" id="btn-after-unsend" style="margin-top:1.5rem;">Track another →</button>
+    </div>
+
+    <!-- ── Not found ───────────────────────── -->
+    <div id="track-not-found" class="auth-card hidden text-center">
+      <div class="empty-icon" style="font-size:3rem;">💌</div>
+      <h2>Letter not found</h2>
+      <p class="auth-sub">This letter may have already been unsent, or the code is incorrect.</p>
+      <button class="btn-ghost" id="btn-not-found-back" style="margin-top:1.5rem;">Try again →</button>
+    </div>
+
+    <footer class="site-footer">
+      <p class="footer-sub">
+        <a href="about-us.html">About</a> • 
+        <a href="privacy.html">Privacy</a> • 
+        <a href="terms.html">Terms</a>
+      </p>
+      <p>
+        Creation of 
+        <span class="heart">
+          <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">SK</a> ♥
+        </span> 
+        for honest conversations — © Chithi <span id="year"></span>
+      </p>
+    </footer>
+  </div>
+
+  <script src="clean-urls.js"></script>
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="track.js"></script>
+  <script>
+    // float emoji
+    const container = document.querySelector(".floating-bg");
+    const items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
+
+    function createItem() {
+      const el = document.createElement("div");
+      el.className = "float";
+      el.innerText = items[Math.floor(Math.random() * items.length)];
+      el.style.left = Math.random() * window.innerWidth + "px";
+      el.style.top  = Math.random() * window.innerHeight + "px";
+      el.style.fontSize = (18 + Math.random() * 30) + "px";
+      container.appendChild(el);
+      setTimeout(() => el.classList.add("show"), 100);
+      const driftX = (Math.random() - 0.5) * 60;
+      const driftY = (Math.random() - 0.5) * 60;
+      let x = 0, y = 0;
+      function move() {
+        x += driftX * 0.01; y += driftY * 0.01;
+        el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        requestAnimationFrame(move);
+      }
+      move();
+      const life = 3000 + Math.random() * 5000;
+      setTimeout(() => {
+        el.classList.remove("show");
+        setTimeout(() => el.remove(), 1200);
+      }, life);
+    }
+    function loop() { createItem(); setTimeout(loop, 200 + Math.random() * 800); }
+    loop();
+
+    (function () {
+      var yearEl = document.getElementById("year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+    })();
+  </script>
+</body>
+</html>
