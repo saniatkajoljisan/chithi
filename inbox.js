@@ -210,7 +210,7 @@ function buildMessageCard(docSnap) {
     updateDoc(doc(db, "messages", docSnap.id), { isFavorite: !Boolean(msg.isFavorite) });
   });
 
-    card.querySelector(".btn-reply").addEventListener("click", async () => {
+  card.querySelector(".btn-reply").addEventListener("click", async () => {
     const reply = prompt("Write a public reply for this letter:", msg.replyText || "");
     if (reply === null) return;
     const cleanReply = reply.trim();
@@ -238,6 +238,21 @@ function buildMessageCard(docSnap) {
       });
     });
   });
+
+  // Delete button handler
+  card.querySelector(".btn-delete").addEventListener("click", async (e) => {
+    const msgId = e.currentTarget.dataset.id;
+    if (!confirm("Delete this letter? This can't be undone.")) return;
+    try {
+      await deleteDoc(doc(db, "messages", msgId));
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Failed to delete letter. Please try again.");
+    }
+  });
+
+  return card;
+}
 
   // Delete button handler
   card.querySelector(".btn-delete").addEventListener("click", async (e) => {
