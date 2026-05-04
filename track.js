@@ -158,6 +158,9 @@ async function loadByToken(token) {
   try {
     const msgSnap = await getDoc(doc(db, "messages", token));
     if (!msgSnap.exists()) {
+      // Letter was deleted (by recipient or already unsent) — clean localStorage
+      removeSavedLetter(token);
+      renderSavedLetters(); // refresh the saved list so it disappears
       showPanel("not-found");
       return;
     }
