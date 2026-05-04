@@ -234,20 +234,26 @@
     .saved-letter-preview {
       flex: 1;
       min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      overflow: hidden;
+      white-space: nowrap;
     }
     .saved-letter-to {
-      font-size: 0.72rem;
-      color: #8c7a6b;
+      font-size: 0.78rem;
+      color: #2c1e0f;
       font-family: 'Lora', serif;
-      margin-bottom: 0.15rem;
+      flex-shrink: 0;
     }
     .saved-letter-text {
-      font-size: 0.88rem;
-      color: #2c1e0f;
+      font-size: 0.78rem;
+      color: #8c7a6b;
       font-family: 'Kalam', cursive;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-width: 0;
     }
     .saved-letter-code {
       font-size: 0.72rem;
