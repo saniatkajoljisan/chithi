@@ -186,7 +186,21 @@ async function loadByToken(token) {
     renderReaction(msg);
     renderReceipt(msg, recipientInitial, recipientColor);
     renderReply(msg, recipientName, recipientInitial, recipientColor);
-
+    
+    // Hide unsend if letter was read, reacted or replied
+    const isEngaged = msg.isRead || msg.receiverReaction || msg.replyText;
+    const unsendDivider = document.querySelector("#track-result .thread-divider");
+    const unsendPara    = document.querySelector("#track-result .auth-sub:last-of-type");
+    if (isEngaged) {
+      btnUnsend?.classList.add("hidden");
+      unsendDivider?.classList.add("hidden");
+      unsendPara?.classList.add("hidden");
+    } else {
+      btnUnsend?.classList.remove("hidden");
+      unsendDivider?.classList.remove("hidden");
+      unsendPara?.classList.remove("hidden");
+    }
+    
     showPanel("result");
 
   } catch (err) {
