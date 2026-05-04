@@ -87,7 +87,22 @@ async function init() {
     renderReaction(msg);
     renderReceipt(msg, recipientInitial, recipientColor);
     renderReply(msg, recipientName, recipientInitial, recipientColor);
-
+    
+    // Hide unsend if letter was read, reacted or replied
+    const isEngaged = msg.isRead || msg.receiverReaction || msg.replyText;
+    const btnConfirmDel = document.getElementById("btn-confirm-delete");
+    const unsendDivider = document.querySelector("#delete-confirm .thread-divider");
+    const unsendPara    = document.querySelector("#delete-confirm .auth-sub:last-of-type");
+    if (isEngaged) {
+      btnConfirmDel?.classList.add("hidden");
+      unsendDivider?.classList.add("hidden");
+      unsendPara?.classList.add("hidden");
+    } else {
+      btnConfirmDel?.classList.remove("hidden");
+      unsendDivider?.classList.remove("hidden");
+      unsendPara?.classList.remove("hidden");
+    }
+    
     showPanel("confirm");
 
   } catch (err) {
