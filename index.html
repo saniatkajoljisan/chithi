@@ -29,6 +29,69 @@
   opacity:0.9;
   transform:scale(1) translateY(-20px);
 }
+
+  .feature-ticker {
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(90deg, #2c1e0f, #4a2e1a, #2c1e0f);
+  padding: 0.75rem 0;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.feature-ticker::before,
+.feature-ticker::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 25px;
+  z-index: 2;
+  pointer-events: none;
+}
+.feature-ticker::before {
+  left: 0;
+  background: linear-gradient(to right, #2c1e0f, transparent);
+}
+.feature-ticker::after {
+  right: 0;
+  background: linear-gradient(to left, #2c1e0f, transparent);
+}
+
+.ticker-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: tickerScroll 32s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  font-family: 'Kalam', cursive;
+  font-size: 0.92rem;
+  color: #f7ecd8;
+  padding: 0 1.5rem;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
+.ticker-sep {
+  color: #c29f7c;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
 </style>
 </head>
 <body class="landing-page">
@@ -125,6 +188,44 @@
         </div>
       </div>
     </section>
+
+    <!-- Feature ticker -->
+    <div class="feature-ticker">
+      <div class="ticker-track">
+        <span class="ticker-item">💌 Send letters anonymously</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🔍 Track your letter anytime</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🗑️ Unsend with one tap</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🎭 No account needed to send</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🔒 We never sell your data</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">✉️ Choose your letter style</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">💬 Reply & react to letters</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">📬 Your inbox, your control</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">💌 Send letters anonymously</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🔍 Track your letter anytime</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🗑️ Unsend with one tap</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🎭 No account needed to send</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🔒 We never sell your data</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">✉️ Choose your letter style</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">💬 Reply & react to letters</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">📬 Your inbox, your control</span>
+        <span class="ticker-sep">✦</span>
+      </div>
+    </div>
 
     <section class="how-it-works">
       <h2>How it works</h2>
