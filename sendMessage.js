@@ -51,6 +51,7 @@ const successEl      = document.getElementById("send-success");
 const formContainerEl= document.getElementById("message-form-container");
 const deleteLinkEl   = document.getElementById("delete-link-display");
 const btnCopyDelete  = document.getElementById("btn-copy-delete");
+const btnCopyCode    = document.getElementById("btn-copy-code");
 const btnSendAnother = document.getElementById("btn-send-another");
 
 // ─── State ──────────────────────────────────────────────────
@@ -200,6 +201,10 @@ function showSendSuccess(deleteToken, shortCode) {
 
     if (btnCopyDelete) {
       btnCopyDelete.onclick = () => copyToClipboard(deleteUrl, btnCopyDelete);
+    }
+
+    if (btnCopyCode) {
+      btnCopyCode.onclick = () => copyToClipboard(shortCode, btnCopyCode);
     }
   } catch (err) {
     // The message has already been saved at this point. Do not show a send
