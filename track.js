@@ -100,8 +100,9 @@ function renderSavedLetters() {
     item.className = "saved-letter-item";
     item.innerHTML = `
       <div class="saved-letter-preview">
-        <div class="saved-letter-to">To: ${escapeHtml(letter.toUsername || "someone")}</div>
-        <div class="saved-letter-text">${escapeHtml((letter.preview || "").slice(0, 60))}${letter.preview?.length > 60 ? "…" : ""}</div>
+        <span class="saved-letter-to">To: <strong>${escapeHtml(letter.toUsername || "someone")}</strong></span>
+        <span class="saved-letter-sep"> · </span>
+        <span class="saved-letter-text">${escapeHtml((letter.preview || "").slice(0, 40))}${(letter.preview?.length || 0) > 40 ? "…" : ""}</span>
       </div>
       <span class="saved-letter-code">${escapeHtml(letter.shortCode || "")}</span>
     `;
