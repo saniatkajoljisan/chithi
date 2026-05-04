@@ -43,6 +43,7 @@ let unsubscribeMessages = null; // Firestore listener cleanup
 let currentUser = null;
 let currentProfile = null;
 let allMessageDocs = [];
+let visibleCount = 5;
 const allowedFontKeys = new Set([
   "hand-caveat", "hand-patrick", "hand-kalam", "normal"
 ]);
@@ -109,8 +110,8 @@ onAuthStateChanged(auth, async (user) => {
   loadMessages(user.uid);
 });
 
-inboxSearchEl?.addEventListener("input", renderMessages);
-inboxFilterEl?.addEventListener("change", renderMessages);
+inboxSearchEl?.addEventListener("input", () => { visibleCount = 5; renderMessages(); });
+inboxFilterEl?.addEventListener("change", () => { visibleCount = 5; renderMessages(); });
 document.querySelectorAll('input[name="avatar-color"]').forEach((option) => {
   option.addEventListener("change", () => {
     if (profileAvatarEl) profileAvatarEl.style.background = option.value;
@@ -273,8 +274,47 @@ function renderMessages() {
     });
   }
 
+  // Reset visible count when filter/search changes
+  const isFiltered = search || filter !== "all";
+  if (isFiltered) visibleCount = docs.length; // show all when searching/filtering
+  
+  const visible = docs.slice(0, visibleCount);
+  const hasMore = docs.length > visibleCount;
+
   messagesListEl.innerHTML = "";
-  docs.forEach(docSnap => messagesListEl.appendChild(buildMessageCard(docSnap)));
+  visible.forEach(docSnap => messagesListEl.appendChild(buildMessageCard(docSnap)));
+
+  // Load more button
+  if (hasMore) {
+    const loadMoreBtn = document.createElement("div");
+    loadMoreBtn.style.cssText = "display:flex; justify-content:center; margin:1.2rem 0 0.5rem;";
+    loadMoreBtn.innerHTML = `
+      <button id="btn-load-more" style="
+        background: none;
+        border: 1.5px solid #e8dcc8;
+        border-radius: 999px;
+        padding: 0.5rem 1.8rem;
+        font-family: 'Lora', serif;
+        font-size: 0.85rem;
+        color: #8c7a6b;
+        cursor: pointer;
+        transition: border-color 0.2s, color 0.2s;
+      ">Load more letters ↓</button>
+    `;
+    loadMoreBtn.querySelector("#btn-load-more").addEventListener("mouseenter", e => {
+      e.target.style.borderColor = "#c29f7c";
+      e.target.style.color = "#2c1e0f";
+    });
+    loadMoreBtn.querySelector("#btn-load-more").addEventListener("mouseleave", e => {
+      e.target.style.borderColor = "#e8dcc8";
+      e.target.style.color = "#8c7a6b";
+    });
+    loadMoreBtn.querySelector("#btn-load-more").addEventListener("click", () => {
+      visibleCount += 5;
+      renderMessages();
+    });
+    messagesListEl.appendChild(loadMoreBtn);
+  }
 
   const total = allMessageDocs.length;
   const unread = allMessageDocs.filter(docSnap => !docSnap.data().isRead).length;
@@ -284,7 +324,6 @@ function renderMessages() {
     messagesListEl.innerHTML = `<div class="inbox-empty compact"><p>No letters match this view.</p></div>`;
   }
 }
-
 function hydrateProfileForm(profile) {
   if (profileNameEl) profileNameEl.value = profile.displayName || profile.username || "";
   if (profileBioEl) profileBioEl.value = profile.bio || "";
