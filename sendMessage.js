@@ -155,7 +155,7 @@ btnSend?.addEventListener("click", async () => {
   setLoading(true);
 
   const deleteToken = generateToken();
-  const shortCode   = deleteToken.slice(0, 4).toUpperCase(); // e.g. "A3F9"
+  const shortCode = generateShortCode(deleteToken);
 
   try {
     await setDoc(doc(db, "messages", deleteToken), {
@@ -263,6 +263,12 @@ function saveToLocalStorage(token, shortCode, toUsername, textPreview) {
     if (existing.length > 50) existing.splice(0, existing.length - 50);
     localStorage.setItem(LS_KEY, JSON.stringify(existing));
   } catch (_) {}
+}
+
+function generateShortCode(token) {
+  const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // 34 chars, 
+  const bytes = token.match(/.{2}/g).slice(0, 4).map(h => parseInt(h, 16));
+  return bytes.map(b => chars[b % chars.length]).join("");
 }
 
 function showError(msg) {
