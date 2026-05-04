@@ -245,21 +245,6 @@ function buildMessageCard(docSnap) {
     if (!confirm("Delete this letter? This can't be undone.")) return;
     try {
       await deleteDoc(doc(db, "messages", msgId));
-    } catch (err) {
-      console.error("Delete error:", err);
-      alert("Failed to delete letter. Please try again.");
-    }
-  });
-
-  return card;
-}
-
-  // Delete button handler
-  card.querySelector(".btn-delete").addEventListener("click", async (e) => {
-    const msgId = e.currentTarget.dataset.id;
-    if (!confirm("Delete this letter? This can't be undone.")) return;
-    try {
-      await deleteDoc(doc(db, "messages", msgId));
       // Real-time listener will update the list automatically
     } catch (err) {
       console.error("Delete error:", err);
