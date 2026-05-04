@@ -365,30 +365,48 @@ function setProfileStatus(message, isError) {
 }
 
 async function shareMessageImage(msg) {
-  if (document.fonts?.ready) await document.fonts.ready;
+  await document.fonts.ready;
   const canvas = document.createElement("canvas");
-  const width = 1080;
+  const width  = 1080;
   const height = 1350;
-  canvas.width = width;
+  canvas.width  = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
 
   drawShareBackground(ctx, width, height, msg.bgKey);
+
+  // Map fontKey to a canvas-safe font that is guaranteed to be loaded
+  const fontMap = {
+    "hand-caveat":  "54px Caveat, cursive",
+    "hand-patrick": "48px 'Patrick Hand', cursive",
+    "hand-kalam":   "50px Kalam, cursive",
+    "normal":       "44px Lora, Georgia, serif"
+  };
+  const bodyFont   = fontMap[msg.fontKey] || "54px Caveat, cursive";
+  const labelFont  = "34px Kalam, cursive";
+  const replyFont  = "38px Kalam, cursive";
+  const brandFont  = "32px Kalam, cursive";
+
   ctx.fillStyle = "#2c1e0f";
-  ctx.font = `${msg.fontKey === "normal" ? "44px Lora" : "54px Kalam"}`;
+  ctx.font = bodyFont;
   wrapCanvasText(ctx, msg.text || "", 90, 190, width - 180, 72, 760);
 
-  ctx.font = "34px Kalam";
+  ctx.font = labelFont;
   ctx.fillStyle = "rgba(44,30,15,0.68)";
-  ctx.fillText(msg.isAnonymous ? "Anonymous letter" : `From ${msg.senderName || "Someone"}`, 90, 1040);
+  ctx.fillText(
+    msg.isAnonymous ? "Anonymous letter" : `From ${msg.senderName || "Someone"}`,
+    90, 1040
+  );
+
   if (msg.replyText) {
     ctx.fillStyle = "rgba(44,30,15,0.9)";
-    ctx.font = "38px Kalam";
+    ctx.font = replyFont;
     ctx.fillText("Reply", 90, 1130);
-    ctx.font = "34px Kalam";
+    ctx.font = labelFont;
     wrapCanvasText(ctx, msg.replyText, 90, 1190, width - 180, 48, 120);
   }
-  ctx.font = "32px Kalam";
+
+  ctx.font = brandFont;
   ctx.fillStyle = "rgba(44,30,15,0.5)";
   ctx.fillText("Chithi", 90, 1270);
 
