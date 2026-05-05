@@ -149,14 +149,14 @@ function tickCooldown() {
     localStorage.removeItem(COOLDOWN_KEY);
     if (btnSend) btnSend.disabled = false;
     if (sendBtnText) sendBtnText.textContent = "Send Letter 💌";
-    if (sendCooldownText) sendCooldownText.textContent = "Wait.";
+    if (sendCooldownText) sendCooldownText.textContent = "";
     btnSendAnother?.classList.remove("hidden");
     return;
   }
 
   if (btnSend) btnSend.disabled = true;
   if (sendBtnText) sendBtnText.textContent = `Wait ${remaining}s…`;
-  if (sendCooldownText) sendCooldownText.textContent = `Wait. ${remaining}s.`;
+  if (sendCooldownText) sendCooldownText.textContent = `Wait ${remaining} sec`;
   btnSendAnother?.classList.add("hidden");
 }
 
