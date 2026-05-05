@@ -39,6 +39,7 @@ const inboxFilterEl  = document.getElementById("inbox-filter");
 const profileNameEl  = document.getElementById("profile-display-name");
 const profileBioEl   = document.getElementById("profile-bio");
 const profileAvatarEl= document.getElementById("profile-avatar-preview");
+const profileEditAvatarEl = document.getElementById("profile-edit-avatar-preview");
 const profilePreviewEl = document.getElementById("profile-preview");
 const profileEditEl = document.getElementById("profile-edit");
 const profilePreviewNameEl = document.getElementById("profile-preview-name");
@@ -130,7 +131,7 @@ inboxSearchEl?.addEventListener("input", () => { visibleCount = 5; renderMessage
 inboxFilterEl?.addEventListener("change", () => { visibleCount = 5; renderMessages(); });
 document.querySelectorAll('input[name="avatar-color"]').forEach((option) => {
   option.addEventListener("change", () => {
-    if (profileAvatarEl) profileAvatarEl.style.background = option.value;
+    updateProfileAvatarPreview(option.value);
   });
 });
 btnSaveProfile?.addEventListener("click", saveProfile);
@@ -214,7 +215,7 @@ function buildUnreadPreview(docSnap, card, msg) {
               : `<strong>${escapeHtml(msg.senderName || "Someone")}</strong>`}
             <span class="msg-preview-label">sent you a letter</span>
           </span>
-          <span class="msg-preview-snippet">${preview}</span>
+          <span class="msg-preview-snippet ${fontClass(msg.fontKey)}">${preview}</span>
         </div>
       </div>
       <div class="msg-preview-right">
@@ -462,13 +463,19 @@ function hydrateProfileForm(profile) {
   const color = profile.avatarColor || "#2c1e0f";
   const colorOption = document.querySelector(`input[name="avatar-color"][value="${color}"]`);
   if (colorOption) colorOption.checked = true;
-  if (profileAvatarEl) {
-    const display = profile.displayName || profile.username || "?";
-    profileAvatarEl.textContent = display.charAt(0).toUpperCase();
-    profileAvatarEl.style.background = color;
-  }
+  const display = profile.displayName || profile.username || "?";
+  updateProfileAvatarPreview(color, display);
   if (profilePreviewNameEl) profilePreviewNameEl.textContent = profile.displayName || profile.username || "Your profile";
   if (profilePreviewBioEl) profilePreviewBioEl.textContent = profile.bio || "No bio added yet.";
+}
+
+function updateProfileAvatarPreview(color, displayName) {
+  const display = displayName || profileNameEl?.value.trim() || currentProfile?.displayName || currentProfile?.username || "?";
+  [profileAvatarEl, profileEditAvatarEl].forEach((avatarEl) => {
+    if (!avatarEl) return;
+    avatarEl.textContent = display.charAt(0).toUpperCase();
+    avatarEl.style.background = color || "#2c1e0f";
+  });
 }
 
 async function saveProfile() {

@@ -107,6 +107,18 @@
   max-width: 320px;
   display: block;
 }
+.msg-preview-snippet.font-normal {
+  font-family: var(--font-readable);
+}
+.msg-preview-snippet.font-hand-caveat {
+  font-family: var(--font-hand-soft);
+}
+.msg-preview-snippet.font-hand-patrick {
+  font-family: var(--font-hand-simple);
+}
+.msg-preview-snippet.font-hand-kalam {
+  font-family: var(--font-hand-notebook);
+}
 .msg-preview-right {
   display: flex;
   flex-direction: column;
@@ -211,9 +223,12 @@
       </div>
       <div class="profile-edit hidden" id="profile-edit">
         <div class="profile-panel-header">
-          <div>
-            <p class="link-banner-label">Profile</p>
-            <h2 class="panel-title">Customize your public page</h2>
+          <div class="profile-edit-heading">
+            <span class="profile-avatar-preview profile-edit-avatar-preview" id="profile-edit-avatar-preview">?</span>
+            <div>
+              <p class="link-banner-label">Profile</p>
+              <h2 class="panel-title">Customize your public page</h2>
+            </div>
           </div>
         </div>
         <div class="profile-grid">
