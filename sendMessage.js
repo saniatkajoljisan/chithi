@@ -64,10 +64,10 @@ const allowedBgKeys = new Set([
   "paper", "rose", "mint", "sky"
 ]);
 const styleToKeys = {
-  "en-1": { font: "hand-caveat", bg: "paper" },
-  "en-2": { font: "hand-patrick", bg: "rose" },
-  "en-3": { font: "hand-kalam", bg: "mint" },
-  "en-4": { font: "normal", bg: "sky" }
+  "en-1": { font: "hand-patrick", bg: "rose" },
+  "en-2": { font: "hand-kalam", bg: "mint" },
+  "en-3": { font: "normal", bg: "sky" },
+  "en-4": { font: "hand-caveat", bg: "paper" }
 };
 // ─── Profanity filter (bypass-proof) ────────────────────────
 // Strips zero-width chars, collapses repeated chars, normalises
