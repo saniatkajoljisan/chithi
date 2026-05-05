@@ -526,7 +526,7 @@ function setProfileStatus(message, isError) {
 function showDeleteAccountConfirm() {
   deleteAccountConfirmEl?.classList.remove("hidden");
   deleteAccountInputEl?.focus();
-  setDeleteAccountStatus("Type delete, then confirm.", true);
+  setDeleteAccountStatus("", true);
 }
 
 function cancelDeleteAccountConfirm() {
