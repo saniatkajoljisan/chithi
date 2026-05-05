@@ -174,7 +174,7 @@ function buildUnreadPreview(docSnap, card, msg) {
     ? formatDate(msg.createdAt.toDate())
     : "Just now";
 
-  const preview = escapeHtml((msg.text || "").slice(0, 60)) + ((msg.text || "").length > 60 ? "…" : "");
+  const preview = escapeHtml((msg.text || "").slice(0, 10)) + ((msg.text || "").length > 10 ? "…" : "");
 
   card.className = `msg-preview-strip ${bgClass(msg.bgKey)}${msg.isFavorite ? " favorite" : ""}`;
 
