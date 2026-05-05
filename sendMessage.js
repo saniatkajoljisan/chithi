@@ -149,7 +149,7 @@ function tickCooldown() {
     localStorage.removeItem(COOLDOWN_KEY);
     if (btnSend) btnSend.disabled = false;
     if (sendBtnText) sendBtnText.textContent = "Send Letter 💌";
-    if (sendCooldownText) sendCooldownText.textContent = "";
+   // if (sendCooldownText) sendCooldownText.textContent = "";
     btnSendAnother?.classList.remove("hidden");
     return;
   }
