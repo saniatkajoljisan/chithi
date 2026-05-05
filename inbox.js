@@ -1,12 +1,16 @@
 // ============================================================
 //  js/inbox.js
 //  Handles the dashboard — shows messages, copy link, logout
+//  Features: push notifications, inline reply, bulk delete,
+//            mark all read, delete account, block sender,
+//            auto-hide reported letters
 // ============================================================
 
-import { auth, db } from "./firebase-config.js";
+import { auth, db, messaging, getToken, onMessage, VAPID_KEY } from "./firebase-config.js";
 import {
   onAuthStateChanged,
-  signOut
+  signOut,
+  deleteUser
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   collection,
@@ -16,8 +20,11 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   updateDoc,
-  serverTimestamp
+  writeBatch,
+  serverTimestamp,
+  arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ─── DOM references ──────────────────────────────────────────
@@ -38,79 +45,59 @@ const profileBioEl   = document.getElementById("profile-bio");
 const profileAvatarEl= document.getElementById("profile-avatar-preview");
 const profileStatusEl= document.getElementById("profile-status");
 const btnSaveProfile = document.getElementById("btn-save-profile");
+const btnMarkAllRead = document.getElementById("btn-mark-all-read");
+const btnDeleteAccount = document.getElementById("btn-delete-account");
+const bulkBar        = document.getElementById("bulk-action-bar");
+const btnBulkDelete  = document.getElementById("btn-bulk-delete");
 
-let unsubscribeMessages = null; // Firestore listener cleanup
-let currentUser = null;
+let unsubscribeMessages = null;
+let currentUser    = null;
 let currentProfile = null;
 let allMessageDocs = [];
-let visibleCount = 5;
-const allowedFontKeys = new Set([
-  "hand-caveat", "hand-patrick", "hand-kalam", "normal"
-]);
-const allowedBgKeys = new Set([
-  "paper", "rose", "mint", "sky"
-]);
-const reactionChoices = ["heart", "smile", "cry", "spark"];
-const reactionLabels = {
-  heart: "Love",
-  smile: "Smile",
-  cry: "Emotional",
-  spark: "Angry"
-};
-const reactionMarks = {
-  heart: "❤️",
-  smile: "🤣",
-  cry: "😭",
-  spark: "🤬"
-};
+let visibleCount   = 5;
+let selectedIds    = new Set();
+
+const allowedFontKeys = new Set(["hand-caveat","hand-patrick","hand-kalam","normal"]);
+const allowedBgKeys   = new Set(["paper","rose","mint","sky"]);
+const reactionChoices = ["heart","smile","cry","spark"];
+const reactionLabels  = { heart:"Love", smile:"Smile", cry:"Emotional", spark:"Angry" };
+const reactionMarks   = { heart:"❤️",  smile:"🤣",    cry:"😭",        spark:"🤬"   };
 
 // ─── Auth guard ──────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    // Not logged in → redirect to login
-    window.location.href = "login.html";
-    return;
-  }
+  if (!user) { window.location.href = "login.html"; return; }
 
-  // Load user profile (to get username)
   const profileSnap = await getDoc(doc(db, "users", user.uid));
-  if (!profileSnap.exists()) {
-    // Profile incomplete → back to signup to choose username
-    window.location.href = "signup.html";
-    return;
-  }
+  if (!profileSnap.exists()) { window.location.href = "signup.html"; return; }
 
-  const profile = profileSnap.data();
-  currentUser = user;
+  const profile  = profileSnap.data();
+  currentUser    = user;
   currentProfile = profile;
   const username = profile.username;
   hydrateProfileForm(profile);
 
-  // Update nav
   navUsernameEl.textContent = `@${username}`;
 
-  // Build and display the public link
   const userLink = window.ChithiUrl?.publicUser(username)
     || `${window.location.origin}/user.html?u=${username}`;
   userLinkEl.textContent = userLink;
 
-  // Copy link button
   btnCopyLink.addEventListener("click", () => {
     navigator.clipboard.writeText(userLink).then(() => {
       copyIcon.textContent = "✓";
       copyText.textContent = "Copied!";
-      setTimeout(() => {
-        copyIcon.textContent = "⎘";
-        copyText.textContent = "Copy";
-      }, 2000);
+      setTimeout(() => { copyIcon.textContent = "⎘"; copyText.textContent = "Copy"; }, 2000);
     });
   });
 
-  // Load messages
+  // Update page title with unread count (handled in renderMessages)
   loadMessages(user.uid);
+
+  // Push notifications
+  initPushNotifications(user.uid);
 });
 
-inboxSearchEl?.addEventListener("input", () => { visibleCount = 5; renderMessages(); });
+inboxSearchEl?.addEventListener("input",  () => { visibleCount = 5; renderMessages(); });
 inboxFilterEl?.addEventListener("change", () => { visibleCount = 5; renderMessages(); });
 document.querySelectorAll('input[name="avatar-color"]').forEach((option) => {
   option.addEventListener("change", () => {
@@ -119,16 +106,148 @@ document.querySelectorAll('input[name="avatar-color"]').forEach((option) => {
 });
 btnSaveProfile?.addEventListener("click", saveProfile);
 
-// ─── Load messages (real-time listener) ──────────────────────
-function loadMessages(uid) {
-  const q = query(
-    collection(db, "messages"),
-    where("toUserId", "==", uid)
-  );
+// ─── Push Notifications ──────────────────────────────────────
+async function initPushNotifications(uid) {
+  if (!messaging) return;
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return;
 
-  // onSnapshot = real-time updates whenever messages change
+    await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    const sw = await navigator.serviceWorker.ready;
+
+    const fcmToken = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: sw
+    });
+
+    if (fcmToken) {
+      await updateDoc(doc(db, "users", uid), { fcmToken });
+    }
+
+    // Foreground message handler
+    onMessage(messaging, (payload) => {
+      const title = payload.notification?.title || "💌 New Letter";
+      const body  = payload.notification?.body  || "You received a new letter!";
+      if (Notification.permission === "granted") {
+        new Notification(title, { body, icon: "/favicon.ico" });
+      }
+    });
+  } catch (err) {
+    console.warn("Push notification setup failed:", err);
+  }
+}
+
+// ─── Mark All Read ───────────────────────────────────────────
+btnMarkAllRead?.addEventListener("click", async () => {
+  if (!currentUser) return;
+  const unread = allMessageDocs.filter(d => !d.data().isRead);
+  if (!unread.length) return;
+  try {
+    const batch = writeBatch(db);
+    unread.forEach(d => batch.update(doc(db, "messages", d.id), { isRead: true }));
+    await batch.commit();
+  } catch (err) {
+    console.error("Mark all read error:", err);
+  }
+});
+
+// ─── Bulk Delete ─────────────────────────────────────────────
+btnBulkDelete?.addEventListener("click", async () => {
+  if (!selectedIds.size) return;
+  if (!confirm(`Delete ${selectedIds.size} selected letter(s)? This can't be undone.`)) return;
+  try {
+    const batch = writeBatch(db);
+    selectedIds.forEach(id => batch.delete(doc(db, "messages", id)));
+    await batch.commit();
+    selectedIds.clear();
+    updateBulkBar();
+  } catch (err) {
+    console.error("Bulk delete error:", err);
+    alert("Failed to delete selected letters. Please try again.");
+  }
+});
+
+function updateBulkBar() {
+  if (!bulkBar) return;
+  if (selectedIds.size > 0) {
+    bulkBar.classList.remove("hidden");
+    const countEl = document.getElementById("bulk-selected-count");
+    if (countEl) countEl.textContent = `${selectedIds.size} selected`;
+  } else {
+    bulkBar.classList.add("hidden");
+  }
+}
+
+// ─── Delete Account ──────────────────────────────────────────
+btnDeleteAccount?.addEventListener("click", async () => {
+  const confirmed = prompt(
+    'This will permanently delete your account and ALL your letters.\n\nType DELETE to confirm:'
+  );
+  if (confirmed !== "DELETE") {
+    if (confirmed !== null) alert("Confirmation text didn't match. Account not deleted.");
+    return;
+  }
+
+  const statusEl = document.getElementById("delete-account-status");
+  if (statusEl) { statusEl.textContent = "Deleting account…"; statusEl.className = "field-status"; }
+  if (btnDeleteAccount) btnDeleteAccount.disabled = true;
+
+  try {
+    const uid = currentUser.uid;
+    const username = currentProfile.username;
+
+    // 1. Delete all messages sent to this user
+    const msgQuery = query(collection(db, "messages"), where("toUserId", "==", uid));
+    const msgSnap  = await getDocs(msgQuery);
+    const batch    = writeBatch(db);
+    msgSnap.forEach(d => batch.delete(doc(db, "messages", d.id)));
+
+    // 2. Delete user doc
+    batch.delete(doc(db, "users", uid));
+
+    // 3. Delete username reservation
+    batch.delete(doc(db, "usernames", username));
+
+    await batch.commit();
+
+    // 4. Delete Firebase Auth account
+    await deleteUser(currentUser);
+
+    window.location.href = "index.html";
+  } catch (err) {
+    console.error("Delete account error:", err);
+    if (statusEl) {
+      statusEl.textContent = "Failed to delete account. Please sign out and sign back in, then try again.";
+      statusEl.className = "field-status err";
+    }
+    if (btnDeleteAccount) btnDeleteAccount.disabled = false;
+  }
+});
+
+// ─── Load messages (real-time) ───────────────────────────────
+function loadMessages(uid) {
+  const q = query(collection(db, "messages"), where("toUserId", "==", uid));
+
+  let previousCount = null;
+
   unsubscribeMessages = onSnapshot(q, (snapshot) => {
     inboxLoadingEl.classList.add("hidden");
+
+    // Browser notification on new letter
+    if (previousCount !== null && snapshot.size > previousCount) {
+      const newest = snapshot.docs
+        .filter(d => d.data().createdAt)
+        .sort((a, b) => (b.data().createdAt?.toMillis?.() || 0) - (a.data().createdAt?.toMillis?.() || 0))[0];
+      if (newest && Notification.permission === "granted") {
+        const text = newest.data().text || "";
+        new Notification("💌 New Letter — Chithi", {
+          body: text.slice(0, 80) + (text.length > 80 ? "…" : ""),
+          icon: "/favicon.ico"
+        });
+      }
+    }
+    previousCount = snapshot.size;
 
     allMessageDocs = snapshot.docs.slice().sort((a, b) => {
       const aTime = a.data().createdAt?.toMillis?.() || 0;
@@ -141,6 +260,7 @@ function loadMessages(uid) {
       inboxEmptyEl.classList.remove("hidden");
       messagesListEl.classList.add("hidden");
       inboxCountEl.textContent = "0 letters";
+      document.title = "My Inbox — Chithi";
       return;
     }
 
@@ -157,84 +277,73 @@ function loadMessages(uid) {
 function buildMessageCard(docSnap) {
   const msg  = docSnap.data();
   const card = document.createElement("div");
-  card.dataset.id = docSnap.id;
 
-  // Unread letters → show as collapsed "tap to open" notification strip
-  if (!msg.isRead) {
-    return buildUnreadPreview(docSnap, card, msg);
-  }
-
-  // Already-read letters → render full expanded card
-  return buildExpandedCard(docSnap, card, msg);
-}
-
-// ─── Unread preview strip (collapsed, tap to open) ───────────
-function buildUnreadPreview(docSnap, card, msg) {
-  const date = msg.createdAt?.toDate
-    ? formatDate(msg.createdAt.toDate())
-    : "Just now";
-
-  const preview = escapeHtml((msg.text || "").slice(0, 10)) + ((msg.text || "").length > 10 ? "…" : "");
-
-  card.className = `msg-preview-strip ${bgClass(msg.bgKey)}${msg.isFavorite ? " favorite" : ""}`;
-
-  card.innerHTML = `
-    <div class="msg-preview-inner">
-      <div class="msg-preview-left">
-        <span class="msg-preview-dot" aria-label="New letter"></span>
-        <div class="msg-preview-info">
-          <span class="msg-preview-from">
-            ${msg.isAnonymous
-              ? `<span class="anon-badge" style="font-size:0.8rem;">🎭 Anonymous</span>`
-              : `<strong>${escapeHtml(msg.senderName || "Someone")}</strong>`}
-            <span class="msg-preview-label">sent you a letter</span>
-          </span>
-          <span class="msg-preview-snippet">${preview}</span>
+  // ── Auto-hide reported letters ──────────────────────────
+  if (msg.isReported) {
+    card.className = "message-card reported-collapsed";
+    card.dataset.id = docSnap.id;
+    card.innerHTML = `
+      <div class="reported-bar">
+        <span>⚠️ Reported letter — tap to review</span>
+        <button class="btn-card-action btn-toggle-reported">Show</button>
+      </div>
+      <div class="reported-content hidden">
+        <div class="message-text ${fontClass(msg.fontKey)}">${escapeHtml(msg.text)}</div>
+        <div class="message-actions" style="margin-top:0.6rem;">
+          <button class="btn-card-action btn-report" data-id="${docSnap.id}">Unreport</button>
+          <button class="btn-delete" data-id="${docSnap.id}">Delete</button>
         </div>
       </div>
-      <div class="msg-preview-right">
-        <span class="msg-preview-time">${date.split(" (")[0]}</span>
-        <span class="msg-preview-cta">Tap to open ↓</span>
-      </div>
-    </div>
-  `;
-
-  // Tap → expand in place + auto-mark as read
-  card.addEventListener("click", async () => {
-    const expanded = buildExpandedCard(docSnap, document.createElement("div"), {
-      ...msg, isRead: true
+    `;
+    card.querySelector(".btn-toggle-reported").addEventListener("click", (e) => {
+      const content = card.querySelector(".reported-content");
+      const btn     = e.currentTarget;
+      const isHidden = content.classList.contains("hidden");
+      content.classList.toggle("hidden", !isHidden);
+      btn.textContent = isHidden ? "Hide" : "Show";
     });
-    card.replaceWith(expanded);
-    try {
-      await updateDoc(doc(db, "messages", docSnap.id), { isRead: true });
-    } catch (err) {
-      console.error("Failed to mark as read:", err);
-    }
-  });
+    card.querySelector(".btn-report").addEventListener("click", async () => {
+      await updateDoc(doc(db, "messages", docSnap.id), { isReported: false });
+    });
+    card.querySelector(".btn-delete").addEventListener("click", async () => {
+      if (!confirm("Delete this letter? This can't be undone.")) return;
+      await deleteDoc(doc(db, "messages", docSnap.id));
+    });
+    return card;
+  }
 
-  return card;
-}
+  card.className = `message-card ${bgClass(msg.bgKey)}${msg.isRead ? "" : " unread"}${msg.isFavorite ? " favorite" : ""}`;
+  card.dataset.id = docSnap.id;
 
-// ─── Full expanded card ───────────────────────────────────────
-function buildExpandedCard(docSnap, card, msg) {
-  const date = msg.createdAt?.toDate
-    ? formatDate(msg.createdAt.toDate())
-    : "Just now";
+  const date = msg.createdAt?.toDate ? formatDate(msg.createdAt.toDate()) : "Just now";
 
   const senderHTML = msg.isAnonymous
     ? `<span class="anon-badge">🎭 Anonymous</span>`
     : `<span class="message-sender">From <strong>${escapeHtml(msg.senderName || "Someone")}</strong></span>`;
 
-  card.className = `message-card ${bgClass(msg.bgKey)}${msg.isFavorite ? " favorite" : ""}`;
-  card.dataset.id = docSnap.id;
-
   card.innerHTML = `
-    <div class="message-flags">
-      ${msg.isFavorite ? `<span class="status-pill">Pinned</span>` : ""}
-      ${msg.isReported ? `<span class="status-pill report-pill">Reported</span>` : ""}
+    <div style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.4rem;">
+      <input type="checkbox" class="card-checkbox" data-id="${docSnap.id}" title="Select for bulk delete" style="margin-top:0.2rem;cursor:pointer;accent-color:#2c1e0f;" />
+      <div style="flex:1;">
+        <div class="message-flags">
+          ${msg.isFavorite ? `<span class="status-pill">Pinned</span>` : ""}
+          ${msg.isRead ? "" : `<span class="status-pill unread-pill">Unread</span>`}
+        </div>
+      </div>
     </div>
     <div class="message-text ${fontClass(msg.fontKey)}">${escapeHtml(msg.text)}</div>
-    ${msg.replyText ? `<div class="reply-card"><span>${escapeHtml(msg.replierName || "You")} replied:</span><p>${escapeHtml(msg.replyText)}</p></div>` : ""}
+    ${msg.replyText ? `
+      <div class="reply-card">
+        <span>${escapeHtml(msg.replierName || "You")} replied:</span>
+        <p>${escapeHtml(msg.replyText)}</p>
+      </div>` : ""}
+    <div class="inline-reply-box hidden" id="reply-box-${docSnap.id}">
+      <textarea class="inline-reply-textarea" placeholder="Write your reply… (max 280 chars)" maxlength="280" rows="3">${escapeHtml(msg.replyText || "")}</textarea>
+      <div class="inline-reply-actions">
+        <button class="btn-card-action btn-reply-send" data-id="${docSnap.id}">Send Reply</button>
+        <button class="btn-card-action btn-reply-cancel" data-id="${docSnap.id}">Cancel</button>
+      </div>
+    </div>
     <div class="message-meta">
       <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
         ${senderHTML}
@@ -242,11 +351,13 @@ function buildExpandedCard(docSnap, card, msg) {
         ${msg.receiverReaction ? `<span class="reaction-status">${reactionMarks[msg.receiverReaction] || "✦"} ${reactionLabels[msg.receiverReaction] || "Reacted"}</span>` : ""}
       </div>
       <div class="message-actions">
-        <button class="btn-card-action btn-favorite" data-id="${docSnap.id}">${msg.isFavorite ? "Unpin" : "Pin"}</button>
-        <button class="btn-card-action btn-reply" data-id="${docSnap.id}">Reply</button>
-        <button class="btn-card-action btn-share" data-id="${docSnap.id}">Image</button>
-        <button class="btn-card-action btn-report" data-id="${docSnap.id}">${msg.isReported ? "Unreport" : "Report"}</button>
-        <button class="btn-delete" data-id="${docSnap.id}" title="Delete this letter">Delete</button>
+        <button class="btn-card-action btn-toggle-read" data-id="${docSnap.id}">${msg.isRead ? "Unread" : "Read"}</button>
+        <button class="btn-card-action btn-favorite"    data-id="${docSnap.id}">${msg.isFavorite ? "Unpin" : "Pin"}</button>
+        <button class="btn-card-action btn-reply-open"  data-id="${docSnap.id}">Reply</button>
+        <button class="btn-card-action btn-share"       data-id="${docSnap.id}">Image</button>
+        <button class="btn-card-action btn-block"       data-id="${docSnap.id}">Block</button>
+        <button class="btn-card-action btn-report"      data-id="${docSnap.id}">${msg.isReported ? "Unreport" : "Report"}</button>
+        <button class="btn-delete"                      data-id="${docSnap.id}" title="Delete this letter">Delete</button>
       </div>
     </div>
     <div class="reaction-row" aria-label="Reaction">
@@ -258,23 +369,67 @@ function buildExpandedCard(docSnap, card, msg) {
     </div>
   `;
 
+  // Checkbox for bulk select
+  card.querySelector(".card-checkbox").addEventListener("change", (e) => {
+    if (e.target.checked) selectedIds.add(docSnap.id);
+    else selectedIds.delete(docSnap.id);
+    updateBulkBar();
+  });
+
+  card.querySelector(".btn-toggle-read").addEventListener("click", () => {
+    updateDoc(doc(db, "messages", docSnap.id), { isRead: !Boolean(msg.isRead) });
+  });
+
   card.querySelector(".btn-favorite").addEventListener("click", () => {
     updateDoc(doc(db, "messages", docSnap.id), { isFavorite: !Boolean(msg.isFavorite) });
   });
 
-  card.querySelector(".btn-reply").addEventListener("click", async () => {
-    const reply = prompt("Write a public reply for this letter:", msg.replyText || "");
-    if (reply === null) return;
-    const cleanReply = reply.trim();
-    if (cleanReply.length > 280) return alert("Reply is too long. Keep it under 280 characters.");
+  // ── Inline reply ─────────────────────────────────────────
+  card.querySelector(".btn-reply-open").addEventListener("click", () => {
+    const box = card.querySelector(`#reply-box-${docSnap.id}`);
+    box?.classList.toggle("hidden");
+    if (!box?.classList.contains("hidden")) {
+      box.querySelector("textarea")?.focus();
+    }
+  });
+
+  card.querySelector(".btn-reply-cancel").addEventListener("click", () => {
+    card.querySelector(`#reply-box-${docSnap.id}`)?.classList.add("hidden");
+  });
+
+  card.querySelector(".btn-reply-send").addEventListener("click", async () => {
+    const textarea   = card.querySelector(`#reply-box-${docSnap.id} textarea`);
+    const cleanReply = (textarea?.value || "").trim();
+    if (cleanReply.length > 280) {
+      alert("Reply is too long. Keep it under 280 characters.");
+      return;
+    }
+    const replierName = currentProfile?.displayName || currentProfile?.username || "You";
     await updateDoc(doc(db, "messages", docSnap.id), {
-      replyText: cleanReply,
-      repliedAt: cleanReply ? serverTimestamp() : null
+      replyText:   cleanReply,
+      replierName: cleanReply ? replierName : "",
+      repliedAt:   cleanReply ? serverTimestamp() : null
     });
+    card.querySelector(`#reply-box-${docSnap.id}`)?.classList.add("hidden");
   });
 
   card.querySelector(".btn-share").addEventListener("click", () => {
     shareMessageImage(msg);
+  });
+
+  // ── Block sender ─────────────────────────────────────────
+  card.querySelector(".btn-block").addEventListener("click", async () => {
+    const fingerprint = msg.senderFingerprint || msg.senderName || `anon_${docSnap.id.slice(0, 8)}`;
+    if (!confirm(`Block this sender? They won't be able to send you letters anymore.`)) return;
+    try {
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        blockedSenders: arrayUnion(fingerprint)
+      });
+      alert("Sender blocked.");
+    } catch (err) {
+      console.error("Block error:", err);
+      alert("Failed to block sender.");
+    }
   });
 
   card.querySelector(".btn-report").addEventListener("click", async () => {
@@ -305,78 +460,66 @@ function buildExpandedCard(docSnap, card, msg) {
   return card;
 }
 
+// ─── Render messages ─────────────────────────────────────────
 function renderMessages() {
   const search = (inboxSearchEl?.value || "").trim().toLowerCase();
   const filter = inboxFilterEl?.value || "all";
   let docs = allMessageDocs.slice();
 
-  if (filter === "unread") docs = docs.filter(docSnap => !docSnap.data().isRead);
-  if (filter === "favorites") docs = docs.filter(docSnap => docSnap.data().isFavorite);
+  if (filter === "unread")    docs = docs.filter(d => !d.data().isRead);
+  if (filter === "favorites") docs = docs.filter(d => d.data().isFavorite);
   if (search) {
-    docs = docs.filter(docSnap => {
-      const msg = docSnap.data();
-      return [
-        msg.text,
-        msg.senderName,
-        msg.replyText,
-        msg.isAnonymous ? "anonymous" : ""
-      ].join(" ").toLowerCase().includes(search);
+    docs = docs.filter(d => {
+      const msg = d.data();
+      return [msg.text, msg.senderName, msg.replyText, msg.isAnonymous ? "anonymous" : ""]
+        .join(" ").toLowerCase().includes(search);
     });
   }
 
-  // Reset visible count when filter/search changes
   const isFiltered = search || filter !== "all";
-  if (isFiltered) visibleCount = docs.length; // show all when searching/filtering
-  
+  if (isFiltered) visibleCount = docs.length;
+
   const visible = docs.slice(0, visibleCount);
   const hasMore = docs.length > visibleCount;
 
   messagesListEl.innerHTML = "";
-  visible.forEach(docSnap => messagesListEl.appendChild(buildMessageCard(docSnap)));
+  visible.forEach(d => messagesListEl.appendChild(buildMessageCard(d)));
 
-  // Load more button
   if (hasMore) {
     const loadMoreBtn = document.createElement("div");
-    loadMoreBtn.style.cssText = "display:flex; justify-content:center; margin:1.2rem 0 0.5rem;";
+    loadMoreBtn.style.cssText = "display:flex;justify-content:center;margin:1.2rem 0 0.5rem;";
     loadMoreBtn.innerHTML = `
-      <button id="btn-load-more" style="
-        background: none;
-        border: 1.5px solid #e8dcc8;
-        border-radius: 999px;
-        padding: 0.5rem 1.8rem;
-        font-family: 'Lora', serif;
-        font-size: 0.85rem;
-        color: #8c7a6b;
-        cursor: pointer;
-        transition: border-color 0.2s, color 0.2s;
-      ">Load more letters ↓</button>
-    `;
+      <button id="btn-load-more" style="background:none;border:1.5px solid #e8dcc8;border-radius:999px;padding:0.5rem 1.8rem;font-family:'Lora',serif;font-size:0.85rem;color:#8c7a6b;cursor:pointer;transition:border-color 0.2s,color 0.2s;">
+        Load more letters ↓
+      </button>`;
     loadMoreBtn.querySelector("#btn-load-more").addEventListener("mouseenter", e => {
-      e.target.style.borderColor = "#c29f7c";
-      e.target.style.color = "#2c1e0f";
+      e.target.style.borderColor = "#c29f7c"; e.target.style.color = "#2c1e0f";
     });
     loadMoreBtn.querySelector("#btn-load-more").addEventListener("mouseleave", e => {
-      e.target.style.borderColor = "#e8dcc8";
-      e.target.style.color = "#8c7a6b";
+      e.target.style.borderColor = "#e8dcc8"; e.target.style.color = "#8c7a6b";
     });
     loadMoreBtn.querySelector("#btn-load-more").addEventListener("click", () => {
-      visibleCount += 5;
-      renderMessages();
+      visibleCount += 5; renderMessages();
     });
     messagesListEl.appendChild(loadMoreBtn);
   }
 
-  const total = allMessageDocs.length;
-  const unread = allMessageDocs.filter(docSnap => !docSnap.data().isRead).length;
+  const total  = allMessageDocs.length;
+  const unread = allMessageDocs.filter(d => !d.data().isRead).length;
   inboxCountEl.textContent = `${total} ${total === 1 ? "letter" : "letters"}${unread ? ` · ${unread} unread` : ""}`;
+
+  // Page title unread badge
+  document.title = unread > 0 ? `(${unread}) My Inbox — Chithi` : "My Inbox — Chithi";
 
   if (docs.length === 0 && total > 0) {
     messagesListEl.innerHTML = `<div class="inbox-empty compact"><p>No letters match this view.</p></div>`;
   }
 }
+
+// ─── Profile ─────────────────────────────────────────────────
 function hydrateProfileForm(profile) {
   if (profileNameEl) profileNameEl.value = profile.displayName || profile.username || "";
-  if (profileBioEl) profileBioEl.value = profile.bio || "";
+  if (profileBioEl)  profileBioEl.value  = profile.bio || "";
   const color = profile.avatarColor || "#2c1e0f";
   const colorOption = document.querySelector(`input[name="avatar-color"][value="${color}"]`);
   if (colorOption) colorOption.checked = true;
@@ -390,11 +533,11 @@ function hydrateProfileForm(profile) {
 async function saveProfile() {
   if (!currentUser || !currentProfile) return;
   const displayName = profileNameEl.value.trim() || currentProfile.username;
-  const bio = profileBioEl.value.trim();
+  const bio         = profileBioEl.value.trim();
   const avatarColor = document.querySelector('input[name="avatar-color"]:checked')?.value || "#2c1e0f";
 
   if (displayName.length > 40) return setProfileStatus("Display name is too long.", true);
-  if (bio.length > 90) return setProfileStatus("Bio is too long.", true);
+  if (bio.length > 90)         return setProfileStatus("Bio is too long.", true);
 
   try {
     await updateDoc(doc(db, "users", currentUser.uid), { displayName, bio, avatarColor });
@@ -411,16 +554,16 @@ async function saveProfile() {
 function setProfileStatus(message, isError) {
   if (!profileStatusEl) return;
   profileStatusEl.textContent = message;
-  profileStatusEl.className = `field-status ${isError ? "err" : "ok"}`;
+  profileStatusEl.className   = `field-status ${isError ? "err" : "ok"}`;
 }
 
+// ─── Share as image ──────────────────────────────────────────
 async function shareMessageImage(msg) {
   const canvas = document.createElement("canvas");
   const width  = 1080;
   const height = 1350;
   const ctx    = canvas.getContext("2d");
 
-  // Retina scaling — capped at 2x to avoid mobile memory crash
   const scale = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width  = width * scale;
   canvas.height = height * scale;
@@ -428,7 +571,6 @@ async function shareMessageImage(msg) {
   canvas.style.height = height + "px";
   ctx.scale(scale, scale);
 
-  // Force load every font variant before drawing
   await Promise.all([
     document.fonts.load("400 54px Caveat"),
     document.fonts.load("400 48px 'Patrick Hand'"),
@@ -438,14 +580,10 @@ async function shareMessageImage(msg) {
     document.fonts.load("italic 400 44px Lora")
   ]);
   await document.fonts.ready;
-
-  // Extra delay for mobile rendering
   await new Promise(r => setTimeout(r, 150));
 
-  // Background
   drawShareBackground(ctx, width, height, msg.bgKey);
 
-  // Font map — all 4 letter styles
   const fontMap = {
     "hand-caveat":  "54px Caveat, cursive",
     "hand-patrick": "48px 'Patrick Hand', cursive",
@@ -457,20 +595,14 @@ async function shareMessageImage(msg) {
   const replyFont = "38px Kalam, cursive";
   const brandFont = "32px Kalam, cursive";
 
-  // Main letter text
   ctx.fillStyle = "#2c1e0f";
   ctx.font = bodyFont;
   wrapCanvasText(ctx, msg.text || "", 90, 190, width - 180, 72, 760);
 
-  // Sender label
   ctx.font = labelFont;
   ctx.fillStyle = "rgba(44,30,15,0.68)";
-  ctx.fillText(
-    msg.isAnonymous ? "Anonymous letter" : `From ${msg.senderName || "Someone"}`,
-    90, 1040
-  );
+  ctx.fillText(msg.isAnonymous ? "Anonymous letter" : `From ${msg.senderName || "Someone"}`, 90, 1040);
 
-  // Reply block
   if (msg.replyText) {
     ctx.fillStyle = "rgba(44,30,15,0.9)";
     ctx.font = replyFont;
@@ -479,22 +611,17 @@ async function shareMessageImage(msg) {
     wrapCanvasText(ctx, msg.replyText, 90, 1190, width - 180, 48, 120);
   }
 
-  // Branding
   ctx.font = brandFont;
   ctx.fillStyle = "rgba(44,30,15,0.5)";
   ctx.fillText("Chithi", 90, 1270);
 
-  // ── Download ─────────────────────────────────────────────
-  const dataUrl = canvas.toDataURL("image/png");
-
+  const dataUrl  = canvas.toDataURL("image/png");
   const isIOS    = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
   if (isIOS || isSafari) {
-    // iOS Safari can't trigger download — open in new tab, user long-presses to save
     window.open(dataUrl, "_blank");
   } else {
-    // Android, Chrome, Firefox, Desktop — direct download
     const link = document.createElement("a");
     link.download = "chithi-letter.png";
     link.href = dataUrl;
@@ -506,10 +633,10 @@ async function shareMessageImage(msg) {
 
 function drawShareBackground(ctx, width, height, bgKey) {
   const colors = {
-    paper: ["#fffdf7", "#f7ecd8"],
-    rose: ["#fff6f1", "#ffe2dc"],
-    mint: ["#f4fff8", "#d9f1df"],
-    sky: ["#f5fbff", "#dbeeff"]
+    paper: ["#fffdf7","#f7ecd8"],
+    rose:  ["#fff6f1","#ffe2dc"],
+    mint:  ["#f4fff8","#d9f1df"],
+    sky:   ["#f5fbff","#dbeeff"]
   }[allowedBgKeys.has(bgKey) ? bgKey : "paper"];
   const gradient = ctx.createLinearGradient(0, 0, width, height);
   gradient.addColorStop(0, colors[0]);
@@ -518,82 +645,51 @@ function drawShareBackground(ctx, width, height, bgKey) {
   ctx.fillRect(0, 0, width, height);
   ctx.strokeStyle = "rgba(44,30,15,0.1)";
   for (let y = 150; y < 980; y += 64) {
-    ctx.beginPath();
-    ctx.moveTo(80, y);
-    ctx.lineTo(width - 80, y);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(80, y); ctx.lineTo(width - 80, y); ctx.stroke();
   }
 }
 
 function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxHeight) {
   const words = String(text).split(/\s+/);
-  let line = "";
-  let currentY = y;
+  let line = ""; let currentY = y;
   for (const word of words) {
     const test = line ? `${line} ${word}` : word;
     if (ctx.measureText(test).width > maxWidth && line) {
       ctx.fillText(line, x, currentY);
-      line = word;
-      currentY += lineHeight;
-      if (currentY - y > maxHeight) {
-        ctx.fillText("...", x, currentY);
-        return;
-      }
-    } else {
-      line = test;
-    }
+      line = word; currentY += lineHeight;
+      if (currentY - y > maxHeight) { ctx.fillText("...", x, currentY); return; }
+    } else { line = test; }
   }
   if (line) ctx.fillText(line, x, currentY);
 }
 
 // ─── Logout ──────────────────────────────────────────────────
 btnLogout?.addEventListener("click", async () => {
-  // Clean up Firestore listener before leaving
   if (unsubscribeMessages) unsubscribeMessages();
   await signOut(auth);
   window.location.href = "index.html";
 });
 
 // ─── Helpers ─────────────────────────────────────────────────
-
-/** Format a JS Date into a readable string with relative time and exact date */
 function formatDate(date) {
   const now  = new Date();
-  const diff = (now - date) / 1000; // seconds
-
+  const diff = (now - date) / 1000;
   let relativeTime;
-  if (diff < 60)           relativeTime = "Just now";
-  else if (diff < 3600)    relativeTime = `${Math.floor(diff / 60)}m ago`;
-  else if (diff < 86400)   relativeTime = `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 60)             relativeTime = "Just now";
+  else if (diff < 3600)      relativeTime = `${Math.floor(diff / 60)}m ago`;
+  else if (diff < 86400)     relativeTime = `${Math.floor(diff / 3600)}h ago`;
   else if (diff < 86400 * 7) relativeTime = `${Math.floor(diff / 86400)}d ago`;
-  else relativeTime = date.toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric"
-  });
-
+  else relativeTime = date.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
   const exactTime = date.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true
+    month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit", hour12:true
   });
-
   return `${relativeTime} (${exactTime})`;
 }
 
-/** Prevent XSS by escaping HTML characters */
 function escapeHtml(str) {
   return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
-function fontClass(fontKey) {
-  return `font-${allowedFontKeys.has(fontKey) ? fontKey : "hand-caveat"}`;
-}
-function bgClass(bgKey) {
-  return `letter-bg-${allowedBgKeys.has(bgKey) ? bgKey : "paper"}`;
-}
+function fontClass(fontKey) { return `font-${allowedFontKeys.has(fontKey) ? fontKey : "hand-caveat"}`; }
+function bgClass(bgKey)     { return `letter-bg-${allowedBgKeys.has(bgKey) ? bgKey : "paper"}`; }

@@ -10,113 +10,82 @@
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
   <style>
   .floating-bg{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  overflow:hidden;
-  z-index:0;
-}
-
-.float{
-  position:absolute;
-  opacity:0;
-  transform:scale(0.8);
-  transition:opacity 1.2s ease, transform 1.2s ease;
-  will-change:transform, opacity;
-}
-
-/* active state */
-.float.show{
-  opacity:0.9;
-  transform:scale(1) translateY(-20px);
-}
+    position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;
+  }
+  .float{
+    position:absolute; opacity:0; transform:scale(0.8);
+    transition:opacity 1.2s ease, transform 1.2s ease;
+    will-change:transform, opacity;
+  }
+  .float.show{ opacity:0.9; transform:scale(1) translateY(-20px); }
 
   #paper-plane {
-  position: absolute;
-  left: 50%;
-  top: 60%;
-  transform: translate(-50%, 0);
-  font-size: 28px;
-  color: #ff4da6; 
-  opacity: 0;
-  pointer-events: none;
-}
-
-.fly-success {
-  animation: flySuccess 1.5s ease-out forwards;
-}
-
-@keyframes flySuccess {
-  0% {
-    transform: translate(-50%, 0) rotate(0deg) scale(1);
-    opacity: 1;
+    position: absolute; left: 50%; top: 60%;
+    transform: translate(-50%, 0); font-size: 28px;
+    color: #ff4da6; opacity: 0; pointer-events: none;
   }
-  40% {
-    transform: translate(40px, -60px) rotate(15deg) scale(1.1);
-  }
-  70% {
-    transform: translate(120px, -120px) rotate(25deg);
-  }
-  100% {
-    transform: translate(220px, -200px) rotate(35deg) scale(0.9);
-    opacity: 0;
-  }
-}
-
-.marquee-container {
-  overflow: hidden;
-  white-space: nowrap;
-  border: 1px solid #699ef5;
-  padding: 4px;
-  border-radius: 6px;
-  position: relative;
-  margin-top: 8px;
-  font-size: 11px;
-  font-weight: 650; 
-  letter-spacing: 1.5px;
+  .fly-success { animation: flySuccess 1.5s ease-out forwards; }
+  @keyframes flySuccess {
+    0%   { transform: translate(-50%, 0) rotate(0deg) scale(1); opacity: 1; }
+    40%  { transform: translate(40px, -60px) rotate(15deg) scale(1.1); }
+    70%  { transform: translate(120px, -120px) rotate(25deg); }
+    100% { transform: translate(220px, -200px) rotate(35deg) scale(0.9); opacity: 0; }
   }
 
-.marquee-text {
-  display: inline-block;
-  padding-left: 100%;
-  color: rgba(70, 153, 236, 0.85);
-  animation: scroll-left 12s linear infinite;
-}
+  .marquee-container {
+    overflow: hidden; white-space: nowrap;
+    border: 1px solid #699ef5; padding: 4px; border-radius: 6px;
+    position: relative; margin-top: 8px; font-size: 11px;
+    font-weight: 650; letter-spacing: 1.5px;
+  }
+  .marquee-text {
+    display: inline-block; padding-left: 100%;
+    color: rgba(70, 153, 236, 0.85);
+    animation: scroll-left 12s linear infinite;
+  }
+  @keyframes scroll-left {
+    0%   { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+  .marquee-container:hover .marquee-text { animation-play-state: paused; }
 
-/* Smooth scrolling */
-@keyframes scroll-left {
-  0%   { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
-}
-
-/* Pause on hover (nice UX) */
-.marquee-container:hover .marquee-text {
-  animation-play-state: paused;
-}
+  /* ── Cooldown bar ── */
+  .cooldown-bar {
+    margin-top: 0.75rem;
+    background: var(--paper-dark);
+    border: 1px solid var(--line-color);
+    border-radius: 8px;
+    padding: 0.55rem 1rem;
+    text-align: center;
+    font-family: 'Lora', serif;
+    font-size: 0.82rem;
+    color: #8c7a6b;
+    display: none;
+  }
+  .cooldown-bar.active { display: block; }
+  .cooldown-count {
+    font-weight: 700;
+    color: #2c1e0f;
+    font-size: 0.95rem;
+  }
 </style>
 </head>
 <body class="user-page">
 <div class="floating-bg">
-
-  <!-- back layer (blurred, slow) -->
   <div class="float b f1" style="left:8%; top:6%; font-size:3.2rem; --r:240deg;">💌</div>
   <div class="float b f2" style="left:28%; top:14%; font-size:3.6rem; --r:90deg;">✨</div>
   <div class="float b f3" style="left:62%; top:18%; font-size:4.2rem; --r:300deg;">💕</div>
   <div class="float b f4" style="left:88%; top:10%; font-size:3.5rem; --r:210deg;">📝</div>
-
-  <!-- mid layer -->
   <div class="float m f1" style="left:12%; top:42%; font-size:3.8rem; --r:110deg;">💌</div>
   <div class="float m f2" style="left:34%; top:46%; font-size:3rem; --r:230deg;">🌸</div>
   <div class="float m f3" style="left:66%; top:40%; font-size:3.6rem; --r:310deg;">🎈</div>
   <div class="float m f4" style="left:82%; top:60%; font-size:3.4rem; --r:250deg;">📫</div>
-
-  <!-- front layer (sharp, faster) -->
   <div class="float f f1" style="left:18%; top:72%; font-size:3.4rem; --r:220deg;">💕</div>
   <div class="float f f2" style="left:30%; top:88%; font-size:4rem; --r:260deg;">🎈</div>
   <div class="float f f3" style="left:55%; top:94%; font-size:3rem; --r:300deg;">❤️</div>
   <div class="float f f4" style="left:90%; top:80%; font-size:3.3rem; --r:40deg;">🎉</div>
-
 </div>
+
   <div class="bg-lines"></div>
   <div class="ink-blot ink-blot-1"></div>
 
@@ -151,7 +120,7 @@
         <p class="user-tagline">They won't know who you are unless you tell them.</p>
       </div>
 
-     <!-- Success state -->
+      <!-- Success state -->
       <div id="send-success" class="send-success hidden">
         <div id="paper-plane">
           <i class="fa-solid fa-paper-plane"></i>
@@ -188,7 +157,7 @@
         <!-- </div> -->
         <button class="btn-ghost btn-sm" id="btn-send-another">Send another →</button>
       </div>
-      
+
       <!-- Message Form -->
       <div id="message-form-container">
         <div class="letter-form-card">
@@ -219,11 +188,11 @@
               </label>
               <label class="style-choice">
                 <input type="radio" name="letter-style" value="en-2" />
-                <span class="style-card-sample bg-rose font-hand-patrick">Aa<span class="style-choice-name">Rose</span></span> 
+                <span class="style-card-sample bg-rose font-hand-patrick">Aa<span class="style-choice-name">Rose</span></span>
               </label>
               <label class="style-choice">
                 <input type="radio" name="letter-style" value="en-3" />
-                <span class="style-card-sample bg-mint font-hand-kalam">Aa<span class="style-choice-name">Mint</span></span> 
+                <span class="style-card-sample bg-mint font-hand-kalam">Aa<span class="style-choice-name">Mint</span></span>
               </label>
               <label class="style-choice">
                 <input type="radio" name="letter-style" value="en-4" />
@@ -253,9 +222,14 @@
             <span id="send-btn-text">Send Letter 💌</span>
             <span id="send-spinner" class="spinner hidden"></span>
           </button>
-         
+
+          <!-- Cooldown countdown bar — shown for 30s after each send -->
+          <div class="cooldown-bar" id="cooldown-bar">
+            ⏳ Please wait <span class="cooldown-count" id="cooldown-count">30</span>s before sending another letter
+          </div>
+
           <div style="display: flex; justify-content: center; width: 100%; margin-top: 15px;">
-            <a href="signup.html" 
+            <a href="signup.html"
                style="background-color: #c29f7c; color: white; padding: 10px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
                Create your Chithi link →
             </a>
@@ -264,112 +238,66 @@
       </div>
     </div>
 
-   <footer class="site-footer">
-
-  <p class="footer-sub">
-    <a href="about-us.html">About</a> • 
-    <a href="privacy.html">Privacy</a> • 
-    <a href="terms.html">Terms</a> • 
-    <a href="track.html">Track Letter</a>
-  </p>
-
-  <p>
-    Creation of 
-    <span class="heart">
-      <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">
-        SK
-      </a> ♥
-    </span> 
-    for honest conversations — © Chithi <span id="year"></span>
-  </p>
-
-</footer>
+    <footer class="site-footer">
+      <p class="footer-sub">
+        <a href="about-us.html">About</a> • 
+        <a href="privacy.html">Privacy</a> • 
+        <a href="terms.html">Terms</a> • 
+        <a href="track.html">Track Letter</a>
+      </p>
+      <p>
+        Creation of 
+        <span class="heart">
+          <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">SK</a> ♥
+        </span> 
+        for honest conversations — © Chithi <span id="year"></span>
+      </p>
+    </footer>
   </div>
 
   <script>
-// float emoji
-const container = document.querySelector(".floating-bg");
+    const container = document.querySelector(".floating-bg");
+    const items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
+    function createItem() {
+      const el = document.createElement("div");
+      el.className = "float";
+      el.innerText = items[Math.floor(Math.random() * items.length)];
+      el.style.left = Math.random() * window.innerWidth + "px";
+      el.style.top  = Math.random() * window.innerHeight + "px";
+      el.style.fontSize = (18 + Math.random() * 30) + "px";
+      container.appendChild(el);
+      setTimeout(() => el.classList.add("show"), 100);
+      const driftX = (Math.random() - 0.5) * 60;
+      const driftY = (Math.random() - 0.5) * 60;
+      let x = 0, y = 0;
+      function move() {
+        x += driftX * 0.01; y += driftY * 0.01;
+        el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        requestAnimationFrame(move);
+      }
+      move();
+      setTimeout(() => {
+        el.classList.remove("show");
+        setTimeout(() => el.remove(), 1200);
+      }, 3000 + Math.random() * 5000);
+    }
+    function loop() { createItem(); setTimeout(loop, 200 + Math.random() * 800); }
+    loop();
 
-const items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
-
-function createItem(){
-  const el = document.createElement("div");
-  el.className = "float";
-
-  el.innerText = items[Math.floor(Math.random()*items.length)];
-
-  // =========================
-  // FIXED POSITION (NO MOBILE OVERFLOW)
-  // =========================
-  el.style.left = Math.random() * window.innerWidth + "px";
-  el.style.top = Math.random() * window.innerHeight + "px";
-
-  // random size
-  el.style.fontSize = (18 + Math.random()*30) + "px";
-
-  container.appendChild(el);
-
-  // fade in
-  setTimeout(()=> el.classList.add("show"), 100);
-
-  // float drift (UNCHANGED)
-  const driftX = (Math.random() - 0.5) * 60;
-  const driftY = (Math.random() - 0.5) * 60;
-
-  let x = 0;
-  let y = 0;
-
-  function move(){
-    x += driftX * 0.01;
-    y += driftY * 0.01;
-
-    el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
-
-    requestAnimationFrame(move);
-  }
-
-  move();
-
-  // auto remove
-  const life = 3000 + Math.random()*5000;
-
-  setTimeout(()=>{
-    el.classList.remove("show");
-
-    setTimeout(()=>{
-      el.remove();
-    }, 1200);
-
-  }, life);
-}
-
-// spawn loop (UNCHANGED)
-function loop(){
-  createItem();
-
-  const next = 200 + Math.random()*800;
-  setTimeout(loop, next);
-}
-
-loop();
-    
- function playSuccessPlane() {
-  const plane = document.getElementById("paper-plane");
-  if (!plane) return;
-
-  plane.classList.remove("fly-success");
-  void plane.offsetWidth; // reset animation
-  plane.classList.add("fly-success");
-}
+    function playSuccessPlane() {
+      const plane = document.getElementById("paper-plane");
+      if (!plane) return;
+      plane.classList.remove("fly-success");
+      void plane.offsetWidth;
+      plane.classList.add("fly-success");
+    }
 
     (function () {
-    var yearEl = document.getElementById("year");
-    if (yearEl) {
-      yearEl.textContent = new Date().getFullYear();
-    }
-  })();
-</script>
-   <script src="clean-urls.js"></script>
+      var yearEl = document.getElementById("year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+    })();
+  </script>
+  <script src="clean-urls.js"></script>
   <script type="module" src="firebase-config.js"></script>
   <script type="module" src="sendMessage.js"></script>
 </body>
