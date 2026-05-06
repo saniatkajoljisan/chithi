@@ -7,108 +7,286 @@
   <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
 <style>
-  .password-wrap {
-  position: relative;
-}
-
-.password-wrap input {
-  width: 100%;
-  padding-right: 40px;
-}
-
+/* ── Password toggle ─────────────────────────── */
+.password-wrap { position: relative; }
+.password-wrap input { width: 100%; padding-right: 40px; }
 .toggle-eye {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 16px;
+  position: absolute; right: 10px; top: 50%;
+  transform: translateY(-50%); cursor: pointer; font-size: 16px;
 }
 </style>
 </head>
 <body class="auth-page">
 
-  <div class="bg-lines"></div>
+<div class="bg-lines"></div>
 
+<!-- ══ INTRO STAGE ══ -->
+<div id="intro-stage" aria-hidden="true">
+  <div id="plane-wrap">
+    <i id="plane-icon" class="fa-solid fa-paper-plane"></i>
+  </div>
+</div>
+
+<button id="skip-btn" onclick="skipIntro()">Skip ↓</button>
+
+<!-- ══ PAGE CONTENT ══ -->
+<div class="auth-page-content">
   <div class="auth-wrap">
+
     <a href="index.html" class="logo auth-logo">
       <span class="logo-icon">💌</span>
       <span class="logo-text">Chithi</span>
     </a>
 
-    <div class="auth-card">
-      <h1 class="auth-title">Welcome back</h1>
-      <p class="auth-sub">Sign in to read your letters.</p>
+    <!-- ENVELOPE SHELL -->
+    <div class="envelope-shell" id="envelope-shell">
 
-      <div id="auth-error" class="error-msg hidden"></div>
-
-      <div class="form-group">
-        <label for="email">Email address</label>
-        <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-      
-        <div class="password-wrap">
-          <input 
-            type="password" 
-            id="password" 
-            placeholder="Your password" 
-            autocomplete="current-password" 
-          />
-          <span id="toggle-password" class="toggle-eye">👁️</span>
+      <!-- FLAP -->
+      <div class="env-flap-outer">
+        <div class="env-flap-inner" id="env-flap">
+          <svg viewBox="0 0 490 186" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="fg1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f0b8cc"/>
+                <stop offset="100%" stop-color="#fce4ee"/>
+              </linearGradient>
+            </defs>
+            <!-- Flap body: top rect + V-point at bottom center -->
+            <path d="M-1 0 L491 0 L491 65 L245 180 L-1 65 Z"
+                  fill="url(#fg1)" stroke="#e8a8be" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Top sheen line -->
+            <line x1="0" y1="3" x2="490" y2="3" stroke="rgba(255,255,255,0.55)" stroke-width="2"/>
+            <!-- Lace scallop along the V edge -->
+            <path d="M10 65 Q50 86 90 65 Q130 86 170 65 Q210 86 250 65 Q290 86 330 65 Q370 86 410 65 Q450 86 490 65"
+                  fill="none" stroke="rgba(220,130,158,0.4)" stroke-width="1.8"/>
+            <!-- Heart motif center -->
+            <text x="245" y="52" font-size="26" text-anchor="middle"
+                  fill="rgba(192,80,120,0.45)" font-family="serif">♥</text>
+            <!-- Postmark lines top-right -->
+            <rect x="394" y="10" width="82" height="48" rx="3"
+                  fill="none" stroke="rgba(192,80,120,0.28)" stroke-width="1.3"/>
+            <line x1="402" y1="22" x2="468" y2="22" stroke="rgba(192,80,120,0.22)" stroke-width="1.1"/>
+            <line x1="402" y1="30" x2="468" y2="30" stroke="rgba(192,80,120,0.22)" stroke-width="1.1"/>
+            <line x1="402" y1="38" x2="450" y2="38" stroke="rgba(192,80,120,0.22)" stroke-width="1.1"/>
+            <text x="431" y="52" font-size="7" text-anchor="middle"
+                  fill="rgba(192,80,120,0.4)" font-family="sans-serif" letter-spacing="1">CHITHI</text>
+          </svg>
         </div>
-      
       </div>
 
-      <button class="btn-primary btn-full" id="btn-login">
-        <span id="login-btn-text">Sign In →</span>
-        <span id="login-spinner" class="spinner hidden"></span>
-      </button>
-      <a href="reset.html" class="btn-ghost btn-full" style="margin-top:0.65rem;">Reset password?</a>
+      <!-- ENVELOPE BODY -->
+      <div class="env-body">
+        <!-- Corner fold decoration -->
+        <div class="env-fold-left"></div>
+        <div class="env-fold-right"></div>
 
-      <div class="auth-divider"><span>or</span></div>
+        <!-- Top lining -->
+        <div class="env-lining"></div>
 
-      <button class="btn-google btn-full" id="btn-google-login">
-        <span class="google-mark">G</span>
-        <span>Continue with Google</span>
-      </button>
+        <!-- ── LETTER PAPER ── -->
+        <div class="letter-paper">
+          <!-- Stamp decoration -->
+          <div class="stamp-deco">
+            <span class="stamp-heart">💌</span>
+            <span class="stamp-text">Chithi</span>
+          </div>
 
-      <p class="auth-switch">Don't have an account? <a href="signup.html">Create one</a></p>
+          <h1 class="auth-title">Welcome back</h1>
+          <p class="auth-sub">Sign in to read your letters.</p>
+
+          <div id="auth-error" class="error-msg hidden"></div>
+
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-wrap">
+              <input
+                type="password"
+                id="password"
+                placeholder="Your password"
+                autocomplete="current-password"
+              />
+              <span id="toggle-password" class="toggle-eye">👁️</span>
+            </div>
+          </div>
+
+          <button class="btn-primary btn-full" id="btn-login">
+            <span id="login-btn-text">Sign In →</span>
+            <span id="login-spinner" class="spinner hidden"></span>
+          </button>
+
+          <a href="reset.html" class="btn-ghost btn-full" style="margin-top:0.6rem;">Reset password?</a>
+
+          <div class="auth-divider"><span>or</span></div>
+
+          <button class="btn-google btn-full" id="btn-google-login">
+            <span class="google-mark">G</span>
+            <span>Continue with Google</span>
+          </button>
+
+          <p class="auth-switch">Don't have an account? <a href="signup.html">Create one</a></p>
+        </div>
+        <!-- Zigzag bottom strip -->
+        <div class="env-zigzag"></div>
+      </div>
     </div>
     <footer class="site-footer">
 
-  <p class="footer-sub">
-    <a href="about-us.html">About</a> • 
-    <a href="privacy.html">Privacy</a> • 
-    <a href="terms.html">Terms</a> • 
-    <a href="track.html">Track Letter</a>
-  </p>
+        <p class="footer-sub">
+          <a href="about-us.html">About</a> • 
+          <a href="privacy.html">Privacy</a> • 
+          <a href="terms.html">Terms</a> • 
+          <a href="track.html">Track Letter</a>
+        </p>
 
-  <p>
-    Creation of 
-    <span class="heart">
-      <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">
-        SK
-      </a> ♥
-    </span> 
-    for honest conversations — © Chithi <span id="year"></span>
-  </p>
-
-</footer>
+        <p>
+          Creation of 
+          <span class="heart">
+            <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">
+              SK
+            </a> ♥
+          </span> 
+          for honest conversations — © Chithi <span id="year"></span>
+        </p>
+    </footer>
   </div>
+</div>
 
-  <script src="clean-urls.js"></script>
-  <script type="module" src="firebase-config.js"></script>
-  <script type="module" src="auth.js"></script>
-  <script>
-    (function () {
-    var yearEl = document.getElementById("year");
-    if (yearEl) {
-      yearEl.textContent = new Date().getFullYear();
+<script src="clean-urls.js"></script>
+<script type="module" src="firebase-config.js"></script>
+<script type="module" src="auth.js"></script>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  (function () {
+    const stage    = document.getElementById("intro-stage");
+    const planeEl  = document.getElementById("plane-wrap");
+    const pageEl   = document.querySelector(".auth-page-content");
+    const skipBtn  = document.getElementById("skip-btn");
+    const envShell = document.getElementById("envelope-shell");
+    const flapEl   = document.getElementById("env-flap");
+
+    envShell.style.opacity    = "0";
+    envShell.style.transform  = "scale(0.55) translateY(40px)";
+    envShell.style.transition = "none";
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const P0 = { x: -85, y: -85 };
+    const P1 = { x: vw * 0.12, y: vh * 0.06 };
+    const P2 = { x: vw * 0.75, y: vh * 0.18 };
+    const P3 = { x: vw / 2 - 32, y: vh / 2 - 32 };
+
+    function cubicBez(p0, p1, p2, p3, t) {
+      const u = 1 - t;
+      return {
+        x: u*u*u*p0.x + 3*u*u*t*p1.x + 3*u*t*t*p2.x + t*t*t*p3.x,
+        y: u*u*u*p0.y + 3*u*u*t*p1.y + 3*u*t*t*p2.y + t*t*t*p3.y
+      };
     }
+    function easeInOut(t) {
+      return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    }
+
+    let raf = null, startTs = null, lastTrail = 0;
+    const FLIGHT_MS = 2300;
+
+    function dropTrail(x, y, ts) {
+      if (ts - lastTrail < 70) return;
+      lastTrail = ts;
+      const d = document.createElement("div");
+      d.className = "trail-dot";
+      d.style.cssText = `left:${x+26+Math.random()*8-4}px;top:${y+26+Math.random()*8-4}px`;
+      stage.appendChild(d);
+      setTimeout(() => d.remove(), 850);
+    }
+
+    function burst(cx, cy) {
+      const icons = ["✨","💫","🌸","♥","✦","⭐","💖","🌟","🎀"];
+      for (let i = 0; i < 13; i++) {
+        const sp = document.createElement("div");
+        sp.className = "sparkle-p";
+        const ang = (i / 13) * Math.PI * 2;
+        const r   = 55 + Math.random() * 70;
+        sp.style.cssText = `left:${cx}px;top:${cy}px;animation-delay:${Math.random()*0.22}s`;
+        sp.style.setProperty("--tx", Math.cos(ang)*r + "px");
+        sp.style.setProperty("--ty", Math.sin(ang)*r + "px");
+        sp.textContent = icons[i % icons.length];
+        stage.appendChild(sp);
+        setTimeout(() => sp.remove(), 1500);
+      }
+    }
+
+    function flyFrame(ts) {
+      if (!startTs) startTs = ts;
+      const raw = Math.min((ts - startTs) / FLIGHT_MS, 1);
+      const t   = easeInOut(raw);
+      const pos = cubicBez(P0, P1, P2, P3, t);
+
+      const tAhead = easeInOut(Math.min(raw + 0.014, 1));
+      const ahead  = cubicBez(P0, P1, P2, P3, tAhead);
+      const ang    = Math.atan2(ahead.y - pos.y, ahead.x - pos.x) * 180 / Math.PI;
+
+      planeEl.style.transform  = `translate(${pos.x}px,${pos.y}px) rotate(${ang + 45}deg)`;
+      planeEl.style.visibility = 'visible';
+      dropTrail(pos.x, pos.y, ts);
+
+      if (raw < 1) {
+        raf = requestAnimationFrame(flyFrame);
+      } else {
+        burst(vw/2, vh/2);
+        landAndReveal(pos.x, pos.y);
+      }
+    }
+
+    function landAndReveal(px, py) {
+      planeEl.style.transition = "transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.38s ease";
+      planeEl.style.transform  = `translate(${px+20}px,${py+20}px) scale(0.04) rotate(0deg)`;
+      planeEl.style.opacity    = "0";
+
+      stage.style.transition = "opacity 0.55s ease";
+      stage.style.opacity    = "0";
+
+      pageEl.classList.add("visible");
+      pageEl.style.opacity    = "0";
+      pageEl.style.transition = "opacity 0s";
+
+      setTimeout(() => {
+        stage.remove();
+        skipBtn.remove();
+
+        envShell.style.transition = "transform 0.8s cubic-bezier(0.34,1.48,0.64,1), opacity 0.5s ease";
+        envShell.style.transform  = "scale(1) translateY(0)";
+        envShell.style.opacity    = "1";
+        pageEl.style.transition   = "opacity 0.45s ease";
+        pageEl.style.opacity      = "1";
+
+        setTimeout(() => flapEl.classList.add("open"), 700);
+      }, 480);
+    }
+
+    window.skipIntro = function () {
+      if (raf) cancelAnimationFrame(raf);
+      stage.remove();
+      skipBtn.remove();
+      envShell.style.transition = "transform 0.55s cubic-bezier(0.34,1.35,0.64,1), opacity 0.4s ease";
+      envShell.style.transform  = "scale(1) translateY(0)";
+      envShell.style.opacity    = "1";
+      pageEl.classList.add("visible");
+      pageEl.style.opacity = "1";
+      setTimeout(() => flapEl.classList.add("open"), 600);
+    };
+
+    requestAnimationFrame(flyFrame);
   })();
-  </script>
+</script>
 </body>
 </html>
