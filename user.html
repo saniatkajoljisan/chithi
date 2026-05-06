@@ -93,6 +93,120 @@
 .marquee-container:hover .marquee-text {
   animation-play-state: paused;
 }
+
+  /* ══════════════════════════════════════════
+   AESTHETIC MAGNIFYING GLASS LOADER
+   ══════════════════════════════════════════ */
+
+.aesthetic-loader {
+  position: relative;
+  width: 100%;
+  height: 240px; 
+  background-color: #fdf8f0; 
+  border-radius: 12px;
+  border: 1px solid #e8dcc8;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 30px rgba(200, 180, 150, 0.15);
+  margin-top: 2rem;
+}
+
+.paper-lines {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    transparent, 
+    transparent 28px, 
+    rgba(200, 180, 150, 0.35) 28px, 
+    rgba(200, 180, 150, 0.35) 29px
+  );
+  z-index: 1;
+}
+
+.secret-text {
+  position: absolute;
+  inset: 0;
+  padding: 12px 18px;
+  font-family: 'Lora', 'Courier New', serif;
+  font-size: 1.15rem;
+  line-height: 29px; 
+  color: #8c7a6b;
+  word-break: break-all;
+  text-align: justify;
+  letter-spacing: 5px;
+  z-index: 2;
+  font-weight: 600;
+  
+  mask-image: radial-gradient(circle 50px at var(--mouseX, 50%) var(--mouseY, 50%), black 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle 50px at var(--mouseX, 50%) var(--mouseY, 50%), black 60%, transparent 100%);
+  opacity: 0.9;
+}
+
+.mag-glass-container {
+  position: absolute;
+  left: var(--mouseX, 50%);
+  top: var(--mouseY, 50%);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none; 
+}
+
+.mag-glass {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid #c29f7c; 
+  background: rgba(253, 248, 240, 0.1);
+  backdrop-filter: blur(1.5px) contrast(1.05);
+  -webkit-backdrop-filter: blur(1.5px) contrast(1.05);
+  box-shadow: 0 8px 16px rgba(44,30,15,0.1), inset 0 0 20px rgba(255,255,255,0.6);
+  position: relative;
+}
+
+.glass-glare {
+  position: absolute;
+  top: 12%; left: 18%;
+  width: 35%; height: 20%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  transform: rotate(-45deg);
+  filter: blur(1px);
+}
+
+.mag-handle {
+  width: 14px;
+  height: 55px;
+  background: linear-gradient(to right, #8c7a6b, #5a4b3f);
+  border-radius: 8px;
+  position: absolute;
+  bottom: -42px;
+  right: -20px;
+  transform: rotate(-45deg);
+  box-shadow: 2px 4px 8px rgba(44,30,15,0.2);
+}
+
+.loading-label {
+  position: absolute;
+  bottom: 15px;
+  z-index: 4;
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #5a4b3f;
+  background: rgba(253, 248, 240, 0.85);
+  padding: 6px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  animation: floatText 2s infinite alternate ease-in-out;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+@keyframes floatText {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
 </style>
 </head>
 <body class="user-page">
@@ -134,10 +248,21 @@
       <a href="signup.html" class="btn-primary">Create yours →</a>
     </div>
 
-    <!-- Loading state -->
-    <div id="user-loading" class="inbox-empty">
-      <div class="spinner-large"></div>
-      <p>Finding this person…</p>
+    <!-- Loading state with Premium Magnifying Glass Effect -->
+    <div id="user-loading" class="inbox-empty aesthetic-loader">
+      <!-- Ruled paper background -->
+      <div class="paper-lines"></div>
+      
+      <!-- Random hidden letters layer -->
+      <div class="secret-text" id="secret-text"></div>
+      
+      <!-- The Magnifying Glass -->
+      <div class="mag-glass-container" id="mag-glass">
+        <div class="mag-glass">
+          <div class="glass-glare"></div>
+        </div>
+        <div class="mag-handle"></div>
+      </div>
     </div>
 
     <!-- Message form -->
@@ -368,6 +493,37 @@ loop();
     var yearEl = document.getElementById("year");
     if (yearEl) {
       yearEl.textContent = new Date().getFullYear();
+    }
+  })();
+
+  (function() {
+    const loader = document.getElementById('user-loading');
+    const secretText = document.getElementById('secret-text');
+    
+    if (loader && secretText) {
+      // 1. Generate Random Capital Letters to fill the paper
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let randomString = '';
+      for (let i = 0; i < 250; i++) {
+        randomString += chars.charAt(Math.floor(Math.random() * chars.length)) + ' ';
+      }
+      secretText.innerText = randomString;
+
+      // 2. Animate the Magnifying Glass smoothly
+      let time = 0;
+      function moveGlass() {
+        time += 0.01; 
+        
+        const x = 50 + Math.sin(time) * 35; 
+        const y = 50 + Math.cos(time * 0.7) * 35 + Math.sin(time * 1.5) * 10;
+
+        loader.style.setProperty('--mouseX', x + '%');
+        loader.style.setProperty('--mouseY', y + '%');
+
+        requestAnimationFrame(moveGlass);
+      }
+      
+      moveGlass();
     }
   })();
 </script>
