@@ -102,9 +102,9 @@
   position: relative;
   width: 100%;
   height: 240px; 
-  background-color: #fdf8f0; 
-  border-radius: 12px;
-  border: 1px solid #e8dcc8;
+  background-color: transparent; 
+  border: none;
+  box-shadow: none;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -112,19 +112,6 @@
   box-shadow: inset 0 0 30px rgba(200, 180, 150, 0.15);
   margin-top: 2rem;
 }
-
-.paper-lines {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    transparent, 
-    transparent 28px, 
-    rgba(200, 180, 150, 0.35) 28px, 
-    rgba(200, 180, 150, 0.35) 29px
-  );
-  z-index: 1;
-}
-
 .secret-text {
   position: absolute;
   inset: 0;
@@ -250,8 +237,6 @@
 
     <!-- Loading state with Premium Magnifying Glass Effect -->
     <div id="user-loading" class="inbox-empty aesthetic-loader">
-      <!-- Ruled paper background -->
-      <div class="paper-lines"></div>
       
       <!-- Random hidden letters layer -->
       <div class="secret-text" id="secret-text"></div>
