@@ -480,12 +480,13 @@ loop();
     }
   })();
 
+    //magnify loader
   (function() {
     const loader = document.getElementById('user-loading');
     const secretText = document.getElementById('secret-text');
     
     if (loader && secretText) {
-      // 1. Generate Random Capital Letters to fill the paper
+      // 1. Generate Random Capital Letters
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       let randomString = '';
       for (let i = 0; i < 250; i++) {
@@ -493,13 +494,14 @@ loop();
       }
       secretText.innerText = randomString;
 
-      // 2. Animate the Magnifying Glass smoothly
+      // 2. Animate the Magnifying Glass (Middle Left-to-Right sweep)
       let time = 0;
       function moveGlass() {
-        time += 0.01; 
+        time += 0.02; 
         
-        const x = 50 + Math.sin(time) * 35; 
-        const y = 50 + Math.cos(time * 0.7) * 35 + Math.sin(time * 1.5) * 10;
+        const x = 50 - Math.cos(time) * 35; 
+        
+        const y = 45 + Math.sin(time * 2) * 5;
 
         loader.style.setProperty('--mouseX', x + '%');
         loader.style.setProperty('--mouseY', y + '%');
