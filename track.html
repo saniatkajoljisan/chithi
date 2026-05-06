@@ -190,6 +190,11 @@
       letter-spacing: 0.25em;
       font-family: 'Lora', serif;
       text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+    .track-input-wrap input:focus {
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba(194, 159, 124, 0.15);
     }
     .track-divider-text {
       text-align: center;
@@ -224,12 +229,18 @@
       padding: 0.65rem 0.85rem;
       margin-bottom: 0.5rem;
       cursor: pointer;
-      transition: box-shadow 0.15s, border-color 0.15s;
+      transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
       gap: 0.5rem;
+      animation: slideInRight 0.5s cubic-bezier(0.25, 1, 0.5, 1) backwards;
     }
+    .saved-letter-item:nth-child(1) { animation-delay: 0.1s; }
+    .saved-letter-item:nth-child(2) { animation-delay: 0.2s; }
+    .saved-letter-item:nth-child(3) { animation-delay: 0.3s; }
+
     .saved-letter-item:hover {
-      box-shadow: 0 2px 10px rgba(44,30,15,0.10);
+      box-shadow: 0 4px 12px rgba(44,30,15,0.08);
       border-color: #c29f7c;
+      transform: translateY(-2px);
     }
     .saved-letter-preview {
       flex: 1;
@@ -320,6 +331,109 @@
       text-underline-offset: 2px;
     }
     .btn-back:hover { color: #2c1e0f; }
+
+    /* ══════════════════════════════════════════
+       PREMIUM ENVELOPE PULL-OUT ANIMATIONS
+       ══════════════════════════════════════════ */
+
+    /* Input card soft drop-in */
+    #track-input-card:not(.hidden) {
+      animation: softDropIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    /* Result card envelope pull-out effect */
+    #track-result:not(.hidden) {
+      animation: letterReveal 0.8s cubic-bezier(0.21, 1.04, 0.55, 1.05) forwards;
+      transform-origin: bottom center;
+    }
+
+    @keyframes softDropIn {
+      0% { opacity: 0; transform: translateY(-20px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes letterReveal {
+      0% { opacity: 0; transform: translateY(80px) scale(0.9); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(15px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Animated CSS Envelope Loader */
+    .css-envelope-loader {
+      position: relative;
+      width: 110px;
+      height: 75px;
+      margin: 2.5rem auto 1rem;
+      background: #f0ece4;
+      border-radius: 4px 4px 6px 6px;
+      box-shadow: 0 12px 24px rgba(44,30,15,0.08);
+      perspective: 600px;
+    }
+
+    /* Envelope bottom body */
+    .css-env-body {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #f7ecd8;
+      clip-path: polygon(0 0, 50% 45%, 100% 0, 100% 100%, 0 100%);
+      z-index: 3;
+      border-radius: 0 0 6px 6px;
+    }
+
+    /* Envelope top flap opening */
+    .css-env-flap {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 65%;
+      background: #e8dcc8;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top;
+      transform-style: preserve-3d;
+      animation: flapOpen 1.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 4;
+      border-radius: 4px 4px 0 0;
+    }
+
+    /* Tiny letter sliding out */
+    .css-env-paper {
+      position: absolute;
+      top: 10px; left: 15px;
+      width: 80px; height: 55px;
+      background: #fffdf7;
+      border: 1px solid #e8dcc8;
+      border-radius: 4px;
+      z-index: 2;
+      animation: letterPeek 1.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(44,30,15,0.05);
+    }
+
+    .css-env-line {
+      position: absolute;
+      height: 4px;
+      background: #f0ece4;
+      border-radius: 2px;
+      left: 10px;
+    }
+
+    @keyframes flapOpen {
+      0%, 15% { transform: rotateX(0deg); z-index: 4; }
+      85%, 100% { transform: rotateX(175deg); z-index: 1; }
+    }
+
+    @keyframes letterPeek {
+      0%, 30% { transform: translateY(0); }
+      85%, 100% { transform: translateY(-35px); }
+    }
+
+    @keyframes pulseText {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
   </style>
 </head>
 <body class="auth-page">
@@ -346,7 +460,6 @@
       <span class="logo-text">Chithi</span>
     </a>
 
-    <!-- ── Input card ────────────────────────── -->
     <div id="track-input-card" class="auth-card">
       <h1 class="auth-title" style="text-align:center;">Track Your Letter</h1>
       <p class="auth-sub" style="text-align:center; margin-bottom:1.2rem;">Enter your tracking code or pick from sent letters below.</p>
@@ -371,7 +484,6 @@
 
       <div class="track-divider-text">— or pick from your sent letters —</div>
 
-      <!-- Saved letters from localStorage -->
       <div class="saved-letters-section">
         <span class="saved-letters-label">Letters sent from this device</span>
         <div id="saved-letters-list">
@@ -380,19 +492,23 @@
       </div>
     </div>
 
-    <!-- ── Loading ─────────────────────────── -->
-    <div id="track-loading" class="auth-card text-center hidden">
-      <div class="spinner-large"></div>
-      <p style="margin-top:1rem;">Looking up your letter…</p>
+    <div id="track-loading" class="auth-card text-center hidden" style="background: transparent; box-shadow: none; border: none;">
+      <div class="css-envelope-loader">
+         <div class="css-env-paper">
+           <div class="css-env-line" style="top:15px; width: 60%;"></div>
+           <div class="css-env-line" style="top:25px; width: 80%;"></div>
+           <div class="css-env-line" style="top:35px; width: 40%;"></div>
+         </div>
+         <div class="css-env-body"></div>
+         <div class="css-env-flap"></div>
+      </div>
+      <p style="margin-top:2rem; font-family: 'Lora', serif; color: #8c7a6b; font-style: italic; letter-spacing: 0.05em; animation: pulseText 1.5s infinite alternate;">Opening envelope…</p>
     </div>
 
-    <!-- ── Result card ─────────────────────── -->
     <div id="track-result" class="auth-card hidden">
-      <!-- <button class="btn-back" id="btn-back-to-input">← Back</button> -->
       <h1 class="auth-title" style="text-align:center;">Your Letter</h1>
       <p class="auth-sub" style="text-align:center;">Current status of your letter</p>
 
-      <!-- Messenger-style thread -->
       <div class="msg-thread" id="msg-thread">
         <div class="msg-bubble-row" id="msg-bubble-row">
           <div class="msg-bubble letter-bg-paper" id="msg-bubble">
@@ -416,7 +532,6 @@
 
       <hr class="thread-divider" />
 
-      <!-- Unsend -->
       <p class="auth-sub" style="text-align:center; margin-bottom:1rem;">Want to permanently unsend this letter?</p>
       <div id="unsend-error" class="error-msg hidden"></div>
       <button class="btn-danger btn-full" id="btn-unsend">
@@ -426,7 +541,6 @@
       <button class="btn-ghost btn-full" id="btn-keep" style="margin-top:0.75rem;">Back</button>
     </div>
 
-    <!-- ── Unsent success ──────────────────── -->
     <div id="track-unsent" class="auth-card hidden text-center">
       <div class="success-icon large">✓</div>
       <h2>Letter Unsent</h2>
@@ -434,7 +548,6 @@
       <button class="btn-ghost btn-full" id="btn-after-unsend" style="margin-top:1.5rem;">Track another →</button>
     </div>
 
-    <!-- ── Not found ───────────────────────── -->
     <div id="track-not-found" class="auth-card hidden text-center">
       <div class="empty-icon" style="font-size:3rem;">💌</div>
       <h2>Letter not found</h2>
