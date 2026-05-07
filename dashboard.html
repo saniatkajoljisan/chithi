@@ -156,5 +156,16 @@ for honest conversations — © Chithi <span id=year></span>
 move();const life=3000+Math.random()*5000;setTimeout(()=>{el.classList.remove("show");setTimeout(()=>{el.remove();},1200);},life);}
 function loop(){createItem();const next=200+Math.random()*800;setTimeout(loop,next);}
 loop();(function(){var yearEl=document.getElementById("year");if(yearEl){yearEl.textContent=new Date().getFullYear();}})();</script>
+<script>
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.onkeydown = function(e) {
+    if(e.keyCode == 123) return false; // F12
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; 
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; 
+    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
+  };
+  document.onselectstart = function() { return false; }
+</script>
 </body>
 </html>
