@@ -13,7 +13,6 @@ import {
   deleteDoc,
   doc,
   getDoc,
-  updateDoc,
   collection,
   query,
   where,
@@ -64,18 +63,8 @@ const ALLOWED_FONTS = new Set(["hand-caveat", "hand-patrick", "hand-kalam", "nor
 const ALLOWED_BGS   = new Set(["paper", "rose", "mint", "sky"]);
 const REACTION_EMOJI = { heart: "❤️", smile: "🤣", cry: "😭", spark: "🤬" };
 
-// Sender reactions for reply (messenger style)
-const SENDER_REACTIONS = [
-  { key: "heart", emoji: "❤️" },
-  { key: "smile", emoji: "😊" },
-  { key: "sad",   emoji: "😢" },
-  { key: "angry", emoji: "😡" },
-];
-
 // Current full token being viewed
 let currentToken = null;
-// Current message data
-let currentMsg = null;
 
 // ─── localStorage helpers ────────────────────────────────────
 
@@ -178,7 +167,6 @@ async function loadByToken(token) {
     }
 
     const msg = msgSnap.data();
-    currentMsg = msg;
 
     // Fetch recipient profile
     let recipientName    = "Recipient";
@@ -294,7 +282,7 @@ function renderReceipt(msg, recipientInitial, recipientColor) {
   }
 }
 
-// ─── Render: reply bubble ───────────────────────────────────
+// ─── Render: reply bubble ────────────────────────────────────
 function renderReply(msg, recipientName, recipientInitial, recipientColor) {
   if (!msg.replyText) {
     replyRowEl.classList.add("hidden");
@@ -315,80 +303,9 @@ function renderReply(msg, recipientName, recipientInitial, recipientColor) {
   document.querySelector(".reply-bubble").appendChild(replyTimeEl);
 
   replyRowEl.classList.remove("hidden");
-
-  // Messenger-style reaction button inside bubble wrap
-  renderSenderReaction(msg);
 }
 
-// ─── Render: messenger-style sender reaction on reply ──────────
-function renderSenderReaction(msg) {
-  document.getElementById("reply-react-btn-wrap")?.remove();
-  if (!msg.replyText) return;
-
-  const bubbleWrap = document.querySelector(".reply-bubble-wrap");
-  if (!bubbleWrap) return;
-
-  const state = {
-    chosen: msg.senderReactionToReply || null,
-    popupOpen: false
-  };
-
-  const wrap = document.createElement("div");
-  wrap.id = "reply-react-btn-wrap";
-  wrap.className = "reply-react-btn-wrap";
-  bubbleWrap.appendChild(wrap);
-
-  // outsideClose is defined once so removeEventListener works correctly
-  function outsideClose() {
-    state.popupOpen = false;
-    paint();
-  }
-
-  function paint() {
-    document.removeEventListener("click", outsideClose);
-
-    const popupHtml = `
-      <div class="reply-reaction-popup${state.popupOpen ? "" : " hidden"}">
-        ${SENDER_REACTIONS.map(r =>
-          `<button class="reply-r-opt${state.chosen === r.key ? " active" : ""}" data-key="${r.key}">${r.emoji}</button>`
-        ).join("")}
-      </div>`;
-
-    if (state.chosen) {
-      const emoji = SENDER_REACTIONS.find(r => r.key === state.chosen)?.emoji || "";
-      wrap.innerHTML = `${popupHtml}<button class="reply-react-chosen" id="reply-react-trigger">${emoji}</button>`;
-    } else {
-      wrap.innerHTML = `${popupHtml}<button class="reply-react-trigger" id="reply-react-trigger" title="React">&#x263A;</button>`;
-    }
-
-    wrap.querySelector("#reply-react-trigger").addEventListener("click", (e) => {
-      e.stopPropagation();
-      state.popupOpen = !state.popupOpen;
-      paint();
-      if (state.popupOpen) setTimeout(() => document.addEventListener("click", outsideClose), 10);
-    });
-
-    wrap.querySelectorAll(".reply-r-opt").forEach(btn => {
-      btn.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        state.chosen = btn.dataset.key;
-        state.popupOpen = false;
-        paint();
-        if (!currentToken) return;
-        try {
-          await updateDoc(doc(db, "messages", currentToken), { senderReactionToReply: state.chosen });
-          if (currentMsg) currentMsg.senderReactionToReply = state.chosen;
-        } catch (err) {
-          console.error("Failed to save reaction:", err);
-        }
-      });
-    });
-  }
-
-  paint();
-}
-
-
+// ─── Unsend ──────────────────────────────────────────────────
 btnUnsend?.addEventListener("click", async () => {
   if (!currentToken) return;
   unsendError?.classList.add("hidden");

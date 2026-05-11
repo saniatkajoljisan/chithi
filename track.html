@@ -136,7 +136,14 @@
       align-self: flex-end;
       box-shadow: 0 2px 6px rgba(44,30,15,0.15);
     }
-
+    .reply-bubble {
+      background: #f0ece4;
+      border: 1px solid #e8dcc8;
+      border-radius: 18px 18px 18px 4px;
+      padding: 0.75rem 1rem;
+      position: relative;
+      flex: 1;
+    }
     .reply-bubble-name {
       font-size: 0.72rem;
       font-weight: 600;
@@ -168,96 +175,8 @@
       margin-top: 0.45rem;
       letter-spacing: 0.01em;
     }
+    .msg-bubble-time { text-align: left; }
     .reply-time { text-align: right; }
-
-    /* ── Messenger-style sender reaction on reply ── */
-    .reply-bubble-wrap {
-      position: relative;
-      flex: 1;
-    }
-    .reply-bubble {
-      background: #f0ece4;
-      border: 1px solid #e8dcc8;
-      border-radius: 18px 18px 18px 4px;
-      padding: 0.75rem 1rem;
-      position: relative;
-    }
-    .reply-react-btn-wrap {
-      position: absolute;
-      bottom: -12px;
-      right: 10px;
-      z-index: 10;
-    }
-    .reply-react-trigger {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #fffdf7;
-      border: 1.5px solid #e8dcc8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 0.8rem;
-      color: #8c7a6b;
-      box-shadow: 0 1px 4px rgba(44,30,15,0.10);
-      transition: transform 0.15s, border-color 0.15s;
-      padding: 0;
-      line-height: 1;
-    }
-    .reply-react-trigger:hover {
-      transform: scale(1.18);
-      border-color: #c2a07c;
-    }
-    .reply-react-chosen {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #fffdf7;
-      border: 1.5px solid #e8dcc8;
-      border-radius: 999px;
-      padding: 1px 7px;
-      font-size: 1.05rem;
-      cursor: pointer;
-      box-shadow: 0 1px 4px rgba(44,30,15,0.10);
-      transition: transform 0.15s;
-      min-width: 36px;
-      line-height: 1.4;
-    }
-    .reply-react-chosen:hover { transform: scale(1.1); }
-    .reply-reaction-popup {
-      position: absolute;
-      bottom: 28px;
-      right: -4px;
-      background: #fffdf7;
-      border: 1px solid #e8dcc8;
-      border-radius: 999px;
-      padding: 5px 8px;
-      display: flex;
-      gap: 2px;
-      box-shadow: 0 4px 16px rgba(44,30,15,0.13);
-      z-index: 20;
-      animation: popIn 0.18s cubic-bezier(0.34,1.56,0.64,1) both;
-    }
-    .reply-reaction-popup.hidden { display: none; }
-    .reply-r-opt {
-      font-size: 1.4rem;
-      border: none;
-      background: none;
-      cursor: pointer;
-      padding: 2px 3px;
-      border-radius: 50%;
-      transition: transform 0.12s;
-      line-height: 1;
-    }
-    .reply-r-opt:hover { transform: scale(1.4); }
-    .reply-r-opt.active {
-      background: #f5e6d0;
-      box-shadow: 0 0 0 2px #c2a07c;
-    }
-    /* extra bottom padding so popup doesn't clip */
-    .msg-reply-area { padding-bottom: 18px; }
-
 
     /* ── Track input card ── */
     .track-input-wrap {
@@ -602,15 +521,11 @@
 
         <div class="msg-receipt-row" id="msg-receipt-row"></div>
 
-        <div class="msg-reply-area">
-          <div class="msg-reply-row hidden" id="msg-reply-row">
-            <div class="reply-avatar" id="reply-avatar"></div>
-            <div class="reply-bubble-wrap">
-              <div class="reply-bubble">
-                <div class="reply-bubble-name" id="reply-bubble-name"></div>
-                <div class="reply-bubble-text" id="reply-bubble-text"></div>
-              </div>
-            </div>
+        <div class="msg-reply-row hidden" id="msg-reply-row">
+          <div class="reply-avatar" id="reply-avatar"></div>
+          <div class="reply-bubble">
+            <div class="reply-bubble-name" id="reply-bubble-name"></div>
+            <div class="reply-bubble-text" id="reply-bubble-text"></div>
           </div>
         </div>
       </div>

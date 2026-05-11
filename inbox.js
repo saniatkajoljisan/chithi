@@ -302,14 +302,7 @@ function buildExpandedCard(docSnap, card, msg) {
       ${msg.isReported ? `<span class="status-pill report-pill">Reported</span>` : ""}
     </div>
     <div class="message-text ${fontClass(msg.fontKey)}">${escapeHtml(msg.text)}</div>
-    ${msg.replyText ? `
-      <div class="reply-card">
-        <span>${escapeHtml(msg.replierName || "You")} replied:</span>
-        <p>${escapeHtml(msg.replyText)}</p>
-        ${msg.senderReactionToReply ? `<div class="sender-reply-reaction">${
-          ({heart:"❤️", smile:"😊", sad:"😢", angry:"😡"})[msg.senderReactionToReply] || msg.senderReactionToReply
-        }</div>` : ""}
-      </div>` : ""}
+    ${msg.replyText ? `<div class="reply-card"><span>${escapeHtml(msg.replierName || "You")} replied:</span><p>${escapeHtml(msg.replyText)}</p></div>` : ""}
     ${msg.isReported ? "" : `
     <div class="inline-reply-form hidden" data-reply-form="${docSnap.id}">
       <textarea maxlength="280" placeholder="Write your reply...">${escapeHtml(msg.replyText || "")}</textarea>
