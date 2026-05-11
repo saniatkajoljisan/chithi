@@ -328,7 +328,6 @@ function renderSenderReaction(msg) {
   const bubbleWrap = document.querySelector(".reply-bubble-wrap");
   if (!bubbleWrap) return;
 
-  // State lives here — survives re-renders
   const state = {
     chosen: msg.senderReactionToReply || null,
     popupOpen: false
@@ -339,8 +338,13 @@ function renderSenderReaction(msg) {
   wrap.className = "reply-react-btn-wrap";
   bubbleWrap.appendChild(wrap);
 
+  // outsideClose is defined once so removeEventListener works correctly
+  function outsideClose() {
+    state.popupOpen = false;
+    paint();
+  }
+
   function paint() {
-    // Remove old outside-click listener before repaint
     document.removeEventListener("click", outsideClose);
 
     const popupHtml = `
@@ -357,7 +361,6 @@ function renderSenderReaction(msg) {
       wrap.innerHTML = `${popupHtml}<button class="reply-react-trigger" id="reply-react-trigger" title="React">&#x263A;</button>`;
     }
 
-    // Trigger: toggle popup
     wrap.querySelector("#reply-react-trigger").addEventListener("click", (e) => {
       e.stopPropagation();
       state.popupOpen = !state.popupOpen;
@@ -365,14 +368,12 @@ function renderSenderReaction(msg) {
       if (state.popupOpen) setTimeout(() => document.addEventListener("click", outsideClose), 10);
     });
 
-    // Reaction options
     wrap.querySelectorAll(".reply-r-opt").forEach(btn => {
       btn.addEventListener("click", async (e) => {
         e.stopPropagation();
         state.chosen = btn.dataset.key;
         state.popupOpen = false;
         paint();
-        // Save to Firestore
         if (!currentToken) return;
         try {
           await updateDoc(doc(db, "messages", currentToken), { senderReactionToReply: state.chosen });
@@ -382,11 +383,6 @@ function renderSenderReaction(msg) {
         }
       });
     });
-
-    function outsideClose() {
-      state.popupOpen = false;
-      paint();
-    }
   }
 
   paint();
