@@ -322,84 +322,74 @@ function renderReply(msg, recipientName, recipientInitial, recipientColor) {
 
 // ─── Render: messenger-style sender reaction on reply ──────────
 function renderSenderReaction(msg) {
-  // Remove old button if any
   document.getElementById("reply-react-btn-wrap")?.remove();
-
   if (!msg.replyText) return;
 
-  // Find the bubble wrap (parent of .reply-bubble)
   const bubbleWrap = document.querySelector(".reply-bubble-wrap");
   if (!bubbleWrap) return;
 
-  const chosen = msg.senderReactionToReply || null;
+  // State lives here — survives re-renders
+  const state = {
+    chosen: msg.senderReactionToReply || null,
+    popupOpen: false
+  };
 
   const wrap = document.createElement("div");
   wrap.id = "reply-react-btn-wrap";
   wrap.className = "reply-react-btn-wrap";
-  wrap.innerHTML = buildReactBtnHtml(chosen, false);
   bubbleWrap.appendChild(wrap);
 
-  attachReactEvents(wrap, chosen, msg);
-}
-
-function buildReactBtnHtml(chosen, popupOpen) {
-  const popupHtml = `
-    <div class="reply-reaction-popup${popupOpen ? "" : " hidden"}" id="reply-reaction-popup">
-      ${SENDER_REACTIONS.map(r =>
-        `<button class="reply-r-opt${chosen === r.key ? " active" : ""}" data-key="${r.key}">${r.emoji}</button>`
-      ).join("")}
-    </div>`;
-
-  if (chosen) {
-    const emoji = SENDER_REACTIONS.find(r => r.key === chosen)?.emoji || "";
-    return `${popupHtml}<button class="reply-react-chosen" id="reply-react-trigger">${emoji}</button>`;
-  }
-  return `${popupHtml}<button class="reply-react-trigger" id="reply-react-trigger" title="React">&#x263A;</button>`;
-}
-
-function attachReactEvents(wrap, chosen, msg) {
-  let popupOpen = false;
-
-  const trigger = wrap.querySelector("#reply-react-trigger");
-  trigger?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    popupOpen = !popupOpen;
-    wrap.innerHTML = buildReactBtnHtml(chosen, popupOpen);
-    attachReactEvents(wrap, chosen, msg);
-    if (popupOpen) {
-      setTimeout(() => document.addEventListener("click", outsideClose), 10);
-    }
-  });
-
-  wrap.querySelectorAll(".reply-r-opt").forEach(btn => {
-    btn.addEventListener("click", async (e) => {
-      e.stopPropagation();
-      const key = btn.dataset.key;
-      chosen = key;
-      popupOpen = false;
-      document.removeEventListener("click", outsideClose);
-      wrap.innerHTML = buildReactBtnHtml(chosen, false);
-      attachReactEvents(wrap, chosen, msg);
-      await saveSenderReaction(key, wrap, msg);
-    });
-  });
-
-  function outsideClose() {
-    popupOpen = false;
+  function paint() {
+    // Remove old outside-click listener before repaint
     document.removeEventListener("click", outsideClose);
-    wrap.innerHTML = buildReactBtnHtml(chosen, false);
-    attachReactEvents(wrap, chosen, msg);
-  }
-}
 
-async function saveSenderReaction(key, wrap, msg) {
-  if (!currentToken) return;
-  try {
-    await updateDoc(doc(db, "messages", currentToken), { senderReactionToReply: key });
-    if (currentMsg) currentMsg.senderReactionToReply = key;
-  } catch (err) {
-    console.error("Failed to save reaction:", err);
+    const popupHtml = `
+      <div class="reply-reaction-popup${state.popupOpen ? "" : " hidden"}">
+        ${SENDER_REACTIONS.map(r =>
+          `<button class="reply-r-opt${state.chosen === r.key ? " active" : ""}" data-key="${r.key}">${r.emoji}</button>`
+        ).join("")}
+      </div>`;
+
+    if (state.chosen) {
+      const emoji = SENDER_REACTIONS.find(r => r.key === state.chosen)?.emoji || "";
+      wrap.innerHTML = `${popupHtml}<button class="reply-react-chosen" id="reply-react-trigger">${emoji}</button>`;
+    } else {
+      wrap.innerHTML = `${popupHtml}<button class="reply-react-trigger" id="reply-react-trigger" title="React">&#x263A;</button>`;
+    }
+
+    // Trigger: toggle popup
+    wrap.querySelector("#reply-react-trigger").addEventListener("click", (e) => {
+      e.stopPropagation();
+      state.popupOpen = !state.popupOpen;
+      paint();
+      if (state.popupOpen) setTimeout(() => document.addEventListener("click", outsideClose), 10);
+    });
+
+    // Reaction options
+    wrap.querySelectorAll(".reply-r-opt").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        state.chosen = btn.dataset.key;
+        state.popupOpen = false;
+        paint();
+        // Save to Firestore
+        if (!currentToken) return;
+        try {
+          await updateDoc(doc(db, "messages", currentToken), { senderReactionToReply: state.chosen });
+          if (currentMsg) currentMsg.senderReactionToReply = state.chosen;
+        } catch (err) {
+          console.error("Failed to save reaction:", err);
+        }
+      });
+    });
+
+    function outsideClose() {
+      state.popupOpen = false;
+      paint();
+    }
   }
+
+  paint();
 }
 
 
