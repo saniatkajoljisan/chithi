@@ -757,10 +757,17 @@ function openPlaybackModal(msg) {
   const btnRestart= modal.querySelector("#pb-btn-restart");
   const speedSel  = modal.querySelector("#pb-speed");
   const fontKey   = msg.fontKey || "hand-caveat";
+  const bgKey     = msg.bgKey   || "paper";
 
+  // Apply sender's font to display area
   display.className = `pb-display-text font-${
     allowedFontKeys.has(fontKey) ? fontKey : "hand-caveat"
   }`;
+
+  // Apply sender's bg to paper area
+  const paper = modal.querySelector(".pb-paper");
+  paper.classList.remove("letter-bg-paper","letter-bg-rose","letter-bg-mint","letter-bg-sky");
+  paper.classList.add(allowedBgKeys.has(bgKey) ? `letter-bg-${bgKey}` : "letter-bg-paper");
   display.textContent = "";
   progress.style.width = "0%";
   frameInfo.textContent = `0 / ${log.length} events`;

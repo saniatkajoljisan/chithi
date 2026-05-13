@@ -163,8 +163,9 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
+  padding: 1rem;
 }
 .pb-modal.pb-open {
   display: flex;
@@ -172,8 +173,8 @@
 .pb-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(30, 18, 8, 0.55);
-  backdrop-filter: blur(4px);
+  background: rgba(30, 18, 8, 0.58);
+  backdrop-filter: blur(5px);
   animation: pbFadeIn 0.25s ease;
 }
 @keyframes pbFadeIn {
@@ -183,18 +184,18 @@
   position: relative;
   z-index: 1;
   background: #fffdf7;
-  border-radius: 20px 20px 0 0;
+  border-radius: 16px;
   width: 100%;
-  max-width: 680px;
-  padding: 1.4rem 1.6rem 2rem;
-  box-shadow: 0 -8px 40px rgba(44,30,15,0.18);
-  animation: pbSlideUp 0.32s cubic-bezier(0.22,1,0.36,1);
-  max-height: 88vh;
+  max-width: 620px;
+  padding: 1.5rem 1.6rem 1.8rem;
+  box-shadow: 0 24px 64px rgba(44,30,15,0.22), 0 4px 16px rgba(44,30,15,0.1);
+  animation: pbPopIn 0.3s cubic-bezier(0.22,1,0.36,1);
+  max-height: 90vh;
   overflow-y: auto;
 }
-@keyframes pbSlideUp {
-  from { transform: translateY(60px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+@keyframes pbPopIn {
+  from { transform: scale(0.93) translateY(12px); opacity: 0; }
+  to   { transform: scale(1)    translateY(0);    opacity: 1; }
 }
 .pb-header {
   display: flex;
@@ -355,10 +356,16 @@
 }
 
 @media (max-width: 480px) {
-  .pb-sheet { padding: 1.1rem 1rem 1.8rem; }
+  .pb-sheet { padding: 1.1rem 1rem 1.5rem; border-radius: 14px; }
   .pb-controls { gap: 0.5rem; }
   .pb-controls-right { gap: 0.4rem; }
 }
+
+/* bg themes — matches letter bg keys */
+.pb-paper.letter-bg-paper { background: #fffdf7; border-color: #e8dcc8; }
+.pb-paper.letter-bg-rose  { background: #fff6f1; border-color: #f5cfc7; }
+.pb-paper.letter-bg-mint  { background: #f4fff8; border-color: #c2e8cc; }
+.pb-paper.letter-bg-sky   { background: #f5fbff; border-color: #bcd9f0; }
 </style>
 </head>
 <body class="dashboard-page">
