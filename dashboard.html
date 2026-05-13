@@ -157,6 +157,208 @@
     align-items: flex-end;
   }
 }
+/* ── Playback Modal ──────────────────────────────────────── */
+.pb-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  align-items: flex-end;
+  justify-content: center;
+}
+.pb-modal.pb-open {
+  display: flex;
+}
+.pb-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 18, 8, 0.55);
+  backdrop-filter: blur(4px);
+  animation: pbFadeIn 0.25s ease;
+}
+@keyframes pbFadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+.pb-sheet {
+  position: relative;
+  z-index: 1;
+  background: #fffdf7;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 680px;
+  padding: 1.4rem 1.6rem 2rem;
+  box-shadow: 0 -8px 40px rgba(44,30,15,0.18);
+  animation: pbSlideUp 0.32s cubic-bezier(0.22,1,0.36,1);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+@keyframes pbSlideUp {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.pb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.pb-title {
+  font-family: 'Kalam', cursive;
+  font-size: 1.1rem;
+  color: #2c1e0f;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.pb-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #8c7a6b;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+.pb-close:hover { background: #f3ebe0; color: #2c1e0f; }
+
+/* The paper area where the letter replays */
+.pb-paper {
+  position: relative;
+  min-height: 180px;
+  max-height: 340px;
+  overflow-y: auto;
+  background: #fffdf7;
+  border: 1.5px solid #e8dcc8;
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 0.9rem;
+  box-shadow: inset 0 2px 8px rgba(44,30,15,0.04);
+}
+.pb-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(2rem - 1px),
+    rgba(44,30,15,0.07) calc(2rem - 1px),
+    rgba(44,30,15,0.07) 2rem
+  );
+  background-position: 0 1.2rem;
+}
+.pb-text-wrap {
+  position: relative;
+  z-index: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.pb-display-text {
+  font-size: 1.15rem;
+  color: #2c1e0f;
+  line-height: 2rem;
+}
+/* Blinking caret */
+.pb-cursor {
+  display: inline;
+  font-weight: 300;
+  color: #b5860d;
+  animation: pbBlink 0.6s step-start infinite;
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-left: 1px;
+}
+@keyframes pbBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Progress bar */
+.pb-progress-track {
+  height: 4px;
+  background: #ede5d8;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.pb-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b5860d, #d4a832);
+  border-radius: 99px;
+  transition: width 0.08s linear;
+  width: 0%;
+}
+
+/* Controls row */
+.pb-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.pb-controls-left {
+  display: flex;
+  gap: 0.5rem;
+}
+.pb-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.pb-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 1.15rem;
+  font-family: 'Lora', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.pb-btn:active { transform: scale(0.96); }
+.pb-btn-primary {
+  background: #b5860d;
+  color: #fff;
+  font-weight: 600;
+}
+.pb-btn-primary:hover { background: #9a710b; }
+.pb-btn-ghost {
+  background: #f3ebe0;
+  color: #5c4a38;
+  border: 1.5px solid #e8dcc8;
+}
+.pb-btn-ghost:hover { background: #ede5d8; }
+.pb-speed-label {
+  font-family: 'Lora', serif;
+  font-size: 0.8rem;
+  color: #8c7a6b;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.pb-speed-select {
+  border: 1.5px solid #e8dcc8;
+  border-radius: 6px;
+  background: #fffdf7;
+  font-family: 'Lora', serif;
+  font-size: 0.8rem;
+  color: #2c1e0f;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+.pb-frame-info {
+  font-family: 'Lora', serif;
+  font-size: 0.75rem;
+  color: #b5a898;
+}
+
+@media (max-width: 480px) {
+  .pb-sheet { padding: 1.1rem 1rem 1.8rem; }
+  .pb-controls { gap: 0.5rem; }
+  .pb-controls-right { gap: 0.4rem; }
+}
 </style>
 </head>
 <body class="dashboard-page">
@@ -403,17 +605,6 @@ loop();
     yearEl.textContent = new Date().getFullYear();
   }
 })();
-</script>
-<script>
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.onkeydown = function(e) {
-    if(e.keyCode == 123) return false; // F12
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
-  };
-  document.onselectstart = function() { return false; }
 </script>
 </body>
 </html>
