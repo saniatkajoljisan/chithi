@@ -496,10 +496,49 @@
       </div>
 
       <!-- Loading state -->
-      <div id="inbox-loading" class="inbox-empty">
-        <div class="spinner-large"></div>
-        <p>Fetching your letters…</p>
+    <div id="inbox-loading" class="inbox-empty">
+      <style>
+        #ld-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem 1.5rem;gap:1.2rem}
+        #ld-canvas{position:relative;width:360px;height:120px}
+        #ld-label{font-family:'Kalam',cursive;font-size:0.9rem;color:#b5a898;animation:ldPulse 2s ease-in-out infinite;margin:0}
+        @keyframes ldPulse{0%,100%{opacity:.5}50%{opacity:1}}
+      </style>
+    
+      <div id="ld-wrap">
+        <div id="ld-canvas">
+          <svg width="360" height="120" viewBox="0 0 360 120" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0">
+            <defs>
+              <clipPath id="ldClip">
+                <circle id="ldCC" cx="-60" cy="60" r="36"/>
+              </clipPath>
+              <radialGradient id="ldSh" cx="36%" cy="30%" r="55%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+    
+            <g clip-path="url(#ldClip)">
+              <g><rect x="18"  y="32" width="44" height="56" rx="5" fill="rgba(255,253,247,0.93)" stroke="rgba(181,134,13,0.45)" stroke-width="1.5"/><rect x="24"  y="42" width="32" height="2" rx="1" fill="rgba(181,134,13,0.4)"/><rect x="24"  y="49" width="26" height="2" rx="1" fill="rgba(181,134,13,0.25)"/><rect x="24"  y="56" width="29" height="2" rx="1" fill="rgba(181,134,13,0.15)"/><text x="40"  y="80" text-anchor="middle" font-size="15">💌</text></g>
+              <g><rect x="72"  y="32" width="44" height="56" rx="5" fill="rgba(255,253,247,0.93)" stroke="rgba(181,134,13,0.45)" stroke-width="1.5"/><rect x="78"  y="42" width="32" height="2" rx="1" fill="rgba(181,134,13,0.4)"/><rect x="78"  y="49" width="26" height="2" rx="1" fill="rgba(181,134,13,0.25)"/><rect x="78"  y="56" width="29" height="2" rx="1" fill="rgba(181,134,13,0.15)"/><text x="94"  y="80" text-anchor="middle" font-size="15">📝</text></g>
+              <g><rect x="126" y="32" width="44" height="56" rx="5" fill="rgba(255,253,247,0.93)" stroke="rgba(181,134,13,0.45)" stroke-width="1.5"/><rect x="132" y="42" width="32" height="2" rx="1" fill="rgba(181,134,13,0.4)"/><rect x="132" y="49" width="26" height="2" rx="1" fill="rgba(181,134,13,0.25)"/><rect x="132" y="56" width="29" height="2" rx="1" fill="rgba(181,134,13,0.15)"/><text x="148" y="80" text-anchor="middle" font-size="15">💌</text></g>
+              <g><rect x="180" y="32" width="44" height="56" rx="5" fill="rgba(255,253,247,0.93)" stroke="rgba(181,134,13,0.45)" stroke-width="1.5"/><rect x="186" y="42" width="32" height="2" rx="1" fill="rgba(181,134,13,0.4)"/><rect x="186" y="49" width="26" height="2" rx="1" fill="rgba(181,134,13,0.25)"/><rect x="186" y="56" width="29" height="2" rx="1" fill="rgba(181,134,13,0.15)"/><text x="202" y="80" text-anchor="middle" font-size="15">✉️</text></g>
+              <g><rect x="234" y="32" width="44" height="56" rx="5" fill="rgba(255,253,247,0.93)" stroke="rgba(181,134,13,0.45)" stroke-width="1.5"/><rect x="240" y="42" width="32" height="2" rx="1" fill="rgba(181,134,13,0.4)"/><rect x="240" y="49" width="26" height="2" rx="1" fill="rgba(181,134,13,0.25)"/><rect x="240" y="56" width="29" height="2" rx="1" fill="rgba(181,134,13,0.15)"/><text x="256" y="80" text-anchor="middle" font-size="15">💌</text></g>
+              <g><rect x="288" y="32" width="44" height="56" rx="5" fill="rgba(255,253,247,0.93)" stroke="rgba(181,134,13,0.45)" stroke-width="1.5"/><rect x="294" y="42" width="32" height="2" rx="1" fill="rgba(181,134,13,0.4)"/><rect x="294" y="49" width="26" height="2" rx="1" fill="rgba(181,134,13,0.25)"/><rect x="294" y="56" width="29" height="2" rx="1" fill="rgba(181,134,13,0.15)"/><text x="310" y="80" text-anchor="middle" font-size="15">📩</text></g>
+            </g>
+    
+            <g id="ld-mag">
+              <circle id="ldRing"  cx="-60" cy="60" r="36" fill="rgba(255,253,247,0.08)" stroke="#b5860d" stroke-width="4"/>
+              <circle id="ldRingI" cx="-60" cy="60" r="32" fill="none" stroke="rgba(181,134,13,0.15)" stroke-width="1"/>
+              <circle id="ldGlow"  cx="-60" cy="60" r="36" fill="url(#ldSh)"/>
+              <ellipse id="ldSpot" cx="-72" cy="49" rx="9" ry="5.5" fill="rgba(255,255,255,0.3)" transform="rotate(-18,-72,49)"/>
+              <line id="ldH1" x1="-35" y1="85" x2="-14" y2="106" stroke="#7a560a" stroke-width="7"   stroke-linecap="round"/>
+              <line id="ldH2" x1="-35" y1="85" x2="-14" y2="106" stroke="#d4a020" stroke-width="3.5" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+        <p id="ld-label">Fetching your letters…</p>
       </div>
+    </div>
 
       <!-- Empty state -->
       <div id="inbox-empty" class="inbox-empty hidden">
@@ -612,8 +651,38 @@ loop();
     yearEl.textContent = new Date().getFullYear();
   }
 })();
-</script>
-<script>
+
+   //letter search
+  (function(){
+    const DURATION = 3000;
+    const R  = 36, CY = 60;
+    const START = -R - 10, END = 360 + R + 10;
+    const cc    = document.getElementById('ldCC');
+    const ring  = document.getElementById('ldRing');
+    const ringI = document.getElementById('ldRingI');
+    const glow  = document.getElementById('ldGlow');
+    const spot  = document.getElementById('ldSpot');
+    const h1    = document.getElementById('ldH1');
+    const h2    = document.getElementById('ldH2');
+    function ease(t){ return t<0.5 ? 2*t*t : -1+(4-2*t)*t; }
+    function moveTo(cx){
+      [cc,ring,ringI,glow].forEach(el=>{ el.setAttribute('cx',cx); el.setAttribute('cy',CY); });
+      spot.setAttribute('cx', cx-12);
+      spot.setAttribute('cy', CY-11);
+      spot.setAttribute('transform','rotate(-18,'+(cx-12)+','+(CY-11)+')');
+      const ang=Math.PI*0.78;
+      const hx1=cx+(R-2)*Math.cos(ang), hy1=CY+(R-2)*Math.sin(ang);
+      const hx2=cx+(R+22)*Math.cos(ang), hy2=CY+(R+22)*Math.sin(ang);
+      [h1,h2].forEach(el=>{ el.setAttribute('x1',hx1); el.setAttribute('y1',hy1); el.setAttribute('x2',hx2); el.setAttribute('y2',hy2); });
+    }
+    function frame(now){
+      const cx = START + ease((now%DURATION)/DURATION)*(END-START);
+      moveTo(cx);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.onkeydown = function(e) {
     if(e.keyCode == 123) return false; 
