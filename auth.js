@@ -15,6 +15,7 @@ import {
 import {
   doc,
   getDoc,
+  setDoc,
   runTransaction,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -146,7 +147,8 @@ if (isSignup) {
 
       window.location.href = "dashboard.html";
     } catch (err) {
-      showError("username-error", "Error saving username. Please try again.");
+      console.error("Username save error:", err);
+      showError("username-error", usernameSaveError(err));
       setLoading("btn-save-username", "username-spinner", "username-btn-text", false);
     }
   });
@@ -270,20 +272,13 @@ function buildReferralCode(username) {
 
 async function finishUserProfile(user, username) {
   const referralCode = buildReferralCode(username);
-  const incomingCode = getStoredReferralCode();
   const userRef = doc(db, "users", user.uid);
   const usernameRef = doc(db, "usernames", username);
-  const codeRef = doc(db, "referralCodes", referralCode);
-  const incomingCodeRef = incomingCode ? doc(db, "referralCodes", incomingCode) : null;
-  const referralRef = doc(db, "referrals", user.uid);
 
   await runTransaction(db, async (transaction) => {
     const usernameSnap = await transaction.get(usernameRef);
-    const codeSnap = await transaction.get(codeRef);
-    const incomingSnap = incomingCodeRef ? await transaction.get(incomingCodeRef) : null;
 
     if (usernameSnap.exists()) throw new Error("username-taken");
-    if (codeSnap.exists() && codeSnap.data().uid !== user.uid) throw new Error("referral-code-taken");
 
     transaction.set(userRef, {
       uid: user.uid,
@@ -303,26 +298,51 @@ async function finishUserProfile(user, username) {
     });
 
     transaction.set(usernameRef, { uid: user.uid });
-    transaction.set(codeRef, {
+  });
+
+  await saveReferralArtifacts(user, username, referralCode);
+  clearStoredReferralCode();
+}
+
+async function saveReferralArtifacts(user, username, referralCode) {
+  const incomingCode = getStoredReferralCode();
+
+  try {
+    await setDoc(doc(db, "referralCodes", referralCode), {
       uid: user.uid,
       username,
       code: referralCode,
       createdAt: serverTimestamp()
     });
+  } catch (err) {
+    console.warn("Referral code setup skipped:", err);
+  }
 
-    if (incomingSnap?.exists() && incomingSnap.data().uid !== user.uid) {
-      transaction.set(referralRef, {
-        referredUid: user.uid,
-        referredUsername: username,
-        referrerUid: incomingSnap.data().uid,
-        referrerUsername: incomingSnap.data().username || "",
-        referrerCode: incomingCode,
-        createdAt: serverTimestamp()
-      });
-    }
-  });
+  if (!incomingCode) return;
 
-  clearStoredReferralCode();
+  try {
+    const incomingSnap = await getDoc(doc(db, "referralCodes", incomingCode));
+    if (!incomingSnap.exists() || incomingSnap.data().uid === user.uid) return;
+
+    await setDoc(doc(db, "referrals", user.uid), {
+      referredUid: user.uid,
+      referredUsername: username,
+      referrerUid: incomingSnap.data().uid,
+      referrerUsername: incomingSnap.data().username || "",
+      referrerCode: incomingCode,
+      createdAt: serverTimestamp()
+    });
+  } catch (err) {
+    console.warn("Referral tracking skipped:", err);
+  }
+}
+
+function usernameSaveError(err) {
+  if (err?.message === "username-taken") return "That username was just taken. Try another.";
+  if (err?.code === "permission-denied") {
+    return "Could not save username because Firestore rules blocked the write.";
+  }
+  return "Error saving username. Please try again.";
 }
 
 function setGoogleLoading(btnId, loading) {
