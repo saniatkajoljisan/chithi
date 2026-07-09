@@ -315,7 +315,7 @@ function getReferralRewards(count) {
 }
 
 function buildReferralCode(username) {
-  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2024`.slice(0, 28);
+  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2k26`.slice(0, 28);
 }
 
 function renderReferralPanel(profile) {
