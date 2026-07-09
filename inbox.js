@@ -580,7 +580,7 @@ async function downloadPoster() {
   ctx.textBaseline = "middle";
 
   ctx.font = "600 40px 'Caveat', cursive";
-  ctx.fillText("💌", 140, 1498);
+  ctx.fillText("💌", 140, 1502);
 
   ctx.font = "500 34px 'Lora', serif";
   ctx.fillText("chithi.app", 190, 1500);
