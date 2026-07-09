@@ -341,7 +341,7 @@ function getReferralRewards(count) {
 }
 
 function buildReferralCode(username) {
-  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2024`.slice(0, 28);
+  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2k26`.slice(0, 28);
 }
 
 function renderReferralPanel(profile) {
@@ -353,8 +353,8 @@ function renderReferralPanel(profile) {
   const progress = next ? ((count - previousTarget) / progressRange) * 100 : 100;
 
   if (referralTierEl) referralTierEl.textContent = profile.referralTier || "Starter";
-  if (referralCodeEl) referralCodeEl.textContent = profile.referralCode || "CHITHI2024";
-  if (referralLinkEl) referralLinkEl.textContent = getReferralSignupUrl(profile.referralCode || "CHITHI2024");
+  if (referralCodeEl) referralCodeEl.textContent = profile.referralCode || "CHITHI2k26";
+  if (referralLinkEl) referralLinkEl.textContent = getReferralSignupUrl(profile.referralCode || "CHITHI2k26");
   if (referralCountEl) referralCountEl.textContent = `${count} ${count === 1 ? "referral" : "referrals"}`;
   if (referralNextEl) {
     referralNextEl.textContent = next
