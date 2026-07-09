@@ -75,6 +75,11 @@ const btnCancelDeleteAccount = document.getElementById("btn-cancel-delete-accoun
 const deleteAccountConfirmEl = document.getElementById("account-delete-confirm");
 const deleteAccountInputEl = document.getElementById("delete-account-input");
 const deleteAccountStatusEl = document.getElementById("delete-account-status");
+const referralPanelEl = document.getElementById("referral-panel");
+const referralSummaryEl = document.getElementById("referral-summary");
+const referralDetailsEl = document.getElementById("referral-details");
+const btnCloseReferral = document.getElementById("btn-close-referral");
+const referralTagsEl = document.getElementById("referral-tags");
 const referralTierEl = document.getElementById("referral-tier");
 const referralCodeEl = document.getElementById("referral-code");
 const referralLinkEl = document.getElementById("referral-link");
@@ -181,6 +186,7 @@ inboxFilterEl?.addEventListener("change", () => { visibleCount = 5; renderMessag
 document.querySelectorAll('input[name="avatar-color"]').forEach((option) => {
   option.addEventListener("change", () => {
     updateProfileAvatarPreview(option.value);
+    renderQrCode(activeQrLink || userLinkEl?.textContent || "");
   });
 });
 btnSaveProfile?.addEventListener("click", saveProfile);
@@ -218,7 +224,27 @@ btnShowDeleteAccount?.addEventListener("click", showDeleteAccountConfirm);
 btnCancelDeleteAccount?.addEventListener("click", cancelDeleteAccountConfirm);
 btnDeleteAccount?.addEventListener("click", handleDeleteAccount);
 btnCopyReferral?.addEventListener("click", copyReferralLink);
+referralSummaryEl?.addEventListener("click", () => toggleReferralPanel());
+referralSummaryEl?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    toggleReferralPanel();
+  }
+});
+btnCloseReferral?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  toggleReferralPanel(false);
+});
+
+function toggleReferralPanel(forceExpand) {
+  const isExpanded = referralPanelEl?.classList.contains("expanded");
+  const expand = typeof forceExpand === "boolean" ? forceExpand : !isExpanded;
+  referralPanelEl?.classList.toggle("expanded", expand);
+  referralDetailsEl?.classList.toggle("hidden", !expand);
+  referralSummaryEl?.setAttribute("aria-expanded", String(expand));
+}
 profileEmojisEl?.addEventListener("input", () => {
+  if (profileEmojisEl.disabled) return;
   const emojis = parseCustomEmojis(profileEmojisEl.value);
   updateFloatingEmojis(emojis);
   setEmojiStatus(`${emojis.length || DEFAULT_FLOATING_EMOJIS.length} emojis will float after saving.`, false);
@@ -336,6 +362,12 @@ function renderReferralPanel(profile) {
       : "All referral rewards unlocked";
   }
   if (referralProgressFillEl) referralProgressFillEl.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+  if (referralTagsEl) {
+    referralTagsEl.innerHTML = REFERRAL_MILESTONES.map((item) => {
+      const unlocked = count >= item.count;
+      return `<span class="referral-tag ${unlocked ? "unlocked" : ""}">${unlocked ? "✓" : "🔒"} ${item.tier} · ${item.label}</span>`;
+    }).join("");
+  }
   if (referralMilestonesEl) {
     referralMilestonesEl.innerHTML = REFERRAL_MILESTONES.map((item) => `
       <div class="referral-milestone ${count >= item.count ? "unlocked" : ""}">
@@ -378,20 +410,16 @@ function getQrDotStyle() {
   }
 }
 
-function createInitialImageData(initials, primaryColor, inkColor) {
-  const safeInitials = String(initials || "C").slice(0, 1).toUpperCase();
+function createInitialImageData(initials, avatarColor) {
+  const safeInitials = String(initials || "C").trim().slice(0, 1).toUpperCase();
+  const bg = avatarColor || "#2c1e0f";
+  // Solid white ring so the avatar reads clearly against the QR dots,
+  // then a big solid circle in the user's real avatar color with their initial.
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
-      <defs>
-        <linearGradient id="heartFill" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="${primaryColor}" />
-          <stop offset="100%" stop-color="${inkColor}" />
-        </linearGradient>
-      </defs>
-      <rect x="8" y="8" width="144" height="144" rx="38" fill="#fffdf7" />
-      <path d="M80 132c-24-18-44-34-44-58a28 28 0 0 1 48-19 28 28 0 0 1 48 19c0 24-20 40-44 58z" fill="url(#heartFill)" />
-      <circle cx="80" cy="80" r="50" fill="#fffdf7" fill-opacity="0.95" />
-      <text x="80" y="98" text-anchor="middle" font-size="56" font-family="Arial, sans-serif" font-weight="700" fill="${inkColor}">${safeInitials}</text>
+    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="98" fill="#fffdf7" />
+      <circle cx="100" cy="100" r="86" fill="${bg}" />
+      <text x="100" y="126" text-anchor="middle" font-size="90" font-family="'Kalam','Patrick Hand',Arial,sans-serif" font-weight="800" fill="#fffdf7">${safeInitials}</text>
     </svg>`;
   return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 }
@@ -411,8 +439,13 @@ async function renderQrCode(link = activeQrLink) {
   const inkColor = themeStyles.getPropertyValue("--ink").trim() || "#2c1e0f";
   const backgroundColor = themeStyles.getPropertyValue("--paper-card").trim() || "#fffdf7";
   const displayName = currentProfile?.displayName || currentProfile?.username || "Chithi";
+  // Live-preview the color the person currently has selected in the profile
+  // editor, falling back to their saved avatar color once it's persisted.
+  const avatarColor = document.querySelector('input[name="avatar-color"]:checked')?.value
+    || currentProfile?.avatarColor
+    || "#2c1e0f";
   const includeAvatar = qrAvatarToggleEl?.checked !== false;
-  const avatarImage = includeAvatar ? createInitialImageData(displayName, primaryColor, inkColor) : "";
+  const avatarImage = includeAvatar ? createInitialImageData(displayName, avatarColor) : "";
 
   const qrOptions = {
     width: 280,
@@ -423,7 +456,7 @@ async function renderQrCode(link = activeQrLink) {
     qrOptions: {
       typeNumber: 0,
       mode: "Byte",
-      errorCorrectionLevel: "M"
+      errorCorrectionLevel: "H"
     },
     dotsOptions: {
       color: primaryColor,
@@ -443,8 +476,8 @@ async function renderQrCode(link = activeQrLink) {
     image: avatarImage,
     imageOptions: avatarImage ? {
       hideBackgroundDots: true,
-      imageSize: 0.22,
-      margin: 10
+      imageSize: 0.32,
+      margin: 6
     } : {}
   };
 
@@ -884,12 +917,32 @@ function renderMessages() {
     messagesListEl.innerHTML = `<div class="inbox-empty compact"><p>No letters match this view.</p></div>`;
   }
 }
+function isEmojiCustomizeUnlocked(profile) {
+  const perks = (profile || currentProfile || {}).unlockedPerks || [];
+  return perks.includes("animated_emoji");
+}
+
 function hydrateProfileForm(profile) {
   if (profileNameEl) profileNameEl.value = profile.displayName || profile.username || "";
   if (profileBioEl) profileBioEl.value = profile.bio || "";
-  const customEmojis = normalizeEmojiList(profile.customEmojis);
-  if (profileEmojisEl) profileEmojisEl.value = customEmojis.join(" ");
+  const emojiUnlocked = isEmojiCustomizeUnlocked(profile);
+  const customEmojis = emojiUnlocked ? normalizeEmojiList(profile.customEmojis) : [];
+  if (profileEmojisEl) {
+    profileEmojisEl.value = customEmojis.join(" ");
+    profileEmojisEl.disabled = !emojiUnlocked;
+    profileEmojisEl.placeholder = emojiUnlocked ? "💌 ✨ 💕 🎈 🌸" : "🔒 Unlocks at 10 referrals";
+  }
   updateFloatingEmojis(customEmojis);
+  if (emojiStatusEl) {
+    if (emojiUnlocked) {
+      emojiStatusEl.textContent = "Use up to 12 emojis, separated by spaces.";
+      emojiStatusEl.className = "field-status";
+    } else {
+      const remaining = Math.max(0, 10 - (Number(profile.referralCount) || 0));
+      emojiStatusEl.textContent = `🔒 Invite ${remaining} more friend${remaining === 1 ? "" : "s"} to unlock custom floating emojis.`;
+      emojiStatusEl.className = "field-status locked";
+    }
+  }
   const color = profile.avatarColor || "#2c1e0f";
   const colorOption = document.querySelector(`input[name="avatar-color"][value="${color}"]`);
   if (colorOption) colorOption.checked = true;
@@ -1000,7 +1053,9 @@ async function saveProfile() {
   if (!currentUser || !currentProfile) return;
   const displayName = profileNameEl.value.trim() || currentProfile.username;
   const bio = profileBioEl.value.trim();
-  const customEmojis = parseCustomEmojis(profileEmojisEl?.value || "");
+  const customEmojis = isEmojiCustomizeUnlocked(currentProfile)
+    ? parseCustomEmojis(profileEmojisEl?.value || "")
+    : [];
   const avatarColor = document.querySelector('input[name="avatar-color"]:checked')?.value || "#2c1e0f";
   const selectedTheme = document.querySelector('input[name="profile-theme"]:checked')?.value || "default";
 

@@ -105,7 +105,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 320px;
+  max-width: min(320px, 38vw);
   display: block;
 }
 .msg-preview-snippet.font-normal {
@@ -157,6 +157,13 @@
     flex-direction: column;
     align-items: flex-end;
   }
+  .msg-preview-snippet { max-width: 42vw; font-size: 0.92rem; }
+  .msg-preview-strip { padding: 0.8rem 0.9rem; }
+  .msg-preview-from { font-size: 0.85rem; }
+}
+
+@media (max-width: 360px) {
+  .msg-preview-snippet { max-width: 34vw; }
 }
 /* ── Playback Modal ──────────────────────────────────────── */
 .pb-modal {
@@ -460,34 +467,42 @@
     </div>
 
     <section class="referral-panel" id="referral-panel">
-      <div class="referral-panel-head">
-        <div>
-          <p class="link-banner-label">Referral rewards</p>
-          <h2 class="panel-title">Unlock Chithi extras</h2>
+      <div class="referral-summary" id="referral-summary" role="button" tabindex="0" aria-expanded="false" aria-controls="referral-details">
+        <div class="referral-summary-top">
+          <div>
+            <p class="link-banner-label">Referral rewards</p>
+            <h2 class="panel-title">Unlock Chithi extras</h2>
+          </div>
+          <span class="referral-tier" id="referral-tier">Starter</span>
         </div>
-        <span class="referral-tier" id="referral-tier">Starter</span>
+        <div class="referral-tags" id="referral-tags"></div>
+        <span class="referral-summary-hint" id="referral-summary-hint">Tap to see your referral link &amp; rewards ▾</span>
       </div>
-      <div class="referral-code-row">
-        <div>
-          <span class="referral-code-label">Your code</span>
-          <strong id="referral-code">Loading...</strong>
+
+      <div class="referral-details hidden" id="referral-details">
+        <button class="referral-close" id="btn-close-referral" aria-label="Collapse referral panel" title="Collapse">✕</button>
+        <div class="referral-code-row">
+          <div>
+            <span class="referral-code-label">Your code</span>
+            <strong id="referral-code">Loading...</strong>
+          </div>
+          <button class="btn-copyy" id="btn-copy-referral" title="Copy referral link">Copy link</button>
         </div>
-        <button class="btn-copyy" id="btn-copy-referral" title="Copy referral link">Copy link</button>
-      </div>
-      <div class="referral-link-box">
-        <span class="referral-code-label">Referral signup link</span>
-        <span class="referral-link-display" id="referral-link">Loading...</span>
-      </div>
-      <div class="referral-progress">
-        <div class="referral-progress-meta">
-          <span id="referral-count">0 referrals</span>
-          <span id="referral-next">3 to Basic themes</span>
+        <div class="referral-link-box">
+          <span class="referral-code-label">Referral signup link</span>
+          <span class="referral-link-display" id="referral-link">Loading...</span>
         </div>
-        <div class="referral-progress-track">
-          <div class="referral-progress-fill" id="referral-progress-fill"></div>
+        <div class="referral-progress">
+          <div class="referral-progress-meta">
+            <span id="referral-count">0 referrals</span>
+            <span id="referral-next">3 to Basic themes</span>
+          </div>
+          <div class="referral-progress-track">
+            <div class="referral-progress-fill" id="referral-progress-fill"></div>
+          </div>
         </div>
+        <div class="referral-milestones" id="referral-milestones"></div>
       </div>
-      <div class="referral-milestones" id="referral-milestones"></div>
     </section>
 
     <section class="profile-panel profile-panel-plain">
