@@ -390,8 +390,8 @@ function createInitialImageData(initials, primaryColor, inkColor) {
       </defs>
       <rect x="8" y="8" width="144" height="144" rx="38" fill="#fffdf7" />
       <path d="M80 132c-24-18-44-34-44-58a28 28 0 0 1 48-19 28 28 0 0 1 48 19c0 24-20 40-44 58z" fill="url(#heartFill)" />
-      <circle cx="80" cy="80" r="40" fill="#fffdf7" fill-opacity="0.95" />
-      <text x="80" y="92" text-anchor="middle" font-size="46" font-family="Arial, sans-serif" font-weight="700" fill="${inkColor}">${safeInitials}</text>
+      <circle cx="80" cy="80" r="50" fill="#fffdf7" fill-opacity="0.95" />
+      <text x="80" y="98" text-anchor="middle" font-size="56" font-family="Arial, sans-serif" font-weight="700" fill="${inkColor}">${safeInitials}</text>
     </svg>`;
   return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 }
