@@ -119,7 +119,7 @@ export const THEME_UNLOCK_LEVELS = {
   default: 0,
   candy_pop: 3,
   soft_pastel: 3,
-  dark_mode: 10,
+  dark_mode: 3,
   neon_cyberpunk: 25,
   private_garden: 50
 };
