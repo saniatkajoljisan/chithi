@@ -28,6 +28,40 @@ service cloud.firestore {
       allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
     }
 
+    // ── referral code lookup ─────────────────────────────────
+    // Public read lets signup resolve ?ref=CODE. Users can create/delete
+    // only their own code mapping from the client-only GitHub Pages app.
+    match /referralCodes/{code} {
+      allow read: if true;
+      allow create: if request.auth != null &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.code == code;
+      allow update: if false;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    // ── referrals collection ─────────────────────────────────
+    // Each referred account gets one document keyed by its uid. Referrers
+    // can read their incoming referrals for dashboard progress.
+    match /referrals/{referralId} {
+      allow create: if request.auth != null &&
+        referralId == request.auth.uid &&
+        request.resource.data.referredUid == request.auth.uid &&
+        request.resource.data.referrerUid is string &&
+        request.resource.data.referrerUid != request.auth.uid &&
+        request.resource.data.referrerCode is string &&
+        exists(/databases/$(database)/documents/referralCodes/$(request.resource.data.referrerCode)) &&
+        get(/databases/$(database)/documents/referralCodes/$(request.resource.data.referrerCode)).data.uid ==
+          request.resource.data.referrerUid;
+      allow read: if request.auth != null &&
+        (resource.data.referrerUid == request.auth.uid ||
+         resource.data.referredUid == request.auth.uid);
+      allow update: if false;
+      allow delete: if request.auth != null &&
+        (resource.data.referrerUid == request.auth.uid ||
+         resource.data.referredUid == request.auth.uid);
+    }
+
     // ── messages collection ───────────────────────────────────
     match /messages/{messageId} {
 

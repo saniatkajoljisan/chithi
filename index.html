@@ -1,4 +1,638 @@
-<!DOCTYPE html> <html lang=en> <head> <meta charset=UTF-8 /> <meta name=viewport content="width=device-width, initial-scale=1.0" /> <title>Chithi — Anonymous Letters</title> <link rel=stylesheet href=styles.css /> <link rel=icon href=favicon.ico> <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel=stylesheet /> <style>.floating-bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.float{position:absolute;opacity:0;transform:scale(0.8);transition:opacity 1.2s ease,transform 1.2s ease;will-change:transform,opacity}.float.show{opacity:.9;transform:scale(1) translateY(-20px)}.feature-ticker{width:100%;overflow:hidden;background:linear-gradient(90deg,#2c1e0f,#4a2e1a,#2c1e0f);padding:.75rem 0;margin:0;position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}.feature-ticker::before,.feature-ticker::after{content:"";position:absolute;top:0;bottom:0;width:30px;z-index:2;pointer-events:none}.feature-ticker::before{left:0;background:linear-gradient(to right,#2c1e0f,transparent)}.feature-ticker::after{right:0;background:linear-gradient(to left,#2c1e0f,transparent)}.ticker-track{display:inline-flex;align-items:center;white-space:nowrap;animation:tickerScroll 32s linear infinite;will-change:transform}.ticker-track:hover{animation-play-state:paused}@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}.ticker-item{font-family:'Kalam',cursive;font-size:.92rem;color:#f7ecd8;padding:0 1.5rem;letter-spacing:.02em;opacity:.92}.ticker-sep{color:#c29f7c;font-size:.7rem;opacity:.7;flex-shrink:0}.demo-preview-section{position:relative;z-index:1;padding:4.5rem 2rem 3rem;max-width:1100px;margin:0 auto}.demo-preview-heading{text-align:center;margin-bottom:3rem}.demo-preview-heading h2{font-size:clamp(2rem,4.5vw,2.8rem);color:var(--ink);margin-bottom:.5rem}.demo-preview-sub{font-family:var(--font-readable);font-size:1rem;color:var(--ink-faint);font-style:italic;margin:0}.demo-preview-grid{display:grid;grid-template-columns:1fr 56px 1fr;gap:1.5rem;align-items:start}.demo-col-label{font-family:var(--font-body);font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);margin-bottom:.75rem}.demo-fake-textarea{width:100%;background:transparent;border-color:transparent;border-bottom:1.5px solid var(--line-color);border-radius:0;padding:.5rem 0 .5rem;font-family:var(--font-hand-soft);font-size:1.2rem;line-height:1.75;color:var(--ink);min-height:110px}.demo-fake-textarea.font-normal{font-family:var(--font-readable)}.demo-fake-textarea.font-hand-caveat{font-family:var(--font-hand-soft)}.demo-fake-textarea.font-hand-patrick{font-family:var(--font-hand-simple)}.demo-fake-textarea.font-hand-kalam{font-family:var(--font-hand-notebook)}.demo-cursor{display:inline-block;color:var(--ink-faint);animation:demoBlink 1s step-end infinite;font-weight:400;margin-left:1px}@keyframes demoBlink{0%,100%{opacity:1}50%{opacity:0}}.demo-col--arrow{display:flex;align-items:center;justify-content:center;padding-top:8rem}.demo-arrow-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}.demo-envelope-fly{font-size:1.6rem;animation:demoFloat 2.6s ease-in-out infinite}@keyframes demoFloat{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-10px) rotate(4deg)}}.demo-arrow-shaft{width:2px;height:36px;background:linear-gradient(to bottom,var(--line-color),transparent)}.demo-arrow-tip{font-size:1rem;color:var(--line-color);line-height:1}.demo-dash-topbar{display:flex;align-items:center;justify-content:space-between;padding:.55rem .8rem;background:rgba(253,248,240,0.92);border:1px solid var(--line-color);border-radius:var(--radius);box-shadow:0 1px 4px var(--shadow)}.demo-preview-note{text-align:center;font-family:var(--font-body);font-size:.85rem;color:var(--ink-faint);margin-top:2rem;letter-spacing:.01em}.demo-col--send .style-choice,.demo-col--send .toggle-label,.demo-col--send .btn-primary{pointer-events:none}@media(max-width:700px){.demo-preview-section{padding:3rem 1rem 2rem}.demo-preview-grid{grid-template-columns:1fr;gap:1.2rem}.demo-col--arrow{flex-direction:row;padding-top:0;gap:.5rem;justify-content:center}.demo-arrow-wrap{flex-direction:row;align-items:center;gap:6px}.demo-arrow-shaft{width:36px;height:2px;background:linear-gradient(to right,var(--line-color),transparent)}.demo-envelope-fly{animation:demoFloatH 2.6s ease-in-out infinite}@keyframes demoFloatH{0%,100%{transform:translateX(0) rotate(-6deg)}50%{transform:translateX(6px) rotate(4deg)}}}</style> </head> <body class=landing-page> <div class=floating-bg> <div class="float b f1" style=left:8%;top:6%;font-size:3.2rem;--r:240deg>💌</div> <div class="float b f2" style=left:28%;top:14%;font-size:3.6rem;--r:90deg>✨</div> <div class="float b f3" style=left:62%;top:18%;font-size:4.2rem;--r:300deg>💕</div> <div class="float b f4" style=left:88%;top:10%;font-size:3.5rem;--r:210deg>📝</div> <div class="float m f1" style=left:12%;top:42%;font-size:3.8rem;--r:110deg>💌</div> <div class="float m f2" style=left:34%;top:46%;font-size:3rem;--r:230deg>🌸</div> <div class="float m f3" style=left:66%;top:40%;font-size:3.6rem;--r:310deg>🎈</div> <div class="float m f4" style=left:82%;top:60%;font-size:3.4rem;--r:250deg>📫</div> <div class="float f f1" style=left:18%;top:72%;font-size:3.4rem;--r:220deg>💕</div> <div class="float f f2" style=left:30%;top:88%;font-size:4rem;--r:260deg>🎈</div> <div class="float f f3" style=left:55%;top:94%;font-size:3rem;--r:300deg>❤️</div> <div class="float f f4" style=left:90%;top:80%;font-size:3.3rem;--r:40deg>🎉</div> </div> <div class=bg-lines></div> <div class="ink-blot ink-blot-1"></div> <div class="ink-blot ink-blot-2"></div> <div class=landing-wrap> <header class=site-header> <div class=logo> <span class=logo-icon>💌</span> <span class=logo-text>Chithi</span> </div> <nav class=header-nav> <a href=login.html class=nav-link>Sign In</a> <a href=signup.html class="btn-primary btn-sm">Get Started</a> </nav> </header> <main class=hero> <div class=hero-content> <p class=hero-eyebrow>Share what's on your heart</p> <h1 class=hero-title> Receive anonymous<br/> <em>letters</em> from anyone. </h1> <p class=hero-subtitle> Create your personal link. Share it. Let friends, followers, or strangers send you honest, heartfelt messages — anonymously or not. </p> <div class=hero-actions> <a href=signup.html class="btn-primary btn-lg"> Create Your Chithi Link <span class=btn-arrow>→</span> </a> <a href=login.html class=btn-ghost>I already have an account</a> </div> </div> <div class=hero-letter> <div class=letter-paper> <div class=letter-lines> <span></span><span></span><span></span> <span></span><span></span><span></span> </div> <p class=letter-preview-text> "There is something about you that charms everyone 🩵..." </p> <div class=letter-stamp> <span>💌</span> </div> <div class=letter-tag>Anonymous</div> </div> </div> </main> <section class=stats-section> <div class=stats-container> <div class=stat-item> <div class=stat-number id=total-users aria-label="Loading registered users"> <span class=loading-dots aria-hidden=true><span></span><span></span><span></span></span> </div> <div class=stat-label>Registered Users</div> </div> <div class=stat-item> <div class=stat-number id=total-letters aria-label="Loading letters sent"> <span class=loading-dots aria-hidden=true><span></span><span></span><span></span></span> </div> <div class=stat-label>Letters Sent</div> </div> <div class=stat-item> <div class=stat-text>100% Anonymous</div> <div class=stat-label>Privacy Guaranteed</div> </div> </div> </section> <div class=feature-ticker> <div class=ticker-track> <span class=ticker-item>💌 Send letters anonymously</span> <span class=ticker-sep>✦</span> <span class=ticker-item>🔍 Track your letter anytime</span> <span class=ticker-sep>✦</span> <span class=ticker-item>🗑️ Unsend with one tap</span> <span class=ticker-sep>✦</span> <span class=ticker-item>🎭 No account needed to send</span> <span class=ticker-sep>✦</span> <span class=ticker-item>🔒 We never sell your data</span> <span class=ticker-sep>✦</span> <span class=ticker-item>✉️ Choose your letter style</span> <span class=ticker-sep>✦</span> <span class=ticker-item>💬 Reply & react to letters</span> <span class=ticker-sep>✦</span> <span class=ticker-item>📬 Your inbox, your control</span> <span class=ticker-sep>✦</span> <span class=ticker-item>💌 Send letters anonymously</span> <span class=ticker-sep>✦</span> <span class=ticker-item>🔍 Track your letter anytime</span> <span class=ticker-sep>✦</span> <span class=ticker-item>🗑️ Unsend with one tap</span> <span class=ticker-sep>✦</span> <span class=ticker-item>🎭 No account needed to send</span> <span class=ticker-sep>✦</span> <span class=ticker-item>🔒 We never sell your data</span> <span class=ticker-sep>✦</span> <span class=ticker-item>✉️ Choose your letter style</span> <span class=ticker-sep>✦</span> <span class=ticker-item>💬 Reply & react to letters</span> <span class=ticker-sep>✦</span> <span class=ticker-item>📬 Your inbox, your control</span> <span class=ticker-sep>✦</span> </div> </div> <section class=demo-preview-section> <div class=demo-preview-heading> <p class=hero-eyebrow style=margin-bottom:0.6rem>✨ Interactive preview</p> <h2>Check out the visuals.</h2> <p class=demo-preview-sub>From sending a letter to reading it — all in one glance.</p> </div> <div class=demo-preview-grid> <div class="demo-col demo-col--send"> <p class=demo-col-label>① Sender's view</p> <div class=user-profile-header style=margin-bottom:1.2rem> <div class=avatar-circle style=background:#3f6f55;width:56px;height:56px;font-size:1.5rem;margin-bottom:.7rem>L</div> <h1 class=user-greeting style=font-size:1.4rem> Send a letter to<br/> <span class=username-display>@Lyra</span> </h1> <p class=user-tagline>They won't know who you are unless you tell them.</p> </div> <div class="letter-form-card letter-bg-rose"> <div class=letter-lines-deco><span></span><span></span><span></span></div> <div class=form-group style=position:relative;z-index:1> <label>Your Letter</label> <div class="demo-fake-textarea font-hand-patrick"> Your smile makes every room brighter. I never have the courage to say this in person — but you matter more than you think. 💛 <span class=demo-cursor aria-hidden=true>|</span> </div> <div class=char-count>93 / 2500</div> </div> <div class=form-group style=position:relative;z-index:1> <span class=form-label>Letter style</span> <p class=style-note>Choose a font and background for your letter.</p> <div class=style-choice-row> <label class=style-choice> <input type=radio name=demo-style value=en-1 checked disabled/> <span class="style-card-sample bg-rose font-hand-patrick">Aa<span class=style-choice-name>Rose</span></span> </label> <label class=style-choice> <input type=radio name=demo-style value=en-2 disabled/> <span class="style-card-sample bg-mint font-hand-kalam">Aa<span class=style-choice-name>Mint</span></span> </label> <label class=style-choice> <input type=radio name=demo-style value=en-3 disabled/> <span class="style-card-sample bg-sky font-normal">Aa<span class=style-choice-name>Sky</span></span> </label> <label class=style-choice> <input type=radio name=demo-style value=en-4 disabled/> <span class="style-card-sample bg-paper font-hand-caveat">Aa<span class=style-choice-name>Soft</span></span> </label> </div> </div> <div class=anon-toggle-row style=position:relative;z-index:1> <label class=toggle-label style=cursor:default> <span class=toggle-text>Send anonymously</span> <div class=toggle-switch> <input type=checkbox checked disabled/> <span class=toggle-slider></span> </div> </label> </div> <button class="btn-primary btn-full" style=position:relative;z-index:1;cursor:default;opacity:.92 tabindex=-1 aria-disabled=true> Send Letter 💌 </button> </div> </div> <div class="demo-col demo-col--arrow" aria-hidden=true> <div class=demo-arrow-wrap> <span class=demo-envelope-fly>💌</span> <div class=demo-arrow-shaft></div> <span class=demo-arrow-tip>→</span> </div> </div> <div class="demo-col demo-col--inbox"> <p class=demo-col-label>② Your inbox</p> <div class=demo-dash-topbar> <span class=logo style=pointer-events:none> <span class=logo-icon>💌</span> <span class=logo-text style=font-size:1.2rem>Chithi</span> </span> <div style=display:flex;align-items:center;gap:.5rem> <span class=user-pill> <span class=user-dot></span> Lyra </span> </div> </div> <div class=inbox-header style=margin-top:1.1rem> <h2 class=inbox-title style=font-size:1.5rem>Your Letters</h2> <span class=inbox-count>2 Letters</span> </div> <div class=messages-list> <div class="message-card unread letter-bg-rose" style=animation:none> <div class=message-flags> <span class="status-pill unread-pill">● New</span> <span class=anon-badge>🎭 Anonymous</span> </div> <p class="message-text font-hand-patrick"> Your smile makes every room brighter. I never have the courage to say this in person — but you matter more than you think. 💛 </p> <div class=reaction-row> <button class="reaction-btn active" tabindex=-1 aria-disabled=true title=Heart>❤️</button> <button class=reaction-btn tabindex=-1 aria-disabled=true title=Smile>🤣</button> <button class=reaction-btn tabindex=-1 aria-disabled=true title=Emotional>😭</button> <button class=reaction-btn tabindex=-1 aria-disabled=true title=Angry>🤬</button> </div> <div class=message-meta style=margin-top:0.8rem> <span class=message-sender>From <strong>Anonymous</strong></span> <span class=message-date>just now</span> </div> <div class=message-actions style=margin-top:0.65rem> <button class=btn-card-action tabindex=-1 aria-disabled=true>↩ Reply</button> <button class=btn-card-action tabindex=-1 aria-disabled=true>☆ Fav</button> <button class=btn-delete tabindex=-1 aria-disabled=true>🗑</button> </div> </div> </div> <div class=messages-list style=margin-top:.8rem;opacity:.48;pointer-events:none> <div class="message-card letter-bg-mint" style=animation:none> <div class=message-flags> <span class=anon-badge>🎭 Anonymous</span> </div> <p class="message-text font-hand-kalam" style=font-size:1rem;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden> Your kindness is a gift to everyone who meets you... </p> <div class=message-meta style=margin-top:0.6rem> <span class=message-sender>From <strong>Anonymous</strong></span> <span class=message-date>2 days ago</span> </div> </div> </div> </div> </div> <p class=demo-preview-note> 🔒 No account needed to send &nbsp;·&nbsp; Senders stay anonymous by default &nbsp;·&nbsp; You stay in full control </p> </section> <section class=how-it-works> <h2>How it works</h2> <div class=steps> <div class=step> <div class=step-num>01</div> <h3>Sign up &amp; pick a username</h3> <p>Create your account and choose a unique username. Your link is ready instantly.</p> </div> <div class=step-arrow>→</div> <div class=step> <div class=step-num>02</div> <h3>Share your link</h3> <p>Post <code>chithi/username</code> on social media, your bio, anywhere.</p> </div> <div class=step-arrow>→</div> <div class=step> <div class=step-num>03</div> <h3>Receive letters</h3> <p>Anyone can send you a message — anonymously or with their name.</p> </div> </div> </section> <footer class=site-footer> <p class=footer-sub> <a href=about-us.html>About</a> • <a href=privacy.html>Privacy</a> • <a href=terms.html>Terms</a> • <a href=track.html>Track Letter</a> </p> <p> Creation of <span class=heart> <a href=https://www.facebook.com/saniat.kajol.jisan target=_blank rel="noopener noreferrer"> SK </a> ♥ </span> for honest conversations — © Chithi <span id=year></span> </p> </footer> </div> <script src=clean-urls.js></script> <script type=module>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chithi — Anonymous Letters</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+<style>
+  .floating-bg{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:0;
+}
+
+.float{
+  position:absolute;
+  opacity:0;
+  transform:scale(0.8);
+  transition:opacity 1.2s ease, transform 1.2s ease;
+  will-change:transform, opacity;
+}
+
+/* active state */
+.float.show{
+  opacity:0.9;
+  transform:scale(1) translateY(-20px);
+}
+
+  .feature-ticker {
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(90deg, #2c1e0f, #4a2e1a, #2c1e0f);
+  padding: 0.75rem 0;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.feature-ticker::before,
+.feature-ticker::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 30px;
+  z-index: 2;
+  pointer-events: none;
+}
+.feature-ticker::before {
+  left: 0;
+  background: linear-gradient(to right, #2c1e0f, transparent);
+}
+.feature-ticker::after {
+  right: 0;
+  background: linear-gradient(to left, #2c1e0f, transparent);
+}
+
+.ticker-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: tickerScroll 32s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  font-family: 'Kalam', cursive;
+  font-size: 0.92rem;
+  color: #f7ecd8;
+  padding: 0 1.5rem;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
+.ticker-sep {
+  color: #c29f7c;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+  /* ── Demo Preview Section ─────────────────────────── */
+    .demo-preview-section {
+      position: relative;
+      z-index: 1;
+      padding: 4.5rem 2rem 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .demo-preview-heading {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .demo-preview-heading h2 {
+      font-size: clamp(2rem, 4.5vw, 2.8rem);
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .demo-preview-sub {
+      font-family: var(--font-readable);
+      font-size: 1rem;
+      color: var(--ink-faint);
+      font-style: italic;
+      margin: 0;
+    }
+
+    /* 3-col grid: form | arrow | inbox */
+    .demo-preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 56px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .demo-col-label {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-faint);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Fake textarea (non-editable look-alike) */
+    .demo-fake-textarea {
+      width: 100%;
+      background: transparent;
+      border-color: transparent;
+      border-bottom: 1.5px solid var(--line-color);
+      border-radius: 0;
+      padding: 0.5rem 0 0.5rem;
+      font-family: var(--font-hand-soft);
+      font-size: 1.2rem;
+      line-height: 1.75;
+      color: var(--ink);
+      min-height: 110px;
+    }
+    .demo-fake-textarea.font-normal {
+      font-family: var(--font-readable);
+    }
+    .demo-fake-textarea.font-hand-caveat {
+      font-family: var(--font-hand-soft);
+    }
+    .demo-fake-textarea.font-hand-patrick {
+      font-family: var(--font-hand-simple);
+    }
+    .demo-fake-textarea.font-hand-kalam {
+      font-family: var(--font-hand-notebook);
+    }
+
+    /* Blinking cursor */
+    .demo-cursor {
+      display: inline-block;
+      color: var(--ink-faint);
+      animation: demoBlink 1s step-end infinite;
+      font-weight: 400;
+      margin-left: 1px;
+    }
+    @keyframes demoBlink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* ── Arrow column ── */
+    .demo-col--arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 8rem;
+    }
+    .demo-arrow-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .demo-envelope-fly {
+      font-size: 1.6rem;
+      animation: demoFloat 2.6s ease-in-out infinite;
+    }
+    @keyframes demoFloat {
+      0%, 100% { transform: translateY(0) rotate(-6deg); }
+      50%       { transform: translateY(-10px) rotate(4deg); }
+    }
+    .demo-arrow-shaft {
+      width: 2px;
+      height: 36px;
+      background: linear-gradient(to bottom, var(--line-color), transparent);
+    }
+    .demo-arrow-tip {
+      font-size: 1rem;
+      color: var(--line-color);
+      line-height: 1;
+    }
+
+    /* ── Inbox mini top bar ── */
+    .demo-dash-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.8rem;
+      background: rgba(253,248,240,0.92);
+      border: 1px solid var(--line-color);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+
+    /* ── Bottom note ── */
+    .demo-preview-note {
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--ink-faint);
+      margin-top: 2rem;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Pointer-events: none for all demo interactive elements ── */
+    .demo-col--send .style-choice,
+    .demo-col--send .toggle-label,
+    .demo-col--send .btn-primary {
+      pointer-events: none;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 700px) {
+      .demo-preview-section { padding: 3rem 1rem 2rem; }
+
+      .demo-preview-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+      }
+
+      .demo-col--arrow {
+        flex-direction: row;
+        padding-top: 0;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+      .demo-arrow-wrap {
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+      }
+      .demo-arrow-shaft {
+        width: 36px;
+        height: 2px;
+        background: linear-gradient(to right, var(--line-color), transparent);
+      }
+      .demo-envelope-fly {
+        animation: demoFloatH 2.6s ease-in-out infinite;
+      }
+      @keyframes demoFloatH {
+        0%, 100% { transform: translateX(0) rotate(-6deg); }
+        50%       { transform: translateX(6px) rotate(4deg); }
+      }
+    }
+</style>
+</head>
+<body class="landing-page">
+<div class="floating-bg">
+
+  <!-- back layer (blurred, slow) -->
+  <div class="float b f1" style="left:8%; top:6%; font-size:3.2rem; --r:240deg;">💌</div>
+  <div class="float b f2" style="left:28%; top:14%; font-size:3.6rem; --r:90deg;">✨</div>
+  <div class="float b f3" style="left:62%; top:18%; font-size:4.2rem; --r:300deg;">💕</div>
+  <div class="float b f4" style="left:88%; top:10%; font-size:3.5rem; --r:210deg;">📝</div>
+
+  <!-- mid layer -->
+  <div class="float m f1" style="left:12%; top:42%; font-size:3.8rem; --r:110deg;">💌</div>
+  <div class="float m f2" style="left:34%; top:46%; font-size:3rem; --r:230deg;">🌸</div>
+  <div class="float m f3" style="left:66%; top:40%; font-size:3.6rem; --r:310deg;">🎈</div>
+  <div class="float m f4" style="left:82%; top:60%; font-size:3.4rem; --r:250deg;">📫</div>
+
+  <!-- front layer (sharp, faster) -->
+  <div class="float f f1" style="left:18%; top:72%; font-size:3.4rem; --r:220deg;">💕</div>
+  <div class="float f f2" style="left:30%; top:88%; font-size:4rem; --r:260deg;">🎈</div>
+  <div class="float f f3" style="left:55%; top:94%; font-size:3rem; --r:300deg;">❤️</div>
+  <div class="float f f4" style="left:90%; top:80%; font-size:3.3rem; --r:40deg;">🎉</div>
+
+</div>
+  <!-- Decorative background elements -->
+  <div class="bg-lines"></div>
+  <div class="ink-blot ink-blot-1"></div>
+  <div class="ink-blot ink-blot-2"></div>
+
+  <div class="landing-wrap">
+    <header class="site-header">
+      <div class="logo">
+        <span class="logo-icon">💌</span>
+        <span class="logo-text">Chithi</span>
+      </div>
+      <nav class="header-nav">
+        <a href="login.html" class="nav-link">Sign In</a>
+        <a href="signup.html" class="btn-primary btn-sm">Get Started</a>
+      </nav>
+    </header>
+
+    <main class="hero">
+      <div class="hero-content">
+        <p class="hero-eyebrow">Share what's on your heart</p>
+        <h1 class="hero-title">
+          Receive anonymous<br/>
+          <em>letters</em> from anyone.
+        </h1>
+        <p class="hero-subtitle">
+          Create your personal link. Share it. Let friends, followers, or strangers
+          send you honest, heartfelt messages — anonymously or not.
+        </p>
+        <div class="hero-actions">
+          <a href="signup.html" class="btn-primary btn-lg">
+            Create Your Chithi Link
+            <span class="btn-arrow">→</span>
+          </a>
+          <a href="login.html" class="btn-ghost">I already have an account</a>
+        </div>
+      </div>
+
+      <!-- Decorative letter preview -->
+      <div class="hero-letter">
+        <div class="letter-paper">
+          <div class="letter-lines">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+          <p class="letter-preview-text">
+            "There is something about you that charms everyone 🩵..."
+          </p>
+          <div class="letter-stamp">
+            <span>💌</span>
+          </div>
+          <div class="letter-tag">Anonymous</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Live Stats Section -->
+    <section class="stats-section">
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-number" id="total-users" aria-label="Loading registered users">
+            <span class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+          </div>
+          <div class="stat-label">Registered Users</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="total-letters" aria-label="Loading letters sent">
+            <span class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+          </div>
+          <div class="stat-label">Letters Sent</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-text">100% Anonymous</div>
+          <div class="stat-label">Privacy Guaranteed</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature ticker -->
+    <div class="feature-ticker">
+      <div class="ticker-track">
+        <span class="ticker-item">💌 Send letters anonymously</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🔍 Track your letter anytime</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🗑️ Unsend with one tap</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🎭 No account needed to send</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🔒 We never sell your data</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">✉️ Choose your letter style</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">💬 Reply & react to letters</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">📬 Your inbox, your control</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">💌 Send letters anonymously</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🔍 Track your letter anytime</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🗑️ Unsend with one tap</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🎭 No account needed to send</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">🔒 We never sell your data</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">✉️ Choose your letter style</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">💬 Reply & react to letters</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">📬 Your inbox, your control</span>
+        <span class="ticker-sep">✦</span>
+      </div>
+    </div>
+
+     <!-- ══════════════════════════════════════════
+         DEMO PREVIEW SECTION
+         (purely static — no Firebase, no JS logic)
+         ══════════════════════════════════════════ -->
+    <section class="demo-preview-section">
+
+      <div class="demo-preview-heading">
+        <p class="hero-eyebrow" style="margin-bottom:0.6rem;">✨ Interactive preview</p>
+        <h2>Check out the visuals.</h2>
+        <p class="demo-preview-sub">From sending a letter to reading it — all in one glance.</p>
+      </div>
+
+      <div class="demo-preview-grid">
+
+        <!-- ─── LEFT : Send form (mirrors user.html) ─── -->
+        <div class="demo-col demo-col--send">
+          <p class="demo-col-label">① Sender's view</p>
+
+          <!-- Profile header (matches user-profile-header) -->
+          <div class="user-profile-header" style="margin-bottom:1.2rem;">
+            <div class="avatar-circle" style="background:#3f6f55; width:56px; height:56px; font-size:1.5rem; margin-bottom:0.7rem;">L</div>
+            <h1 class="user-greeting" style="font-size:1.4rem;">
+              Send a letter to<br/>
+              <span class="username-display">@Lyra</span>
+            </h1>
+            <p class="user-tagline">They won't know who you are unless you tell them.</p>
+          </div>
+
+          <!-- Letter form card (exact class from user.html / styles.css) -->
+          <div class="letter-form-card letter-bg-rose">
+            <div class="letter-lines-deco"><span></span><span></span><span></span></div>
+
+            <!-- Textarea mock -->
+            <div class="form-group" style="position:relative; z-index:1;">
+              <label>Your Letter</label>
+              <div class="demo-fake-textarea font-hand-patrick">
+                Your smile makes every room brighter. I never have the courage to say this in person — but you matter more than you think. 💛
+                <span class="demo-cursor" aria-hidden="true">|</span>
+              </div>
+              <div class="char-count">93 / 2500</div>
+            </div>
+
+            <!-- Style chooser (exact markup from user.html) -->
+            <div class="form-group" style="position:relative; z-index:1;">
+              <span class="form-label">Letter style</span>
+              <p class="style-note">Choose a font and background for your letter.</p>
+              <div class="style-choice-row">
+                <label class="style-choice">
+                  <input type="radio" name="demo-style" value="en-1" checked disabled/>
+                  <span class="style-card-sample bg-rose font-hand-patrick">Aa<span class="style-choice-name">Rose</span></span>
+                </label>
+                <label class="style-choice">
+                  <input type="radio" name="demo-style" value="en-2" disabled/>
+                  <span class="style-card-sample bg-mint font-hand-kalam">Aa<span class="style-choice-name">Mint</span></span>
+                </label>
+                <label class="style-choice">
+                  <input type="radio" name="demo-style" value="en-3" disabled/>
+                  <span class="style-card-sample bg-sky font-normal">Aa<span class="style-choice-name">Sky</span></span>
+                </label>
+                <label class="style-choice">
+                  <input type="radio" name="demo-style" value="en-4" disabled/>
+                  <span class="style-card-sample bg-paper font-hand-caveat">Aa<span class="style-choice-name">Soft</span></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Anonymous toggle (exact markup from user.html) -->
+            <div class="anon-toggle-row" style="position:relative; z-index:1;">
+              <label class="toggle-label" style="cursor:default;">
+                <span class="toggle-text">Send anonymously</span>
+                <div class="toggle-switch">
+                  <input type="checkbox" checked disabled/>
+                  <span class="toggle-slider"></span>
+                </div>
+              </label>
+            </div>
+
+            <!-- Send button -->
+            <button class="btn-primary btn-full" style="position:relative; z-index:1; cursor:default; opacity:0.92;" tabindex="-1" aria-disabled="true">
+              Send Letter 💌
+            </button>
+          </div>
+        </div>
+
+        <!-- ─── MIDDLE: flying arrow ─── -->
+        <div class="demo-col demo-col--arrow" aria-hidden="true">
+          <div class="demo-arrow-wrap">
+            <span class="demo-envelope-fly">💌</span>
+            <div class="demo-arrow-shaft"></div>
+            <span class="demo-arrow-tip">→</span>
+          </div>
+        </div>
+
+        <!-- ─── RIGHT : Inbox card (mirrors dashboard.html) ─── -->
+        <div class="demo-col demo-col--inbox">
+          <p class="demo-col-label">② Your inbox</p>
+
+          <!-- Mini nav bar replication -->
+          <div class="demo-dash-topbar">
+            <span class="logo" style="pointer-events:none;">
+              <span class="logo-icon">💌</span>
+              <span class="logo-text" style="font-size:1.2rem;">Chithi</span>
+            </span>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span class="user-pill">
+                <span class="user-dot"></span>
+                Lyra
+              </span>
+            </div>
+          </div>
+
+          <!-- Inbox header -->
+          <div class="inbox-header" style="margin-top:1.1rem;">
+            <h2 class="inbox-title" style="font-size:1.5rem;">Your Letters</h2>
+            <span class="inbox-count">2 Letters</span>
+          </div>
+
+          <!-- Message card (exact classes from styles.css) -->
+          <div class="messages-list">
+            <div class="message-card unread letter-bg-rose" style="animation:none;">
+              <div class="message-flags">
+                <span class="status-pill unread-pill">● New</span>
+                <span class="anon-badge">🎭 Anonymous</span>
+              </div>
+
+              <p class="message-text font-hand-patrick">
+                Your smile makes every room brighter. I never have the courage to say this in person — but you matter more than you think. 💛
+              </p>
+
+              <div class="reaction-row">
+                <button class="reaction-btn active" tabindex="-1" aria-disabled="true" title="Heart">❤️</button>
+                <button class="reaction-btn" tabindex="-1" aria-disabled="true" title="Smile">🤣</button>
+                <button class="reaction-btn" tabindex="-1" aria-disabled="true" title="Emotional">😭</button>
+                <button class="reaction-btn" tabindex="-1" aria-disabled="true" title="Angry">🤬</button>
+              </div>
+
+              <div class="message-meta" style="margin-top:0.8rem;">
+                <span class="message-sender">From <strong>Anonymous</strong></span>
+                <span class="message-date">just now</span>
+              </div>
+
+              <div class="message-actions" style="margin-top:0.65rem;">
+                <button class="btn-card-action" tabindex="-1" aria-disabled="true">↩ Reply</button>
+                <button class="btn-card-action" tabindex="-1" aria-disabled="true">☆ Fav</button>
+                <button class="btn-delete" tabindex="-1" aria-disabled="true">🗑</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Second older card (faded, for depth) -->
+          <div class="messages-list" style="margin-top:0.8rem; opacity:0.48; pointer-events:none;">
+            <div class="message-card letter-bg-mint" style="animation:none;">
+              <div class="message-flags">
+                <span class="anon-badge">🎭 Anonymous</span>
+              </div>
+              <p class="message-text font-hand-kalam" style="font-size:1rem; -webkit-line-clamp:2; display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden;">
+                Your kindness is a gift to everyone who meets you...
+              </p>
+              <div class="message-meta" style="margin-top:0.6rem;">
+                <span class="message-sender">From <strong>Anonymous</strong></span>
+                <span class="message-date">2 days ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /demo-preview-grid -->
+
+      <p class="demo-preview-note">
+        🔒 No account needed to send &nbsp;·&nbsp; Senders stay anonymous by default &nbsp;·&nbsp; You stay in full control
+      </p>
+
+    </section>
+    <!-- ══════════ END DEMO PREVIEW ══════════ -->
+
+    <section class="how-it-works">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Sign up &amp; pick a username</h3>
+          <p>Create your account and choose a unique username. Your link is ready instantly.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Share your link</h3>
+          <p>Post <code>chithi/username</code> on social media, your bio, anywhere.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Receive letters</h3>
+          <p>Anyone can send you a message — anonymously or with their name.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+
+      <p class="footer-sub">
+        <a href="about-us.html">About</a> • 
+        <a href="privacy.html">Privacy</a> • 
+        <a href="terms.html">Terms</a> • 
+        <a href="track.html">Track Letter</a>
+      </p>
+    
+      <p>
+        Creation of 
+        <span class="heart">
+          <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">
+            SK
+          </a> ♥
+        </span> 
+        for honest conversations — © Chithi <span id="year"></span>
+      </p>
+    
+    </footer>
+  </div>
+
+  <script src="clean-urls.js"></script>
+
+  <!-- Firebase imports for stats -->
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, query, where, onSnapshot, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -27,23 +661,23 @@
       });
 
       // Count messages (using count query)
-        try {
-          const messagesQuery = query(collection(db, "messages"));
-          const snapshot = await getCountFromServer(messagesQuery);
-          const letterCount = snapshot.data().count;
-        
-          const repliesSnap = await getCountFromServer(
-            query(collection(db, "messages"), where("replyText", "!=", ""))
-          );
-          const replyCount = repliesSnap.data().count;
-        
-          const total = letterCount + replyCount;
-          console.log("Message count:", total);
-          document.getElementById("total-letters").textContent = total.toLocaleString();
-        } catch (error) {
-          console.error("Error getting message count:", error);
-          document.getElementById("total-letters").textContent = "0";
-        }
+      try {
+        const messagesQuery = query(collection(db, "messages"));
+        const snapshot = await getCountFromServer(messagesQuery);
+        const letterCount = snapshot.data().count;
+
+        const repliesSnap = await getCountFromServer(
+          query(collection(db, "messages"), where("replyText", "!=", ""))
+        );
+        const replyCount = repliesSnap.data().count;
+
+        const total = letterCount + replyCount;
+        console.log("Message count:", total);
+        document.getElementById("total-letters").textContent = total.toLocaleString();
+      } catch (error) {
+        console.error("Error getting message count:", error);
+        document.getElementById("total-letters").textContent = "0";
+      }
     }
 
     // Initialize stats on page load
@@ -121,14 +755,5 @@
     }
   })();
 </script>
-<script>
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.onkeydown = function(e) {
-    if(e.keyCode == 123) return false; // F12
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
-  };
-  document.onselectstart = function() { return false; }
-</script> </body> </html>
+</body>
+</html>

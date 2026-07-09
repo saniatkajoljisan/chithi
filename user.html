@@ -1,190 +1,526 @@
 <!DOCTYPE html>
-<html lang=en>
+<html lang="en">
 <head>
-<meta charset=UTF-8 />
-<meta name=viewport content="width=device-width, initial-scale=1.0" />
-<title>Send a Letter — Chithi</title>
-<link rel=icon href=favicon.ico>
-<link rel=stylesheet href=styles.css />
-<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel=stylesheet />
-<style>.floating-bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.float{position:absolute;opacity:0;transform:scale(0.8);transition:opacity 1.2s ease,transform 1.2s ease;will-change:transform,opacity}.float.show{opacity:.9;transform:scale(1) translateY(-20px)}#paper-plane{position:absolute;left:50%;top:60%;transform:translate(-50%,0);font-size:28px;color:#ff4da6;opacity:0;pointer-events:none}.fly-success{animation:flySuccess 1.5s ease-out forwards}@keyframes flySuccess{0%{transform:translate(-50%,0) rotate(0deg) scale(1);opacity:1}40%{transform:translate(40px,-60px) rotate(15deg) scale(1.1)}70%{transform:translate(120px,-120px) rotate(25deg)}100%{transform:translate(220px,-200px) rotate(35deg) scale(0.9);opacity:0}}.marquee-container{overflow:hidden;white-space:nowrap;border:1px solid #699ef5;padding:4px;border-radius:6px;position:relative;margin-top:8px;font-size:11px;font-weight:650;letter-spacing:1.5px}.marquee-text{display:inline-block;padding-left:100%;color:rgba(70,153,236,0.85);animation:scroll-left 12s linear infinite}@keyframes scroll-left{0%{transform:translateX(0%)}100%{transform:translateX(-100%)}}.marquee-container:hover .marquee-text{animation-play-state:paused}.aesthetic-loader{position:relative;width:100%;height:240px;background-color:transparent;border:0;box-shadow:none;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-top:2rem}.secret-text{position:absolute;inset:0;padding:12px 18px;font-family:'Lora','Courier New',serif;font-size:1.15rem;line-height:29px;color:#8c7a6b;word-break:break-all;text-align:justify;letter-spacing:5px;z-index:2;font-weight:600;mask-image:radial-gradient(circle 50px at var(--mouseX,50%) var(--mouseY,50%),black 60%,transparent 100%);-webkit-mask-image:radial-gradient(circle 50px at var(--mouseX,50%) var(--mouseY,50%),black 60%,transparent 100%);opacity:.9}.mag-glass-container{position:absolute;left:var(--mouseX,50%);top:var(--mouseY,50%);transform:translate(-50%,-50%);z-index:3;pointer-events:none}.mag-glass{width:100px;height:100px;border-radius:50%;border:4px solid #c29f7c;background:rgba(253,248,240,0.1);backdrop-filter:blur(1.5px) contrast(1.05);-webkit-backdrop-filter:blur(1.5px) contrast(1.05);box-shadow:0 8px 16px rgba(44,30,15,0.1),inset 0 0 20px rgba(255,255,255,0.6);position:relative}.glass-glare{position:absolute;top:12%;left:18%;width:35%;height:20%;background:rgba(255,255,255,0.7);border-radius:50%;transform:rotate(-45deg);filter:blur(1px)}.mag-handle{width:14px;height:55px;background:linear-gradient(to right,#8c7a6b,#5a4b3f);border-radius:8px;position:absolute;bottom:-42px;right:-20px;transform:rotate(-45deg);box-shadow:2px 4px 8px rgba(44,30,15,0.2)}.loading-label{position:absolute;bottom:15px;z-index:4;font-family:'Lora',serif;font-size:.95rem;font-style:italic;color:#5a4b3f;background:rgba(253,248,240,0.85);padding:6px 16px;border-radius:20px;backdrop-filter:blur(4px);animation:floatText 2s infinite alternate ease-in-out;box-shadow:0 2px 8px rgba(0,0,0,0.05)}@keyframes floatText{0%{transform:translateY(0)}100%{transform:translateY(-4px)}}</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Send a Letter — Chithi</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <style>
+  .floating-bg{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:0;
+}
+
+.float{
+  position:absolute;
+  opacity:0;
+  transform:scale(0.8);
+  transition:opacity 1.2s ease, transform 1.2s ease;
+  will-change:transform, opacity;
+}
+
+/* active state */
+.float.show{
+  opacity:0.9;
+  transform:scale(1) translateY(-20px);
+}
+
+  #paper-plane {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, 0);
+  font-size: 28px;
+  color: #ff4da6; 
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fly-success {
+  animation: flySuccess 1.5s ease-out forwards;
+}
+
+@keyframes flySuccess {
+  0% {
+    transform: translate(-50%, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translate(40px, -60px) rotate(15deg) scale(1.1);
+  }
+  70% {
+    transform: translate(120px, -120px) rotate(25deg);
+  }
+  100% {
+    transform: translate(220px, -200px) rotate(35deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  border: 1px solid #699ef5;
+  padding: 4px;
+  border-radius: 6px;
+  position: relative;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 650; 
+  letter-spacing: 1.5px;
+  }
+
+.marquee-text {
+  display: inline-block;
+  padding-left: 100%;
+  color: rgba(70, 153, 236, 0.85);
+  animation: scroll-left 12s linear infinite;
+}
+
+/* Smooth scrolling */
+@keyframes scroll-left {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Pause on hover (nice UX) */
+.marquee-container:hover .marquee-text {
+  animation-play-state: paused;
+}
+
+  /* ══════════════════════════════════════════
+   AESTHETIC MAGNIFYING GLASS LOADER
+   ══════════════════════════════════════════ */
+
+.aesthetic-loader {
+  position: relative;
+  width: 100%;
+  height: 240px; 
+  background-color: transparent; 
+  border: none;
+  box-shadow: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+}
+.secret-text {
+  position: absolute;
+  inset: 0;
+  padding: 12px 18px;
+  font-family: 'Lora', 'Courier New', serif;
+  font-size: 1.15rem;
+  line-height: 29px; 
+  color: #8c7a6b;
+  word-break: break-all;
+  text-align: justify;
+  letter-spacing: 5px;
+  z-index: 2;
+  font-weight: 600;
+  
+  mask-image: radial-gradient(circle 50px at var(--mouseX, 50%) var(--mouseY, 50%), black 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle 50px at var(--mouseX, 50%) var(--mouseY, 50%), black 60%, transparent 100%);
+  opacity: 0.9;
+}
+
+.mag-glass-container {
+  position: absolute;
+  left: var(--mouseX, 50%);
+  top: var(--mouseY, 50%);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none; 
+}
+
+.mag-glass {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid #c29f7c; 
+  background: rgba(253, 248, 240, 0.1);
+  backdrop-filter: blur(1.5px) contrast(1.05);
+  -webkit-backdrop-filter: blur(1.5px) contrast(1.05);
+  box-shadow: 0 8px 16px rgba(44,30,15,0.1), inset 0 0 20px rgba(255,255,255,0.6);
+  position: relative;
+}
+
+.glass-glare {
+  position: absolute;
+  top: 12%; left: 18%;
+  width: 35%; height: 20%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  transform: rotate(-45deg);
+  filter: blur(1px);
+}
+
+.mag-handle {
+  width: 14px;
+  height: 55px;
+  background: linear-gradient(to right, #8c7a6b, #5a4b3f);
+  border-radius: 8px;
+  position: absolute;
+  bottom: -42px;
+  right: -20px;
+  transform: rotate(-45deg);
+  box-shadow: 2px 4px 8px rgba(44,30,15,0.2);
+}
+
+.loading-label {
+  position: absolute;
+  bottom: 15px;
+  z-index: 4;
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #5a4b3f;
+  background: rgba(253, 248, 240, 0.85);
+  padding: 6px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  animation: floatText 2s infinite alternate ease-in-out;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+@keyframes floatText {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+</style>
 </head>
-<body class=user-page>
-<div class=floating-bg>
-<div class="float b f1" style=left:8%;top:6%;font-size:3.2rem;--r:240deg>💌</div>
-<div class="float b f2" style=left:28%;top:14%;font-size:3.6rem;--r:90deg>✨</div>
-<div class="float b f3" style=left:62%;top:18%;font-size:4.2rem;--r:300deg>💕</div>
-<div class="float b f4" style=left:88%;top:10%;font-size:3.5rem;--r:210deg>📝</div>
-<div class="float m f1" style=left:12%;top:42%;font-size:3.8rem;--r:110deg>💌</div>
-<div class="float m f2" style=left:34%;top:46%;font-size:3rem;--r:230deg>🌸</div>
-<div class="float m f3" style=left:66%;top:40%;font-size:3.6rem;--r:310deg>🎈</div>
-<div class="float m f4" style=left:82%;top:60%;font-size:3.4rem;--r:250deg>📫</div>
-<div class="float f f1" style=left:18%;top:72%;font-size:3.4rem;--r:220deg>💕</div>
-<div class="float f f2" style=left:30%;top:88%;font-size:4rem;--r:260deg>🎈</div>
-<div class="float f f3" style=left:55%;top:94%;font-size:3rem;--r:300deg>❤️</div>
-<div class="float f f4" style=left:90%;top:80%;font-size:3.3rem;--r:40deg>🎉</div>
+<body class="user-page">
+<div class="floating-bg">
+
+  <!-- back layer (blurred, slow) -->
+  <div class="float b f1" style="left:8%; top:6%; font-size:3.2rem; --r:240deg;">💌</div>
+  <div class="float b f2" style="left:28%; top:14%; font-size:3.6rem; --r:90deg;">✨</div>
+  <div class="float b f3" style="left:62%; top:18%; font-size:4.2rem; --r:300deg;">💕</div>
+  <div class="float b f4" style="left:88%; top:10%; font-size:3.5rem; --r:210deg;">📝</div>
+
+  <!-- mid layer -->
+  <div class="float m f1" style="left:12%; top:42%; font-size:3.8rem; --r:110deg;">💌</div>
+  <div class="float m f2" style="left:34%; top:46%; font-size:3rem; --r:230deg;">🌸</div>
+  <div class="float m f3" style="left:66%; top:40%; font-size:3.6rem; --r:310deg;">🎈</div>
+  <div class="float m f4" style="left:82%; top:60%; font-size:3.4rem; --r:250deg;">📫</div>
+
+  <!-- front layer (sharp, faster) -->
+  <div class="float f f1" style="left:18%; top:72%; font-size:3.4rem; --r:220deg;">💕</div>
+  <div class="float f f2" style="left:30%; top:88%; font-size:4rem; --r:260deg;">🎈</div>
+  <div class="float f f3" style="left:55%; top:94%; font-size:3rem; --r:300deg;">❤️</div>
+  <div class="float f f4" style="left:90%; top:80%; font-size:3.3rem; --r:40deg;">🎉</div>
+
 </div>
-<div class=bg-lines></div>
-<div class="ink-blot ink-blot-1"></div>
-<div class=user-wrap>
-<a href=index.html class="logo user-logo">
-<span class=logo-icon>💌</span>
-<span class=logo-text>Chithi</span>
-</a>
-<div id=user-not-found class="not-found hidden">
-<div class=not-found-icon>💌</div>
-<h2>User not found</h2>
-<p>This Chithi link doesn't exist (yet).</p>
-<a href=signup.html class=btn-primary>Create yours →</a>
-</div>
-<div id=user-loading class="inbox-empty aesthetic-loader">
-<div class=secret-text id=secret-text></div>
-<div class=mag-glass-container id=mag-glass>
-<div class=mag-glass>
-<div class=glass-glare></div>
-</div>
-<div class=mag-handle></div>
-</div>
-<div class=loading-label>Finding this person<span class=dots>...</span></div>
-</div>
-<div id=user-form-wrap class="user-form-wrap hidden">
-<div class=user-profile-header>
-<div class=avatar-circle id=avatar-circle>?</div>
-<h1 class=user-greeting>
-Send a letter to<br/>
-<span class=username-display id=username-display>…</span>
-</h1>
-<p class=user-tagline>They won't know who you are unless you tell them.</p>
-</div>
-<div id=send-success class="send-success hidden">
-<div id=paper-plane>
-<i class="fa-solid fa-paper-plane"></i>
-</div>
-<div class=success-icon>✓</div>
-<h2>Letter sent!</h2>
-<p>Your letter has been Sent Successfully.</p>
-<div class="notice-box mb-2">
-<div class=marquee-container>
-<div class=marquee-text>
-Save this link/ID to check Letter status anytime 🔗
-</div>
-</div>
-</div>
-<br>
-<div class=delete-link-box>
-<span id=delete-link-display></span>
-<button class="btn-copyy btn-sm" id=btn-copy-delete>⎘ Copy</button>
-</div>
-<div style=margin-top:.85rem;text-align:center>
-<p style="font-size:.75rem;color:#8c7a6b;font-family:'Lora',serif;margin-bottom:.35rem">
-OR save this Tracking ID:
-</p>
-<div style="display:inline-flex;align-items:center;gap:.5rem;background:#f7ecd8;border:1px solid #e8dcc8;border-radius:10px;padding:.4rem 1rem">
-<span id=short-code-display style="font-family:'Lora',serif;font-size:1.6rem;letter-spacing:.2em;color:#2c1e0f;font-weight:700">----</span>
-<button class="btn-copyy btn-sm" id=btn-copy-code>⎘ Copy</button>
-</div>
-<p class=delete-link-hint>Keep this ID/Link save for Unsend or Check Status of your Letter</p>
-</div>
-<h3 class="delete-link-hint hidden" id=send-cooldown-text>Wait 30 sec</h3>
-<button class="btn-ghost btn-sm hidden" id=btn-send-another>Send another →</button>
-</div>
-<div id=message-form-container>
-<div class="letter-form-card letter-bg-rose">
-<div class=letter-lines-deco>
-<span></span><span></span><span></span>
-</div>
-<div id=send-error class="error-msg hidden"></div>
-<div class=form-group>
-<label for=message-text>Your Letter</label>
-<textarea id=message-text class=font-hand-patrick rows=6 placeholder="Write your letter here…" maxlength=2500></textarea>
-<div class=char-count><span id=char-count>0</span>/2500</div>
-</div>
-<div class=form-group>
-<span class=form-label>Letter style</span>
-<p class=style-note>Choose a font and background for your letter.</p>
-<div class=style-choice-row>
-<label class=style-choice>
-<input type=radio name=letter-style value=en-1 checked />
-<span class="style-card-sample bg-rose font-hand-patrick">Aa<span class=style-choice-name>Rose</span></span>
-</label>
-<label class=style-choice>
-<input type=radio name=letter-style value=en-2 />
-<span class="style-card-sample bg-mint font-hand-kalam">Aa<span class=style-choice-name>Mint</span></span>
-</label>
-<label class=style-choice>
-<input type=radio name=letter-style value=en-3 />
-<span class="style-card-sample bg-sky font-normal">Aa<span class=style-choice-name>Sky</span></span>
-</label>
-<label class=style-choice>
-<input type=radio name=letter-style value=en-4 />
-<span class="style-card-sample bg-paper font-hand-caveat">Aa<span class=style-choice-name>Soft</span></span>
-</label>
-</div>
-</div>
-<div class=anon-toggle-row>
-<label class=toggle-label for=anon-toggle>
-<span class=toggle-text>Send anonymously</span>
-<div class=toggle-switch>
-<input type=checkbox id=anon-toggle checked />
-<span class=toggle-slider></span>
-</div>
-</label>
-</div>
-<div class=form-group id=sender-name-group style=display:none>
-<label for=sender-name>Your name</label>
-<input type=text id=sender-name placeholder="Enter your Name" maxlength=60 />
-</div>
-<button class="btn-primary btn-full" id=btn-send>
-<span id=send-btn-text>Send Letter 💌</span>
-<span id=send-spinner class="spinner hidden"></span>
-</button>
-<div style=display:flex;justify-content:center;width:100%;margin-top:15px>
-<a href=signup.html style="background-color:#c29f7c;color:white;padding:10px 25px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">
-Create your Chithi link →
-</a>
-</div>
-</div>
-</div>
-</div>
-<footer class=site-footer>
-<p class=footer-sub>
-<a href=about-us.html>About</a> •
-<a href=privacy.html>Privacy</a> •
-<a href=terms.html>Terms</a> •
-<a href=track.html>Track Letter</a>
-</p>
-<p>
-Creation of
-<span class=heart>
-<a href=https://www.facebook.com/saniat.kajol.jisan target=_blank rel="noopener noreferrer">
-SK
-</a> ♥
-</span>
-for honest conversations — © Chithi <span id=year></span>
-</p>
+  <div class="bg-lines"></div>
+  <div class="ink-blot ink-blot-1"></div>
+
+  <div class="user-wrap">
+    <a href="index.html" class="logo user-logo">
+      <span class="logo-icon">💌</span>
+      <span class="logo-text">Chithi</span>
+    </a>
+
+    <!-- User not found state -->
+    <div id="user-not-found" class="not-found hidden">
+      <div class="not-found-icon">💌</div>
+      <h2>User not found</h2>
+      <p>This Chithi link doesn't exist (yet).</p>
+      <a href="signup.html" class="btn-primary">Create yours →</a>
+    </div>
+
+    <!-- Loading state with Premium Magnifying Glass Effect -->
+    <div id="user-loading" class="inbox-empty aesthetic-loader">
+      
+      <!-- Random hidden letters layer -->
+      <div class="secret-text" id="secret-text"></div>
+      
+      <!-- The Magnifying Glass -->
+      <div class="mag-glass-container" id="mag-glass">
+        <div class="mag-glass">
+          <div class="glass-glare"></div>
+        </div>
+        <div class="mag-handle"></div>
+      </div>
+      <div class="loading-label">Finding this person<span class="dots">...</span></div>
+    </div>
+
+    <!-- Message form -->
+    <div id="user-form-wrap" class="user-form-wrap hidden">
+      <div class="user-profile-header">
+        <div class="avatar-circle" id="avatar-circle">?</div>
+        <h1 class="user-greeting">
+          Send a letter to<br/>
+          <span class="username-display" id="username-display">…</span><span class="reward-emoji hidden" id="user-reward-emoji">✨</span><span class="vip-tick hidden" id="user-vip-tick">✓</span>
+        </h1>
+        <p class="user-tagline">They won't know who you are unless you tell them.</p>
+      </div>
+
+     <!-- Success state -->
+      <div id="send-success" class="send-success hidden">
+        <div id="paper-plane">
+          <i class="fa-solid fa-paper-plane"></i>
+        </div>
+        <div class="success-icon">✓</div>
+        <h2>Letter sent!</h2>
+        <p>Your letter has been Sent Successfully.</p>
+        <!-- <div class="delete-link-wrap" id="delete-link-wrap"> -->
+          <div class="notice-box mb-2">
+            <div class="marquee-container">
+              <div class="marquee-text">
+                Save this link/ID to check Letter status anytime 🔗
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="delete-link-box">
+            <span id="delete-link-display"></span>
+            <button class="btn-copyy btn-sm" id="btn-copy-delete">⎘ Copy</button>
+          </div>
+          <div style="margin-top:0.85rem; text-align:center;">
+            <p style="font-size:0.75rem; color:#8c7a6b; font-family:'Lora',serif; margin-bottom:0.35rem;">
+              OR save this Tracking ID:
+            </p>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem; background:#f7ecd8; border:1px solid #e8dcc8; border-radius:10px; padding:0.4rem 1rem;">
+              <span id="short-code-display" style="font-family:'Lora',serif; font-size:1.6rem; letter-spacing:0.2em; color:#2c1e0f; font-weight:700;">----</span>
+              <button class="btn-copyy btn-sm" id="btn-copy-code">⎘ Copy</button>
+            </div>
+            <p class="delete-link-hint">Keep this ID/Link save for Unsend or Check Status of your Letter</p>
+            <!-- <p style="font-size:0.72rem; color:#a08c7a; font-family:'Lora',serif; margin-top:0.3rem;">
+              Enter this at <a href="track.html" style="color:#c29f7c;">Chithi Track</a> from any device
+            </p> -->
+          </div>
+        <!-- </div> -->
+        <h3 class="delete-link-hint hidden" id="send-cooldown-text">Wait 30 sec</h3>
+        <button class="btn-ghost btn-sm hidden" id="btn-send-another">Send another →</button>
+      </div>
+      
+      <!-- Message Form -->
+      <div id="message-form-container">
+        <div class="letter-form-card letter-bg-rose">
+          <div class="letter-lines-deco">
+            <span></span><span></span><span></span>
+          </div>
+
+          <div id="send-error" class="error-msg hidden"></div>
+
+          <div class="form-group">
+            <label for="message-text">Your Letter</label>
+            <textarea
+              id="message-text"
+              class="font-hand-patrick"
+              rows="6"
+              placeholder="Write your letter here…"
+              maxlength="2500"
+            ></textarea>
+            <div class="char-count"><span id="char-count">0</span>/2500</div>
+          </div>
+
+          <div class="form-group">
+            <span class="form-label">Letter style</span>
+            <p class="style-note">Choose a font and background for your letter.</p>
+            <div class="style-choice-row">
+              <label class="style-choice">
+                <input type="radio" name="letter-style" value="en-1" checked />
+                <span class="style-card-sample bg-rose font-hand-patrick">Aa<span class="style-choice-name">Rose</span></span> 
+              </label>
+              <label class="style-choice">
+                <input type="radio" name="letter-style" value="en-2" />
+                <span class="style-card-sample bg-mint font-hand-kalam">Aa<span class="style-choice-name">Mint</span></span> 
+              </label>
+              <label class="style-choice">
+                <input type="radio" name="letter-style" value="en-3" />
+                <span class="style-card-sample bg-sky font-normal">Aa<span class="style-choice-name">Sky</span></span>
+              </label>
+              <label class="style-choice">
+                <input type="radio" name="letter-style" value="en-4" />
+                <span class="style-card-sample bg-paper font-hand-caveat">Aa<span class="style-choice-name">Soft</span></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Anonymous toggle -->
+          <div class="anon-toggle-row">
+            <label class="toggle-label" for="anon-toggle">
+              <span class="toggle-text">Send anonymously</span>
+              <div class="toggle-switch">
+                <input type="checkbox" id="anon-toggle" checked />
+                <span class="toggle-slider"></span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Sender name (shown when not anonymous) -->
+          <div class="form-group" id="sender-name-group" style="display:none;">
+            <label for="sender-name">Your name</label>
+            <input type="text" id="sender-name" placeholder="Enter your Name" maxlength="60" />
+          </div>
+
+          <button class="btn-primary btn-full" id="btn-send">
+            <span id="send-btn-text">Send Letter 💌</span>
+            <span id="send-spinner" class="spinner hidden"></span>
+          </button>
+         
+          <div style="display: flex; justify-content: center; width: 100%; margin-top: 15px;">
+            <a href="signup.html" 
+               style="background-color: #c29f7c; color: white; padding: 10px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
+               Create your Chithi link →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   <footer class="site-footer">
+
+  <p class="footer-sub">
+    <a href="about-us.html">About</a> • 
+    <a href="privacy.html">Privacy</a> • 
+    <a href="terms.html">Terms</a> • 
+    <a href="track.html">Track Letter</a>
+  </p>
+
+  <p>
+    Creation of 
+    <span class="heart">
+      <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">
+        SK
+      </a> ♥
+    </span> 
+    for honest conversations — © Chithi <span id="year"></span>
+  </p>
+
 </footer>
-</div>
-<script>const container=document.querySelector(".floating-bg");const items=["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];function createItem(){const el=document.createElement("div");el.className="float";el.innerText=items[Math.floor(Math.random()*items.length)];el.style.left=Math.random()*window.innerWidth+"px";el.style.top=Math.random()*window.innerHeight+"px";el.style.fontSize=(18+Math.random()*30)+"px";container.appendChild(el);setTimeout(()=>el.classList.add("show"),100);const driftX=(Math.random()-0.5)*60;const driftY=(Math.random()-0.5)*60;let x=0;let y=0;function move(){x+=driftX*0.01;y+=driftY*0.01;el.style.transform=`translate(${x}px,${y}px)scale(1)`;requestAnimationFrame(move);}
-move();const life=3000+Math.random()*5000;setTimeout(()=>{el.classList.remove("show");setTimeout(()=>{el.remove();},1200);},life);}
-function loop(){createItem();const next=200+Math.random()*800;setTimeout(loop,next);}
-loop();function playSuccessPlane(){const plane=document.getElementById("paper-plane");if(!plane)return;plane.classList.remove("fly-success");void plane.offsetWidth;plane.classList.add("fly-success");}
-(function(){var yearEl=document.getElementById("year");if(yearEl){yearEl.textContent=new Date().getFullYear();}})();(function(){const loader=document.getElementById('user-loading');const secretText=document.getElementById('secret-text');if(loader&&secretText){const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ';let randomString='';for(let i=0;i<250;i++){randomString+=chars.charAt(Math.floor(Math.random()*chars.length))+' ';}
-secretText.innerText=randomString;let time=0;function moveGlass(){time+=0.04;const x=50-Math.cos(time)*35;const y=45+Math.sin(time*2)*5;loader.style.setProperty('--mouseX',x+'%');loader.style.setProperty('--mouseY',y+'%');requestAnimationFrame(moveGlass);}
-moveGlass();}})();</script>
-<script src=clean-urls.js></script>
-<script type=module src=firebase-config.js></script>
-<script type=module src=sendMessage.js></script>
-<script>
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.onkeydown = function(e) {
-    if(e.keyCode == 123) return false; // F12
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; 
-    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
-  };
-  document.onselectstart = function() { return false; }
+  </div>
+
+  <script>
+// float emoji
+const container = document.querySelector(".floating-bg");
+
+let items = ["💌","✨","💕","🎈","📝","❤️","📫","🎉","💝","🌸"];
+
+window.ChithiSetFloatingEmojis = function(nextItems) {
+  if (!Array.isArray(nextItems) || nextItems.length === 0) return;
+  items = nextItems.slice(0, 12);
+};
+
+function createItem(){
+  const el = document.createElement("div");
+  el.className = "float";
+
+  el.innerText = items[Math.floor(Math.random()*items.length)];
+
+  // =========================
+  // FIXED POSITION (NO MOBILE OVERFLOW)
+  // =========================
+  el.style.left = Math.random() * window.innerWidth + "px";
+  el.style.top = Math.random() * window.innerHeight + "px";
+
+  // random size
+  el.style.fontSize = (18 + Math.random()*30) + "px";
+
+  container.appendChild(el);
+
+  // fade in
+  setTimeout(()=> el.classList.add("show"), 100);
+
+  // float drift (UNCHANGED)
+  const driftX = (Math.random() - 0.5) * 60;
+  const driftY = (Math.random() - 0.5) * 60;
+
+  let x = 0;
+  let y = 0;
+
+  function move(){
+    x += driftX * 0.01;
+    y += driftY * 0.01;
+
+    el.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+
+    requestAnimationFrame(move);
+  }
+
+  move();
+
+  // auto remove
+  const life = 3000 + Math.random()*5000;
+
+  setTimeout(()=>{
+    el.classList.remove("show");
+
+    setTimeout(()=>{
+      el.remove();
+    }, 1200);
+
+  }, life);
+}
+
+// spawn loop (UNCHANGED)
+function loop(){
+  createItem();
+
+  const next = 200 + Math.random()*800;
+  setTimeout(loop, next);
+}
+
+loop();
+    
+ function playSuccessPlane() {
+  const plane = document.getElementById("paper-plane");
+  if (!plane) return;
+
+  plane.classList.remove("fly-success");
+  void plane.offsetWidth; // reset animation
+  plane.classList.add("fly-success");
+}
+
+    (function () {
+    var yearEl = document.getElementById("year");
+    if (yearEl) {
+      yearEl.textContent = new Date().getFullYear();
+    }
+  })();
+
+    //magnify loader
+  (function() {
+    const loader = document.getElementById('user-loading');
+    const secretText = document.getElementById('secret-text');
+    
+    if (loader && secretText) {
+      // 1. Generate Random Capital Letters
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let randomString = '';
+      for (let i = 0; i < 250; i++) {
+        randomString += chars.charAt(Math.floor(Math.random() * chars.length)) + ' ';
+      }
+      secretText.innerText = randomString;
+
+      // 2. Animate the Magnifying Glass (Middle Left-to-Right sweep)
+      let time = 0;
+      function moveGlass() {
+        time += 0.04; 
+        
+        const x = 50 - Math.cos(time) * 35; 
+        
+        const y = 45 + Math.sin(time * 2) * 5;
+
+        loader.style.setProperty('--mouseX', x + '%');
+        loader.style.setProperty('--mouseY', y + '%');
+
+        requestAnimationFrame(moveGlass);
+      }
+      
+      moveGlass();
+    }
+  })();
 </script>
+   <script src="clean-urls.js"></script>
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="sendMessage.js"></script>
 </body>
 </html>

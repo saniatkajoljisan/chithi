@@ -91,11 +91,48 @@ export const THEMES = {
       "--shadow":      "rgba(159, 143, 239, 0.15)",
       "--shadow-deep": "rgba(74, 85, 104, 0.15)"
     }
+  },
+
+  private_garden: {
+    label: "Private Garden",
+    swatch: ["#0f2a22", "#f4c95d", "#f8f0d8"],
+    vars: {
+      "--paper":       "#0f2a22",
+      "--paper-dark":  "#173b30",
+      "--paper-card":  "#143429",
+      "--ink":         "#f8f0d8",
+      "--ink-light":   "#d9caa4",
+      "--ink-faint":   "#a99b78",
+      "--gold":        "#f4c95d",
+      "--line-color":  "#31584b",
+      "--shadow":      "rgba(2, 12, 9, 0.35)",
+      "--shadow-deep": "rgba(244, 201, 93, 0.2)"
+    }
   }
 };
 
 const STORAGE_KEY = "chithi_theme";
 const DEFAULT_THEME = "default";
+
+export const THEME_UNLOCK_LEVELS = {
+  default: 0,
+  candy_pop: 3,
+  soft_pastel: 3,
+  dark_mode: 10,
+  neon_cyberpunk: 25,
+  private_garden: 50
+};
+
+export function getUnlockedThemes(referralCount = 0) {
+  const count = Number(referralCount) || 0;
+  return Object.keys(THEMES).filter((themeKey) => {
+    return count >= (THEME_UNLOCK_LEVELS[themeKey] || 0);
+  });
+}
+
+export function isThemeUnlocked(themeKey, unlockedThemes = [DEFAULT_THEME]) {
+  return themeKey === DEFAULT_THEME || unlockedThemes.includes(themeKey);
+}
 
 /** Apply a theme's CSS variables to the document immediately. */
 export function applyTheme(themeKey) {

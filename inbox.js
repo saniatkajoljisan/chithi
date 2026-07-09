@@ -4,7 +4,6 @@
 // ============================================================
 
 import { auth, db } from "./firebase-config.js";
-import { THEMES, applyTheme, setTheme } from "./themes.js";
 import {
   onAuthStateChanged,
   deleteUser,
@@ -23,6 +22,15 @@ import {
   writeBatch,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  THEMES,
+  THEME_UNLOCK_LEVELS,
+  applyTheme,
+  cacheThemeLocally,
+  getCachedTheme,
+  getUnlockedThemes,
+  isThemeUnlocked
+} from "./themes.js";
 
 // ─── DOM references ──────────────────────────────────────────
 const navUsernameEl  = document.getElementById("nav-username");
@@ -39,6 +47,8 @@ const inboxSearchEl  = document.getElementById("inbox-search");
 const inboxFilterEl  = document.getElementById("inbox-filter");
 const profileNameEl  = document.getElementById("profile-display-name");
 const profileBioEl   = document.getElementById("profile-bio");
+const profileEmojisEl = document.getElementById("profile-emojis");
+const emojiStatusEl = document.getElementById("emoji-status");
 const profileAvatarEl= document.getElementById("profile-avatar-preview");
 const profileEditAvatarEl = document.getElementById("profile-edit-avatar-preview");
 const profilePreviewEl = document.getElementById("profile-preview");
@@ -46,7 +56,6 @@ const profileEditEl = document.getElementById("profile-edit");
 const profilePreviewNameEl = document.getElementById("profile-preview-name");
 const profilePreviewBioEl = document.getElementById("profile-preview-bio");
 const profileStatusEl= document.getElementById("profile-status");
-const themePickerRowEl = document.getElementById("theme-picker-row");
 const btnEditProfile = document.getElementById("btn-edit-profile");
 const btnCancelProfile = document.getElementById("btn-cancel-profile");
 const btnSaveProfile = document.getElementById("btn-save-profile");
@@ -56,10 +65,24 @@ const btnCancelDeleteAccount = document.getElementById("btn-cancel-delete-accoun
 const deleteAccountConfirmEl = document.getElementById("account-delete-confirm");
 const deleteAccountInputEl = document.getElementById("delete-account-input");
 const deleteAccountStatusEl = document.getElementById("delete-account-status");
+const referralTierEl = document.getElementById("referral-tier");
+const referralCodeEl = document.getElementById("referral-code");
+const referralLinkEl = document.getElementById("referral-link");
+const btnCopyReferral = document.getElementById("btn-copy-referral");
+const referralCountEl = document.getElementById("referral-count");
+const referralNextEl = document.getElementById("referral-next");
+const referralProgressFillEl = document.getElementById("referral-progress-fill");
+const referralMilestonesEl = document.getElementById("referral-milestones");
+const themeChoiceGridEl = document.getElementById("theme-choice-grid");
+const themeStatusEl = document.getElementById("theme-status");
+const profileVipTickEl = document.getElementById("profile-vip-tick");
+const profileRewardEmojiEl = document.getElementById("profile-reward-emoji");
 
 let unsubscribeMessages = null; // Firestore listener cleanup
 let currentUser = null;
 let currentProfile = null;
+let currentReferralCount = 0;
+let currentUnlockedThemes = ["default"];
 let allMessageDocs = [];
 let visibleCount = 5;
 const expandedReportedIds = new Set();
@@ -82,6 +105,15 @@ const reactionMarks = {
   cry: "😭",
   spark: "🤬"
 };
+const REFERRAL_MILESTONES = [
+  { count: 3, tier: "Basic", label: "Basic themes", detail: "Candy Pop + Soft Pastel" },
+  { count: 10, tier: "Social", label: "Animated emoji", detail: "Avatar frame + extra mood" },
+  { count: 25, tier: "VIP", label: "VIP badge", detail: "Golden tick + Neon Cyberpunk" },
+  { count: 50, tier: "Private", label: "Private theme", detail: "Exclusive Private Garden" }
+];
+const DEFAULT_FLOATING_EMOJIS = ["💌", "✨", "💕", "🎈", "📝", "❤️", "📫", "🎉", "💝", "🌸"];
+
+applyTheme(getCachedTheme());
 
 // ─── Auth guard ──────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
@@ -103,11 +135,7 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   currentProfile = profile;
   const username = profile.username;
-
-  // Apply the theme saved on this account (also refreshes the local cache,
-  // in case the person is logging in on a new device/browser).
-  setTheme(profile.theme || "default");
-
+  await hydrateReferralState(user.uid, profile);
   hydrateProfileForm(profile);
 
   // Update nav
@@ -147,6 +175,129 @@ btnCancelProfile?.addEventListener("click", cancelProfileEdit);
 btnShowDeleteAccount?.addEventListener("click", showDeleteAccountConfirm);
 btnCancelDeleteAccount?.addEventListener("click", cancelDeleteAccountConfirm);
 btnDeleteAccount?.addEventListener("click", handleDeleteAccount);
+btnCopyReferral?.addEventListener("click", copyReferralLink);
+profileEmojisEl?.addEventListener("input", () => {
+  const emojis = parseCustomEmojis(profileEmojisEl.value);
+  updateFloatingEmojis(emojis);
+  setEmojiStatus(`${emojis.length || DEFAULT_FLOATING_EMOJIS.length} emojis will float after saving.`, false);
+});
+
+async function hydrateReferralState(uid, profile) {
+  try {
+    const referralSnap = await getDocs(query(
+      collection(db, "referrals"),
+      where("referrerUid", "==", uid)
+    ));
+    currentReferralCount = referralSnap.size;
+  } catch (err) {
+    console.error("Referral count error:", err);
+    currentReferralCount = Number(profile.referralCount) || 0;
+  }
+
+  const rewards = getReferralRewards(currentReferralCount);
+  currentUnlockedThemes = getUnlockedThemes(currentReferralCount);
+  const referralCode = profile.referralCode || buildReferralCode(profile.username || "");
+  const selectedTheme = isThemeUnlocked(profile.theme || "default", currentUnlockedThemes)
+    ? (profile.theme || "default")
+    : "default";
+
+  currentProfile = {
+    ...profile,
+    referralCode,
+    referralCount: currentReferralCount,
+    unlockedThemes: currentUnlockedThemes,
+    unlockedPerks: rewards.perks,
+    referralTier: rewards.tier,
+    theme: selectedTheme
+  };
+
+  applyTheme(selectedTheme);
+  cacheThemeLocally(selectedTheme);
+  renderReferralPanel(currentProfile);
+
+  try {
+    await updateDoc(doc(db, "users", uid), {
+      referralCode,
+      referralCount: currentReferralCount,
+      unlockedThemes: currentUnlockedThemes,
+      unlockedPerks: rewards.perks,
+      referralTier: rewards.tier,
+      theme: selectedTheme
+    });
+  } catch (err) {
+    console.error("Referral reward sync error:", err);
+  }
+}
+
+function getReferralRewards(count) {
+  const perks = [];
+  let tier = "Starter";
+  if (count >= 3) {
+    tier = "Basic";
+    perks.push("basic_themes");
+  }
+  if (count >= 10) {
+    tier = "Social";
+    perks.push("animated_emoji", "avatar_frame");
+  }
+  if (count >= 25) {
+    tier = "VIP";
+    perks.push("vip_badge", "golden_tick");
+  }
+  if (count >= 50) {
+    tier = "Private";
+    perks.push("private_theme");
+  }
+  return { tier, perks };
+}
+
+function buildReferralCode(username) {
+  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2024`.slice(0, 28);
+}
+
+function renderReferralPanel(profile) {
+  const count = Number(profile.referralCount) || 0;
+  const next = REFERRAL_MILESTONES.find((item) => count < item.count);
+  const currentTarget = next?.count || 50;
+  const previousTarget = REFERRAL_MILESTONES.slice().reverse().find((item) => count >= item.count)?.count || 0;
+  const progressRange = Math.max(1, currentTarget - previousTarget);
+  const progress = next ? ((count - previousTarget) / progressRange) * 100 : 100;
+
+  if (referralTierEl) referralTierEl.textContent = profile.referralTier || "Starter";
+  if (referralCodeEl) referralCodeEl.textContent = profile.referralCode || "CHITHI2024";
+  if (referralLinkEl) referralLinkEl.textContent = getReferralSignupUrl(profile.referralCode || "CHITHI2024");
+  if (referralCountEl) referralCountEl.textContent = `${count} ${count === 1 ? "referral" : "referrals"}`;
+  if (referralNextEl) {
+    referralNextEl.textContent = next
+      ? `${next.count - count} to ${next.label}`
+      : "All referral rewards unlocked";
+  }
+  if (referralProgressFillEl) referralProgressFillEl.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+  if (referralMilestonesEl) {
+    referralMilestonesEl.innerHTML = REFERRAL_MILESTONES.map((item) => `
+      <div class="referral-milestone ${count >= item.count ? "unlocked" : ""}">
+        <strong>${item.count}+ · ${item.label}</strong>
+        <span>${item.detail}</span>
+      </div>
+    `).join("");
+  }
+}
+
+function copyReferralLink() {
+  if (!currentProfile?.referralCode) return;
+  const signupUrl = getReferralSignupUrl(currentProfile.referralCode);
+  navigator.clipboard.writeText(signupUrl).then(() => {
+    const original = btnCopyReferral.textContent;
+    btnCopyReferral.textContent = "Copied";
+    setTimeout(() => { btnCopyReferral.textContent = original; }, 1600);
+  });
+}
+
+function getReferralSignupUrl(referralCode) {
+  return window.ChithiUrl?.page
+    ? `${window.ChithiUrl.page("signup")}?ref=${referralCode}`
+    : `${window.location.origin}/signup.html?ref=${referralCode}`;
+}
 
 // ─── Load messages (real-time listener) ──────────────────────
 function loadMessages(uid) {
@@ -472,6 +623,9 @@ function renderMessages() {
 function hydrateProfileForm(profile) {
   if (profileNameEl) profileNameEl.value = profile.displayName || profile.username || "";
   if (profileBioEl) profileBioEl.value = profile.bio || "";
+  const customEmojis = normalizeEmojiList(profile.customEmojis);
+  if (profileEmojisEl) profileEmojisEl.value = customEmojis.join(" ");
+  updateFloatingEmojis(customEmojis);
   const color = profile.avatarColor || "#2c1e0f";
   const colorOption = document.querySelector(`input[name="avatar-color"][value="${color}"]`);
   if (colorOption) colorOption.checked = true;
@@ -479,34 +633,46 @@ function hydrateProfileForm(profile) {
   updateProfileAvatarPreview(color, display);
   if (profilePreviewNameEl) profilePreviewNameEl.textContent = profile.displayName || profile.username || "Your profile";
   if (profilePreviewBioEl) profilePreviewBioEl.textContent = profile.bio || "No bio added yet.";
-  renderThemePicker(profile.theme || "default");
+  renderThemePicker(profile);
+  renderProfilePerks(profile);
 }
 
-// ─── Theme picker ─────────────────────────────────────────────
-function renderThemePicker(savedThemeKey) {
-  if (!themePickerRowEl) return;
-  themePickerRowEl.innerHTML = "";
-  applyTheme(savedThemeKey); // revert any unsaved live-preview back to the saved theme
+function parseCustomEmojis(value) {
+  const cleanValue = String(value || "").trim();
+  if (!cleanValue) return [];
 
-  Object.entries(THEMES).forEach(([key, theme]) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "theme-swatch-btn" + (key === savedThemeKey ? " active" : "");
-    btn.dataset.themeKey = key;
-    btn.innerHTML = `
-      <span class="theme-swatch-preview">
-        ${theme.swatch.map(c => `<span style="background:${c}"></span>`).join("")}
-      </span>
-      <span class="theme-swatch-label">${theme.label}</span>
-    `;
-    btn.addEventListener("click", () => {
-      // Live preview only — not saved to Firestore until "Save profile" is clicked.
-      applyTheme(key);
-      themePickerRowEl.querySelectorAll(".theme-swatch-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-    });
-    themePickerRowEl.appendChild(btn);
-  });
+  if (window.Intl?.Segmenter) {
+    const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+    return [...segmenter.segment(cleanValue)]
+      .map(part => part.segment.trim())
+      .filter(Boolean)
+      .filter(part => !/^[,.;:|/\\]+$/.test(part))
+      .slice(0, 12);
+  }
+
+  return Array.from(cleanValue)
+    .map(part => part.trim())
+    .filter(Boolean)
+    .filter(part => !/^[,.;:|/\\]+$/.test(part))
+    .slice(0, 12);
+}
+
+function normalizeEmojiList(value) {
+  if (Array.isArray(value)) {
+    return value.map(item => String(item || "").trim()).filter(Boolean).slice(0, 12);
+  }
+  return parseCustomEmojis(value);
+}
+
+function updateFloatingEmojis(customEmojis) {
+  const emojis = normalizeEmojiList(customEmojis);
+  window.ChithiSetFloatingEmojis?.(emojis.length ? emojis : DEFAULT_FLOATING_EMOJIS);
+}
+
+function setEmojiStatus(message, isError) {
+  if (!emojiStatusEl) return;
+  emojiStatusEl.textContent = message;
+  emojiStatusEl.className = `field-status ${isError ? "err" : "ok"}`;
 }
 
 function updateProfileAvatarPreview(color, displayName) {
@@ -516,22 +682,74 @@ function updateProfileAvatarPreview(color, displayName) {
     avatarEl.textContent = display.charAt(0).toUpperCase();
     avatarEl.style.background = color || "#2c1e0f";
   });
+  renderProfilePerks(currentProfile || {});
+}
+
+function renderThemePicker(profile) {
+  if (!themeChoiceGridEl) return;
+  const unlockedThemes = profile.unlockedThemes || currentUnlockedThemes || ["default"];
+  const activeTheme = isThemeUnlocked(profile.theme || "default", unlockedThemes) ? (profile.theme || "default") : "default";
+
+  themeChoiceGridEl.innerHTML = Object.entries(THEMES).map(([themeKey, theme]) => {
+    const unlocked = isThemeUnlocked(themeKey, unlockedThemes);
+    const needed = THEME_UNLOCK_LEVELS[themeKey] || 0;
+    return `
+      <label class="theme-choice ${unlocked ? "" : "locked"}" title="${unlocked ? theme.label : `${needed} referrals needed`}">
+        <input type="radio" name="profile-theme" value="${themeKey}" ${activeTheme === themeKey ? "checked" : ""} ${unlocked ? "" : "disabled"} />
+        <span class="theme-swatch">${theme.swatch.map(color => `<span style="background:${color}"></span>`).join("")}</span>
+        <span>
+          <span class="theme-choice-name">${theme.label}</span>
+          <span class="theme-choice-note">${unlocked ? "Unlocked" : `${needed} referrals`}</span>
+        </span>
+      </label>
+    `;
+  }).join("");
+
+  themeChoiceGridEl.querySelectorAll('input[name="profile-theme"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      if (!input.disabled) {
+        applyTheme(input.value);
+        if (themeStatusEl) {
+          themeStatusEl.textContent = `${THEMES[input.value]?.label || "Theme"} preview selected. Save to keep it.`;
+          themeStatusEl.className = "field-status ok";
+        }
+      }
+    });
+  });
+}
+
+function renderProfilePerks(profile) {
+  const perks = profile.unlockedPerks || [];
+  const hasFrame = perks.includes("avatar_frame");
+  const hasAnimatedEmoji = perks.includes("animated_emoji");
+  const hasVip = perks.includes("golden_tick") || perks.includes("vip_badge");
+  [profileAvatarEl, profileEditAvatarEl].forEach((avatarEl) => {
+    avatarEl?.classList.toggle("avatar-framed", hasFrame);
+  });
+  profileRewardEmojiEl?.classList.toggle("hidden", !hasAnimatedEmoji);
+  profileVipTickEl?.classList.toggle("hidden", !hasVip);
 }
 
 async function saveProfile() {
   if (!currentUser || !currentProfile) return;
   const displayName = profileNameEl.value.trim() || currentProfile.username;
   const bio = profileBioEl.value.trim();
+  const customEmojis = parseCustomEmojis(profileEmojisEl?.value || "");
   const avatarColor = document.querySelector('input[name="avatar-color"]:checked')?.value || "#2c1e0f";
-  const theme = themePickerRowEl?.querySelector(".theme-swatch-btn.active")?.dataset.themeKey || "default";
+  const selectedTheme = document.querySelector('input[name="profile-theme"]:checked')?.value || "default";
 
   if (displayName.length > 40) return setProfileStatus("Display name is too long.", true);
   if (bio.length > 90) return setProfileStatus("Bio is too long.", true);
+  if (!isThemeUnlocked(selectedTheme, currentUnlockedThemes)) {
+    return setProfileStatus("That theme is still locked.", true);
+  }
 
   try {
-    await updateDoc(doc(db, "users", currentUser.uid), { displayName, bio, avatarColor, theme });
-    setTheme(theme); // persist to local cache so it survives a refresh instantly
-    currentProfile = { ...currentProfile, displayName, bio, avatarColor, theme };
+    await updateDoc(doc(db, "users", currentUser.uid), { displayName, bio, customEmojis, avatarColor, theme: selectedTheme });
+    currentProfile = { ...currentProfile, displayName, bio, customEmojis, avatarColor, theme: selectedTheme };
+    cacheThemeLocally(selectedTheme);
+    applyTheme(selectedTheme);
+    updateFloatingEmojis(customEmojis);
     navUsernameEl.textContent = `@${currentProfile.username}`;
     hydrateProfileForm(currentProfile);
     setProfileStatus("Profile saved.", false);
@@ -611,6 +829,19 @@ async function handleDeleteAccount() {
 
     const deleteRefs = messageSnap.docs.map(messageDoc => doc(db, "messages", messageDoc.id));
     if (currentProfile.username) deleteRefs.push(doc(db, "usernames", currentProfile.username));
+    if (currentProfile.referralCode) deleteRefs.push(doc(db, "referralCodes", currentProfile.referralCode));
+
+    const madeByMeSnap = await getDocs(query(
+      collection(db, "referrals"),
+      where("referredUid", "==", currentUser.uid)
+    ));
+    const sentToMeSnap = await getDocs(query(
+      collection(db, "referrals"),
+      where("referrerUid", "==", currentUser.uid)
+    ));
+    madeByMeSnap.docs.forEach(referralDoc => deleteRefs.push(doc(db, "referrals", referralDoc.id)));
+    sentToMeSnap.docs.forEach(referralDoc => deleteRefs.push(doc(db, "referrals", referralDoc.id)));
+
     deleteRefs.push(doc(db, "users", currentUser.uid));
 
     for (let i = 0; i < deleteRefs.length; i += 450) {
