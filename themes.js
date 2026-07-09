@@ -113,6 +113,7 @@ export const THEMES = {
 
 const STORAGE_KEY = "chithi_theme";
 const DEFAULT_THEME = "default";
+export const THEME_CHANGE_EVENT = "chithi-theme-change";
 
 export const THEME_UNLOCK_LEVELS = {
   default: 0,
@@ -142,6 +143,7 @@ export function applyTheme(themeKey) {
     root.style.setProperty(key, value);
   });
   root.setAttribute("data-theme", THEMES[themeKey] ? themeKey : DEFAULT_THEME);
+  root.dispatchEvent(new CustomEvent(THEME_CHANGE_EVENT, { detail: { themeKey } }));
 }
 
 /** Cache the theme choice locally so it applies instantly on next page load

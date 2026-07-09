@@ -25,6 +25,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   THEMES,
+  THEME_CHANGE_EVENT,
   THEME_UNLOCK_LEVELS,
   applyTheme,
   cacheThemeLocally,
@@ -37,6 +38,14 @@ import {
 const navUsernameEl  = document.getElementById("nav-username");
 const userLinkEl     = document.getElementById("user-link");
 const btnCopyLink    = document.getElementById("btn-copy-link");
+const btnOpenQrModal  = document.getElementById("btn-open-qr");
+const qrModalEl      = document.getElementById("qr-modal");
+const qrPreviewEl    = document.getElementById("qr-preview");
+const qrAvatarToggleEl = document.getElementById("qr-include-avatar");
+const qrSloganInputEl = document.getElementById("qr-slogan");
+const btnDownloadQr  = document.getElementById("btn-download-qr");
+const btnDownloadPoster = document.getElementById("btn-download-poster");
+const btnCloseQrModal = document.getElementById("btn-close-qr");
 const copyIcon       = document.getElementById("copy-icon");
 const copyText       = document.getElementById("copy-text");
 const inboxLoadingEl = document.getElementById("inbox-loading");
@@ -83,6 +92,8 @@ let unsubscribeMessages = null; // Firestore listener cleanup
 let currentUser = null;
 let currentProfile = null;
 let currentReferralCount = 0;
+let qrCodeInstance = null;
+let activeQrLink = "";
 let currentUnlockedThemes = ["default"];
 let allMessageDocs = [];
 let visibleCount = 5;
@@ -146,6 +157,8 @@ onAuthStateChanged(auth, async (user) => {
   const userLink = window.ChithiUrl?.publicUser(username)
     || `${window.location.origin}/user.html?u=${username}`;
   userLinkEl.textContent = userLink;
+  activeQrLink = userLink;
+  renderQrCode(userLink);
 
   // Copy link button
   btnCopyLink.addEventListener("click", () => {
@@ -172,6 +185,34 @@ document.querySelectorAll('input[name="avatar-color"]').forEach((option) => {
 });
 btnSaveProfile?.addEventListener("click", saveProfile);
 btnEditProfile?.addEventListener("click", showProfileEdit);
+btnOpenQrModal?.addEventListener("click", () => {
+  if (!activeQrLink) return;
+  qrModalEl?.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+  renderQrCode(activeQrLink);
+});
+btnCloseQrModal?.addEventListener("click", closeQrModal);
+qrModalEl?.querySelectorAll("[data-close-qr]").forEach((el) => {
+  el.addEventListener("click", closeQrModal);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeQrModal();
+});
+qrAvatarToggleEl?.addEventListener("change", () => {
+  renderQrCode(activeQrLink);
+});
+qrSloganInputEl?.addEventListener("input", () => {
+  if (qrModalEl && !qrModalEl.classList.contains("hidden")) {
+    renderQrCode(activeQrLink);
+  }
+});
+btnDownloadQr?.addEventListener("click", downloadQrCode);
+btnDownloadPoster?.addEventListener("click", downloadPoster);
+document.addEventListener(THEME_CHANGE_EVENT, () => {
+  if (!qrModalEl?.classList.contains("hidden")) {
+    renderQrCode(activeQrLink);
+  }
+});
 btnCancelProfile?.addEventListener("click", cancelProfileEdit);
 btnShowDeleteAccount?.addEventListener("click", showDeleteAccountConfirm);
 btnCancelDeleteAccount?.addEventListener("click", cancelDeleteAccountConfirm);
@@ -215,6 +256,7 @@ async function hydrateReferralState(uid, profile) {
   applyTheme(selectedTheme);
   cacheThemeLocally(selectedTheme);
   renderReferralPanel(currentProfile);
+  renderQrCode(activeQrLink || userLinkEl?.textContent || "");
   await ensureReferralCodeLookup(uid, currentProfile.username, referralCode);
 
   try {
@@ -273,7 +315,7 @@ function getReferralRewards(count) {
 }
 
 function buildReferralCode(username) {
-  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2026`.slice(0, 28);
+  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2024`.slice(0, 28);
 }
 
 function renderReferralPanel(profile) {
@@ -312,6 +354,194 @@ function copyReferralLink() {
     btnCopyReferral.textContent = "Copied";
     setTimeout(() => { btnCopyReferral.textContent = original; }, 1600);
   });
+}
+
+function closeQrModal() {
+  qrModalEl?.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+}
+
+function getQrDotStyle() {
+  const themeKey = document.documentElement.getAttribute("data-theme") || getCachedTheme() || "default";
+  switch (themeKey) {
+    case "candy_pop": return "rounded";
+    case "dark_mode": return "classy";
+    case "neon_cyberpunk": return "extra-rounded";
+    case "private_garden": return "classy-rounded";
+    default: return "dots";
+  }
+}
+
+function createInitialImageData(initials, primaryColor, inkColor) {
+  const safeInitials = String(initials || "C").slice(0, 1).toUpperCase();
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="60" fill="${primaryColor}" />
+      <circle cx="60" cy="60" r="48" fill="${inkColor}" fill-opacity="0.16" />
+      <text x="60" y="74" text-anchor="middle" font-size="48" font-family="Arial, sans-serif" font-weight="700" fill="${inkColor}">${safeInitials}</text>
+    </svg>`;
+  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+}
+
+async function renderQrCode(link = activeQrLink) {
+  if (!qrPreviewEl || !link) return;
+  activeQrLink = link;
+  qrPreviewEl.innerHTML = "";
+
+  if (typeof window.QRCodeStyling !== "function") {
+    qrPreviewEl.innerHTML = '<p class="field-status err">QR library could not be loaded.</p>';
+    return;
+  }
+
+  const themeStyles = getComputedStyle(document.documentElement);
+  const primaryColor = themeStyles.getPropertyValue("--gold").trim() || "#b5860d";
+  const inkColor = themeStyles.getPropertyValue("--ink").trim() || "#2c1e0f";
+  const backgroundColor = themeStyles.getPropertyValue("--paper-card").trim() || "#fffdf7";
+  const displayName = currentProfile?.displayName || currentProfile?.username || "Chithi";
+  const includeAvatar = qrAvatarToggleEl?.checked !== false;
+  const avatarImage = includeAvatar ? createInitialImageData(displayName, primaryColor, inkColor) : "";
+
+  const qrOptions = {
+    width: 280,
+    height: 280,
+    type: "canvas",
+    data: link,
+    margin: 8,
+    qrOptions: {
+      typeNumber: 0,
+      mode: "Byte",
+      errorCorrectionLevel: "M"
+    },
+    dotsOptions: {
+      color: primaryColor,
+      type: getQrDotStyle()
+    },
+    cornersSquareOptions: {
+      color: inkColor,
+      type: getQrDotStyle()
+    },
+    cornersDotOptions: {
+      color: primaryColor,
+      type: getQrDotStyle()
+    },
+    backgroundOptions: {
+      color: backgroundColor
+    },
+    image: avatarImage,
+    imageOptions: avatarImage ? {
+      hideBackgroundDots: true,
+      imageSize: 0.22,
+      margin: 10
+    } : {}
+  };
+
+  if (qrCodeInstance) {
+    qrCodeInstance.update(qrOptions);
+    return;
+  }
+
+  qrCodeInstance = new window.QRCodeStyling(qrOptions);
+  qrCodeInstance.append(qrPreviewEl);
+}
+
+async function downloadQrCode() {
+  if (!qrCodeInstance) return;
+  const username = currentProfile?.username || "chithi";
+  qrCodeInstance.download({
+    extension: "png",
+    name: `${username}-chithi-qr`
+  });
+}
+
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
+}
+
+async function downloadPoster() {
+  if (!qrCodeInstance) return;
+
+  const posterWidth = 1080;
+  const posterHeight = 1920;
+  const canvas = document.createElement("canvas");
+  canvas.width = posterWidth;
+  canvas.height = posterHeight;
+  const ctx = canvas.getContext("2d");
+  const themeStyles = getComputedStyle(document.documentElement);
+  const primaryColor = themeStyles.getPropertyValue("--gold").trim() || "#b5860d";
+  const inkColor = themeStyles.getPropertyValue("--ink").trim() || "#2c1e0f";
+  const paperColor = themeStyles.getPropertyValue("--paper").trim() || "#fdf8f0";
+  const cardColor = themeStyles.getPropertyValue("--paper-card").trim() || "#fffdf7";
+  const username = currentProfile?.displayName || currentProfile?.username || "Chithi";
+  const slogan = qrSloganInputEl?.value?.trim() || "Send me your Love✨";
+
+  const gradient = ctx.createLinearGradient(0, 0, posterWidth, posterHeight);
+  gradient.addColorStop(0, cardColor);
+  gradient.addColorStop(1, paperColor);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, posterWidth, posterHeight);
+
+  ctx.fillStyle = `${primaryColor}24`;
+  ctx.beginPath();
+  ctx.arc(220, 250, 220, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(920, 1640, 260, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = cardColor;
+  drawRoundedRect(ctx, 90, 180, 900, 1280, 48);
+  ctx.fill();
+  ctx.strokeStyle = `${inkColor}26`;
+  ctx.lineWidth = 3;
+  drawRoundedRect(ctx, 90, 180, 900, 1280, 48);
+  ctx.stroke();
+
+  ctx.fillStyle = inkColor;
+  ctx.font = "bold 92px 'Caveat', cursive";
+  ctx.fillText("Chithi", 140, 300);
+  ctx.font = "500 44px 'Kalam', cursive";
+  ctx.fillText("Your personal letter link", 140, 400);
+
+  ctx.fillStyle = primaryColor;
+  ctx.font = "600 56px 'Caveat', cursive";
+  ctx.fillText(slogan, 140, 500);
+
+  ctx.fillStyle = inkColor;
+  ctx.font = "600 48px 'Kalam', cursive";
+  ctx.fillText(`@${username}`, 140, 620);
+
+  const rawData = await qrCodeInstance.getRawData("png");
+  const qrBlob = rawData instanceof Blob ? rawData : new Blob([rawData], { type: "image/png" });
+  const qrUrl = URL.createObjectURL(qrBlob);
+  const qrImage = new Image();
+  qrImage.src = qrUrl;
+  await new Promise((resolve, reject) => {
+    qrImage.onload = resolve;
+    qrImage.onerror = reject;
+  });
+
+  ctx.drawImage(qrImage, 300, 770, 480, 480);
+  ctx.fillStyle = inkColor;
+  ctx.font = "600 36px 'Lora', serif";
+  ctx.fillText("Scan to send a letter", 360, 1320);
+  ctx.font = "600 40px 'Caveat', cursive";
+  ctx.fillText("💌", 140, 1500);
+  ctx.font = "500 34px 'Lora', serif";
+  ctx.fillText("chithi.app", 220, 1505);
+
+  const link = canvas.toDataURL("image/png");
+  const anchor = document.createElement("a");
+  anchor.href = link;
+  anchor.download = `${username || "chithi"}-poster.png`;
+  anchor.click();
+  URL.revokeObjectURL(qrUrl);
 }
 
 function getReferralSignupUrl(referralCode) {
@@ -656,6 +886,7 @@ function hydrateProfileForm(profile) {
   if (profilePreviewBioEl) profilePreviewBioEl.textContent = profile.bio || "No bio added yet.";
   renderThemePicker(profile);
   renderProfilePerks(profile);
+  renderQrCode(activeQrLink || userLinkEl?.textContent || "");
 }
 
 function parseCustomEmojis(value) {
@@ -730,6 +961,7 @@ function renderThemePicker(profile) {
     input.addEventListener("change", () => {
       if (!input.disabled) {
         applyTheme(input.value);
+        renderQrCode(activeQrLink || userLinkEl?.textContent || "");
         if (themeStatusEl) {
           themeStatusEl.textContent = `${THEMES[input.value]?.label || "Theme"} preview selected. Save to keep it.`;
           themeStatusEl.className = "field-status ok";
