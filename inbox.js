@@ -18,6 +18,7 @@ import {
   doc,
   getDocs,
   getDoc,
+  setDoc,
   updateDoc,
   writeBatch,
   serverTimestamp
@@ -214,6 +215,7 @@ async function hydrateReferralState(uid, profile) {
   applyTheme(selectedTheme);
   cacheThemeLocally(selectedTheme);
   renderReferralPanel(currentProfile);
+  await ensureReferralCodeLookup(uid, currentProfile.username, referralCode);
 
   try {
     await updateDoc(doc(db, "users", uid), {
@@ -226,6 +228,25 @@ async function hydrateReferralState(uid, profile) {
     });
   } catch (err) {
     console.error("Referral reward sync error:", err);
+  }
+}
+
+async function ensureReferralCodeLookup(uid, username, referralCode) {
+  if (!uid || !referralCode) return;
+
+  try {
+    const codeRef = doc(db, "referralCodes", referralCode);
+    const codeSnap = await getDoc(codeRef);
+    if (codeSnap.exists()) return;
+
+    await setDoc(codeRef, {
+      uid,
+      username: username || "",
+      code: referralCode,
+      createdAt: serverTimestamp()
+    });
+  } catch (err) {
+    console.warn("Could not prepare referral link lookup:", err);
   }
 }
 

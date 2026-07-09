@@ -322,7 +322,11 @@ async function saveReferralArtifacts(user, username, referralCode) {
 
   try {
     const incomingSnap = await getDoc(doc(db, "referralCodes", incomingCode));
-    if (!incomingSnap.exists() || incomingSnap.data().uid === user.uid) return;
+    if (!incomingSnap.exists()) {
+      console.warn(`Referral code ${incomingCode} was not found. Ask the referrer to open their dashboard once.`);
+      return;
+    }
+    if (incomingSnap.data().uid === user.uid) return;
 
     await setDoc(doc(db, "referrals", user.uid), {
       referredUid: user.uid,
