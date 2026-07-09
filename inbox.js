@@ -315,7 +315,7 @@ function getReferralRewards(count) {
 }
 
 function buildReferralCode(username) {
-  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2k26`.slice(0, 28);
+  return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2024`.slice(0, 28);
 }
 
 function renderReferralPanel(profile) {
@@ -364,21 +364,34 @@ function closeQrModal() {
 function getQrDotStyle() {
   const themeKey = document.documentElement.getAttribute("data-theme") || getCachedTheme() || "default";
   switch (themeKey) {
-    case "candy_pop": return "rounded";
-    case "dark_mode": return "classy";
-    case "neon_cyberpunk": return "extra-rounded";
-    case "private_garden": return "classy-rounded";
-    default: return "dots";
+    case "candy_pop":
+    case "soft_pastel":
+      return "rounded";
+    case "dark_mode":
+      return "classy";
+    case "neon_cyberpunk":
+      return "extra-rounded";
+    case "private_garden":
+      return "classy-rounded";
+    default:
+      return "rounded";
   }
 }
 
 function createInitialImageData(initials, primaryColor, inkColor) {
   const safeInitials = String(initials || "C").slice(0, 1).toUpperCase();
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
-      <rect width="120" height="120" rx="60" fill="${primaryColor}" />
-      <circle cx="60" cy="60" r="48" fill="${inkColor}" fill-opacity="0.16" />
-      <text x="60" y="74" text-anchor="middle" font-size="48" font-family="Arial, sans-serif" font-weight="700" fill="${inkColor}">${safeInitials}</text>
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+      <defs>
+        <linearGradient id="heartFill" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${primaryColor}" />
+          <stop offset="100%" stop-color="${inkColor}" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="144" height="144" rx="38" fill="#fffdf7" />
+      <path d="M80 132c-24-18-44-34-44-58a28 28 0 0 1 48-19 28 28 0 0 1 48 19c0 24-20 40-44 58z" fill="url(#heartFill)" />
+      <circle cx="80" cy="80" r="40" fill="#fffdf7" fill-opacity="0.95" />
+      <text x="80" y="92" text-anchor="middle" font-size="46" font-family="Arial, sans-serif" font-weight="700" fill="${inkColor}">${safeInitials}</text>
     </svg>`;
   return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 }
@@ -414,15 +427,15 @@ async function renderQrCode(link = activeQrLink) {
     },
     dotsOptions: {
       color: primaryColor,
-      type: getQrDotStyle()
+      type: "rounded"
     },
     cornersSquareOptions: {
       color: inkColor,
-      type: getQrDotStyle()
+      type: "extra-rounded"
     },
     cornersDotOptions: {
       color: primaryColor,
-      type: getQrDotStyle()
+      type: "extra-rounded"
     },
     backgroundOptions: {
       color: backgroundColor
