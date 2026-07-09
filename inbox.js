@@ -576,11 +576,11 @@ async function downloadPoster() {
   ctx.drawImage(qrImage, 300, 770, 480, 480);
   ctx.fillStyle = inkColor;
   ctx.font = "600 36px 'Lora', serif";
-  ctx.fillText("Scan to send a letter with Love", 360, 1320);
+  ctx.fillText("Scan to send a letter", 360, 1320);
   ctx.textBaseline = "middle";
 
   ctx.font = "600 40px 'Caveat', cursive";
-  ctx.fillText("💌", 140, 1500);
+  ctx.fillText("💌", 140, 1498);
 
   ctx.font = "500 34px 'Lora', serif";
   ctx.fillText("chithi.app", 190, 1500);
