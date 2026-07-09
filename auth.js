@@ -267,7 +267,7 @@ function normalizeReferralCode(code) {
 }
 
 function buildReferralCode(username) {
-  return `${username.replace(/_/g, "").toUpperCase()}2026`.slice(0, 28);
+  return `${username.replace(/_/g, "").toUpperCase()}2k26`.slice(0, 28);
 }
 
 async function finishUserProfile(user, username) {
