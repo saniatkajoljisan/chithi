@@ -123,8 +123,8 @@ const reactionMarks = {
   spark: "🤬"
 };
 const REFERRAL_MILESTONES = [
-  { count: 3, tier: "Basic", label: "Basic themes", detail: "Candy Pop + Soft Pastel" },
-  { count: 10, tier: "Social", label: "Animated emoji", detail: "Avatar frame + extra mood" },
+  { count: 3, tier: "Basic", label: "Basic themes", detail: "Candy Pop + Soft Pastel + Dark" },
+  { count: 10, tier: "Social", label: "Animated emoji", detail: "Avatar frame + Customised Floating Emoji" },
   { count: 25, tier: "VIP", label: "VIP badge", detail: "Golden tick + Neon Cyberpunk" },
   { count: 50, tier: "Private", label: "Private theme", detail: "Exclusive Private Garden" }
 ];
