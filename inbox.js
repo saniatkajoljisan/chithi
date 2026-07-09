@@ -435,7 +435,6 @@ async function renderQrCode(link = activeQrLink) {
   }
 
   const themeStyles = getComputedStyle(document.documentElement);
-  const primaryColor = themeStyles.getPropertyValue("--gold").trim() || "#b5860d";
   const inkColor = themeStyles.getPropertyValue("--ink").trim() || "#2c1e0f";
   const backgroundColor = themeStyles.getPropertyValue("--paper-card").trim() || "#fffdf7";
   const displayName = currentProfile?.displayName || currentProfile?.username || "Chithi";
@@ -444,6 +443,7 @@ async function renderQrCode(link = activeQrLink) {
   const avatarColor = document.querySelector('input[name="avatar-color"]:checked')?.value
     || currentProfile?.avatarColor
     || "#2c1e0f";
+  const primaryColor = avatarColor || "#b5860d";
   const includeAvatar = qrAvatarToggleEl?.checked !== false;
   const avatarImage = includeAvatar ? createInitialImageData(displayName, avatarColor) : "";
 
@@ -475,9 +475,9 @@ async function renderQrCode(link = activeQrLink) {
     },
     image: avatarImage,
     imageOptions: avatarImage ? {
-      hideBackgroundDots: false,
+      hideBackgroundDots: true,
       imageSize: 0.32,
-      margin: 0
+      margin: 6
     } : {}
   };
 
