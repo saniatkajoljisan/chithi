@@ -525,7 +525,7 @@ async function downloadPoster() {
   const paperColor = themeStyles.getPropertyValue("--paper").trim() || "#fdf8f0";
   const cardColor = themeStyles.getPropertyValue("--paper-card").trim() || "#fffdf7";
   const username = currentProfile?.displayName || currentProfile?.username || "Chithi";
-  const slogan = qrSloganInputEl?.value?.trim() || "Send me your Love✨";
+  const slogan = qrSloganInputEl?.value?.trim() || "Send me your Love ✨";
 
   const gradient = ctx.createLinearGradient(0, 0, posterWidth, posterHeight);
   gradient.addColorStop(0, cardColor);
@@ -576,11 +576,14 @@ async function downloadPoster() {
   ctx.drawImage(qrImage, 300, 770, 480, 480);
   ctx.fillStyle = inkColor;
   ctx.font = "600 36px 'Lora', serif";
-  ctx.fillText("Scan to send a letter", 360, 1320);
+  ctx.fillText("Scan to send a letter with Love", 360, 1320);
+  ctx.textBaseline = "middle";
+
   ctx.font = "600 40px 'Caveat', cursive";
   ctx.fillText("💌", 140, 1500);
+
   ctx.font = "500 34px 'Lora', serif";
-  ctx.fillText("chithi.app", 220, 1505);
+  ctx.fillText("chithi.app", 190, 1500);
 
   const link = canvas.toDataURL("image/png");
   const anchor = document.createElement("a");
