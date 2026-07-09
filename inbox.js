@@ -475,9 +475,9 @@ async function renderQrCode(link = activeQrLink) {
     },
     image: avatarImage,
     imageOptions: avatarImage ? {
-      hideBackgroundDots: true,
+      hideBackgroundDots: false,
       imageSize: 0.32,
-      margin: 6
+      margin: 1
     } : {}
   };
 
