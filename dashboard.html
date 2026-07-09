@@ -7,6 +7,28 @@
   <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <script>
+    // Apply cached theme instantly, before first paint, so returning users
+    // don't see a flash of the default theme while Firestore/JS loads.
+    // Keep this map in sync with THEMES in themes.js.
+    (function () {
+      var THEME_VARS = {
+        candy_pop: { "--paper":"#fff0f6","--paper-dark":"#ffd9e8","--paper-card":"#fffafd","--ink":"#5a1a3d","--ink-light":"#8a3f68","--ink-faint":"#c17a9e","--gold":"#ff6fae","--line-color":"#ffc2dd","--shadow":"rgba(255,111,174,0.18)","--shadow-deep":"rgba(90,26,61,0.25)" },
+        dark_mode: { "--paper":"#1b1b1f","--paper-dark":"#26262b","--paper-card":"#232328","--ink":"#f5f0e8","--ink-light":"#cfc7ba","--ink-faint":"#948b7d","--gold":"#d4a832","--line-color":"#3a3a40","--shadow":"rgba(0,0,0,0.4)","--shadow-deep":"rgba(0,0,0,0.6)" },
+        neon_cyberpunk: { "--paper":"#0d0d1a","--paper-dark":"#14142a","--paper-card":"#131325","--ink":"#00f0ff","--ink-light":"#ff2bd6","--ink-faint":"#7d7dab","--gold":"#ff2bd6","--line-color":"#2a2a55","--shadow":"rgba(0,240,255,0.25)","--shadow-deep":"rgba(255,43,214,0.3)" },
+        soft_pastel: { "--paper":"#f7f9fc","--paper-dark":"#eef1f8","--paper-card":"#ffffff","--ink":"#4a5568","--ink-light":"#718096","--ink-faint":"#a0aec0","--gold":"#9f8fef","--line-color":"#dbe3f0","--shadow":"rgba(159,143,239,0.15)","--shadow-deep":"rgba(74,85,104,0.15)" }
+      };
+      try {
+        var key = localStorage.getItem("chithi_theme");
+        var vars = THEME_VARS[key];
+        if (vars) {
+          var root = document.documentElement;
+          Object.keys(vars).forEach(function (k) { root.style.setProperty(k, vars[k]); });
+          root.setAttribute("data-theme", key);
+        }
+      } catch (_) { /* non-fatal */ }
+    })();
+  </script>
 <style>
   .floating-bg {
   position: fixed;
@@ -366,6 +388,55 @@
 .pb-paper.letter-bg-rose  { background: #fff6f1; border-color: #f5cfc7; }
 .pb-paper.letter-bg-mint  { background: #f4fff8; border-color: #c2e8cc; }
 .pb-paper.letter-bg-sky   { background: #f5fbff; border-color: #bcd9f0; }
+
+/* ── Theme picker ─────────────────────────────────────── */
+.theme-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+}
+.theme-swatch-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  font-family: var(--font-readable);
+  font-size: 0.75rem;
+  color: var(--ink-light);
+}
+.theme-swatch-preview {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  border: 2.5px solid var(--line-color);
+  overflow: hidden;
+  display: flex;
+  transition: border-color 0.15s, transform 0.15s;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.theme-swatch-btn:hover .theme-swatch-preview {
+  transform: translateY(-2px);
+}
+.theme-swatch-btn.active .theme-swatch-preview {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(181,134,13,0.18);
+}
+.theme-swatch-preview span {
+  flex: 1;
+  height: 100%;
+}
+.theme-swatch-label {
+  white-space: nowrap;
+}
+.theme-swatch-btn.active .theme-swatch-label {
+  color: var(--ink);
+  font-weight: 600;
+}
 </style>
 </head>
 <body class="dashboard-page">
@@ -456,6 +527,12 @@
               <label class="color-choice"><input type="radio" name="avatar-color" value="#8f3f46" /><span style="background:#8f3f46"></span></label>
               <label class="color-choice"><input type="radio" name="avatar-color" value="#3f6f55" /><span style="background:#3f6f55"></span></label>
               <label class="color-choice"><input type="radio" name="avatar-color" value="#416b92" /><span style="background:#416b92"></span></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <span class="form-label">App theme</span>
+            <div class="theme-picker-row" id="theme-picker-row">
+              <!-- Swatch buttons injected by inbox.js -->
             </div>
           </div>
           <div class="profile-edit-actions">
@@ -574,6 +651,7 @@
 
   <script src="clean-urls.js"></script>
   <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="themes.js"></script>
   <script type="module" src="inbox.js"></script>
  <script>
 // float emoji
