@@ -36,6 +36,7 @@ import {
   cacheGardenColorsLocally,
   getCachedGardenColors
 } from "./themes.js";
+import { applyAvatar, compressImageFile } from "./avatar-helper.js";
 
 // ─── DOM references ──────────────────────────────────────────
 const navUsernameEl  = document.getElementById("nav-username");
@@ -64,6 +65,13 @@ const profileEmojisEl = document.getElementById("profile-emojis");
 const emojiStatusEl = document.getElementById("emoji-status");
 const profileAvatarEl= document.getElementById("profile-avatar-preview");
 const profileEditAvatarEl = document.getElementById("profile-edit-avatar-preview");
+const profilePhotoPreviewEl = document.getElementById("profile-photo-preview");
+const profilePhotoInputEl = document.getElementById("profile-photo-input");
+const btnRemovePhoto = document.getElementById("btn-remove-photo");
+const photoStatusEl = document.getElementById("photo-status");
+// undefined = no pending change (use currentProfile.photoData);
+// null = pending removal; string = pending new photo (base64 data URL)
+let pendingPhotoData;
 const profilePreviewEl = document.getElementById("profile-preview");
 const profileEditEl = document.getElementById("profile-edit");
 const profilePreviewNameEl = document.getElementById("profile-preview-name");
@@ -200,6 +208,51 @@ document.querySelectorAll('input[name="avatar-color"]').forEach((option) => {
     updateProfileAvatarPreview(option.value);
     renderQrCode(activeQrLink || userLinkEl?.textContent || "");
   });
+});
+profilePhotoInputEl?.addEventListener("change", async () => {
+  const file = profilePhotoInputEl.files?.[0];
+  if (!file) return;
+
+  if (photoStatusEl) {
+    photoStatusEl.textContent = "Compressing photo…";
+    photoStatusEl.className = "field-status";
+  }
+
+  try {
+    const dataUrl = await compressImageFile(file);
+    pendingPhotoData = dataUrl;
+    updateRemovePhotoButton();
+    const activeColor = document.querySelector('input[name="avatar-color"]:checked')?.value
+      || currentProfile?.avatarColor
+      || "#2c1e0f";
+    updateProfileAvatarPreview(activeColor);
+    renderQrCode(activeQrLink || userLinkEl?.textContent || "");
+    if (photoStatusEl) {
+      photoStatusEl.textContent = "Looks good — tap Save profile to keep it.";
+      photoStatusEl.className = "field-status ok";
+    }
+  } catch (err) {
+    console.error("Photo compression error:", err);
+    if (photoStatusEl) {
+      photoStatusEl.textContent = err?.message || "Could not process that photo. Try another file.";
+      photoStatusEl.className = "field-status err";
+    }
+  } finally {
+    profilePhotoInputEl.value = "";
+  }
+});
+btnRemovePhoto?.addEventListener("click", () => {
+  pendingPhotoData = null;
+  updateRemovePhotoButton();
+  const activeColor = document.querySelector('input[name="avatar-color"]:checked')?.value
+    || currentProfile?.avatarColor
+    || "#2c1e0f";
+  updateProfileAvatarPreview(activeColor);
+  renderQrCode(activeQrLink || userLinkEl?.textContent || "");
+  if (photoStatusEl) {
+    photoStatusEl.textContent = "Photo will be removed — tap Save profile to confirm.";
+    photoStatusEl.className = "field-status ok";
+  }
 });
 btnSaveProfile?.addEventListener("click", saveProfile);
 btnEditProfile?.addEventListener("click", showProfileEdit);
@@ -462,7 +515,10 @@ async function renderQrCode(link = activeQrLink) {
     || "#2c1e0f";
   const primaryColor = avatarColor || "#b5860d";
   const includeAvatar = qrAvatarToggleEl?.checked !== false;
-  const avatarImage = includeAvatar ? createInitialImageData(displayName, avatarColor) : "";
+  const photoData = getEffectivePhotoData();
+  const avatarImage = includeAvatar
+    ? (photoData || createInitialImageData(displayName, avatarColor))
+    : "";
 
   const qrOptions = {
     width: 280,
@@ -943,6 +999,15 @@ function isEmojiCustomizeUnlocked(profile) {
 }
 
 function hydrateProfileForm(profile) {
+  // Discard any unsaved photo selection whenever the form is (re)populated
+  // — e.g. opening the editor fresh, or cancelling out of a previous edit.
+  pendingPhotoData = undefined;
+  if (profilePhotoInputEl) profilePhotoInputEl.value = "";
+  if (photoStatusEl) {
+    photoStatusEl.textContent = "JPG/PNG — auto-resized & compressed, no need to shrink it yourself.";
+    photoStatusEl.className = "field-status";
+  }
+  updateRemovePhotoButton();
   if (profileNameEl) profileNameEl.value = profile.displayName || profile.username || "";
   if (profileBioEl) profileBioEl.value = profile.bio || "";
   const emojiUnlocked = isEmojiCustomizeUnlocked(profile);
@@ -1015,12 +1080,24 @@ function setEmojiStatus(message, isError) {
 
 function updateProfileAvatarPreview(color, displayName) {
   const display = displayName || profileNameEl?.value.trim() || currentProfile?.displayName || currentProfile?.username || "?";
-  [profileAvatarEl, profileEditAvatarEl].forEach((avatarEl) => {
-    if (!avatarEl) return;
-    avatarEl.textContent = display.charAt(0).toUpperCase();
-    avatarEl.style.background = color || "#2c1e0f";
+  const photoData = getEffectivePhotoData();
+  [profileAvatarEl, profileEditAvatarEl, profilePhotoPreviewEl].forEach((avatarEl) => {
+    applyAvatar(avatarEl, { photoData, color, name: display });
   });
   renderProfilePerks(currentProfile || {});
+}
+
+/** Resolve the photo that should currently be shown: an in-progress
+ *  pending change (new upload or removal) takes priority over whatever
+ *  is already saved on the profile. */
+function getEffectivePhotoData() {
+  return pendingPhotoData !== undefined ? pendingPhotoData : (currentProfile?.photoData || null);
+}
+
+function updateRemovePhotoButton() {
+  if (!btnRemovePhoto) return;
+  const hasPhoto = !!getEffectivePhotoData();
+  btnRemovePhoto.classList.toggle("hidden", !hasPhoto);
 }
 
 function renderThemePicker(profile) {
@@ -1102,7 +1179,7 @@ function renderProfilePerks(profile) {
   const hasFrame = perks.includes("avatar_frame");
   const hasAnimatedEmoji = perks.includes("animated_emoji");
   const hasVip = perks.includes("golden_tick") || perks.includes("vip_badge");
-  [profileAvatarEl, profileEditAvatarEl].forEach((avatarEl) => {
+  [profileAvatarEl, profileEditAvatarEl, profilePhotoPreviewEl].forEach((avatarEl) => {
     avatarEl?.classList.toggle("avatar-framed", hasFrame);
   });
 
@@ -1134,9 +1211,18 @@ async function saveProfile() {
   try {
     const updatePayload = { displayName, bio, customEmojis, avatarColor, theme: selectedTheme };
     if (privateGardenColors) updatePayload.privateGardenColors = privateGardenColors;
+    // Only touch photoData if the person actually changed it this edit —
+    // undefined means "leave whatever is already saved alone".
+    const photoChanged = pendingPhotoData !== undefined;
+    if (photoChanged) updatePayload.photoData = pendingPhotoData;
 
     await updateDoc(doc(db, "users", currentUser.uid), updatePayload);
-    currentProfile = { ...currentProfile, displayName, bio, customEmojis, avatarColor, theme: selectedTheme, privateGardenColors };
+    currentProfile = {
+      ...currentProfile,
+      displayName, bio, customEmojis, avatarColor, theme: selectedTheme, privateGardenColors,
+      ...(photoChanged ? { photoData: pendingPhotoData } : {})
+    };
+    pendingPhotoData = undefined;
     currentGardenColors = privateGardenColors;
     cacheThemeLocally(selectedTheme);
     if (isGardenSelected && privateGardenColors) cacheGardenColorsLocally(privateGardenColors);

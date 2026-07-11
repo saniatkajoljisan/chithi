@@ -4,6 +4,7 @@
 // ============================================================
 
 import { db } from "./firebase-config.js";
+import { applyAvatar } from "./avatar-helper.js";
 import {
   collection,
   doc,
@@ -196,8 +197,7 @@ async function init() {
     applyTheme(userData.theme || "default");
     window.ChithiSetFloatingEmojis?.(customEmojis);
     usernameDisplay.textContent = displayName;
-    avatarCircle.textContent    = displayName.charAt(0).toUpperCase();
-    avatarCircle.style.background = userData.avatarColor || "#2c1e0f";
+    applyAvatar(avatarCircle, { photoData: userData.photoData, color: userData.avatarColor, name: displayName });
     avatarCircle.classList.toggle("avatar-framed", perks.includes("avatar_frame"));
     const hasVip = perks.includes("vip_badge") || perks.includes("golden_tick");
     userRewardEmojiEl?.classList.toggle("hidden", !perks.includes("animated_emoji") || hasVip);

@@ -287,6 +287,7 @@ async function finishUserProfile(user, username) {
       displayName: username,
       bio: "",
       avatarColor: "#2c1e0f",
+      photoData: null,
       customEmojis: ["💌", "✨", "💕", "🎈", "📝", "❤️", "📫", "🎉", "💝", "🌸"],
       theme: "default",
       referralCode,

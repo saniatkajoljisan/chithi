@@ -12,9 +12,19 @@ service cloud.firestore {
     // Public read (needed for username lookups on public page)
     // Only the owner can write their own profile
     match /users/{userId} {
+      // photoData is a client-compressed base64 JPEG data URL (no Firebase
+      // Storage on the free/Spark plan). It's optional — sanity-check its
+      // type/size when present, but don't require it.
+      function isValidPhoto() {
+        return !("photoData" in request.resource.data) ||
+          request.resource.data.photoData == null ||
+          (request.resource.data.photoData is string &&
+           request.resource.data.photoData.size() < 300000);
+      }
+
       allow read:   if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId && isValidPhoto();
+      allow update: if request.auth != null && request.auth.uid == userId && isValidPhoto();
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
 

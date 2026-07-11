@@ -18,6 +18,7 @@ import {
   where,
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { applyAvatar } from "./avatar-helper.js";
 
 // ─── localStorage key ────────────────────────────────────────
 const LS_KEY = "chithi_sent_letters";
@@ -172,6 +173,7 @@ async function loadByToken(token) {
     let recipientName    = "Recipient";
     let recipientColor   = "#2c1e0f";
     let recipientInitial = "R";
+    let recipientPhoto   = null;
     try {
       const userSnap = await getDoc(doc(db, "users", msg.toUserId));
       if (userSnap.exists()) {
@@ -179,13 +181,14 @@ async function loadByToken(token) {
         recipientName    = u.displayName || u.username || "Recipient";
         recipientColor   = u.avatarColor  || "#2c1e0f";
         recipientInitial = recipientName.charAt(0).toUpperCase();
+        recipientPhoto   = u.photoData || null;
       }
     } catch (_) {}
 
     renderBubble(msg);
     renderReaction(msg);
-    renderReceipt(msg, recipientInitial, recipientColor);
-    renderReply(msg, recipientName, recipientInitial, recipientColor);
+    renderReceipt(msg, recipientInitial, recipientColor, recipientPhoto);
+    renderReply(msg, recipientName, recipientInitial, recipientColor, recipientPhoto);
     
     // Hide unsend if letter was read, reacted or replied
     const isEngaged = msg.isRead || msg.receiverReaction || msg.replyText;
@@ -243,7 +246,7 @@ function renderReaction(msg) {
 }
 
 // ─── Render: seen / delivered receipt ────────────────────────
-function renderReceipt(msg, recipientInitial, recipientColor) {
+function renderReceipt(msg, recipientInitial, recipientColor, recipientPhoto) {
   receiptRowEl.innerHTML = "";
 
   if (msg.receiverReaction || msg.replyText) {
@@ -259,8 +262,7 @@ function renderReceipt(msg, recipientInitial, recipientColor) {
 
     const avatar = document.createElement("div");
     avatar.className   = "receipt-avatar";
-    avatar.textContent = recipientInitial;
-    avatar.style.background = recipientColor;
+    applyAvatar(avatar, { photoData: recipientPhoto, color: recipientColor, name: recipientInitial });
     avatar.title = "Seen by recipient";
 
     receiptRowEl.appendChild(label);
@@ -283,14 +285,13 @@ function renderReceipt(msg, recipientInitial, recipientColor) {
 }
 
 // ─── Render: reply bubble ────────────────────────────────────
-function renderReply(msg, recipientName, recipientInitial, recipientColor) {
+function renderReply(msg, recipientName, recipientInitial, recipientColor, recipientPhoto) {
   if (!msg.replyText) {
     replyRowEl.classList.add("hidden");
     return;
   }
 
-  replyAvatarEl.textContent      = recipientInitial;
-  replyAvatarEl.style.background = recipientColor;
+  applyAvatar(replyAvatarEl, { photoData: recipientPhoto, color: recipientColor, name: recipientInitial });
   replyAvatarEl.title            = recipientName;
   replyBubNameEl.textContent     = msg.replierName || recipientName;
   replyBubTextEl.textContent     = msg.replyText;
