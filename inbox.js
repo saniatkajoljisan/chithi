@@ -1048,7 +1048,8 @@ function renderProfilePerks(profile) {
   [profileAvatarEl, profileEditAvatarEl].forEach((avatarEl) => {
     avatarEl?.classList.toggle("avatar-framed", hasFrame);
   });
-  profileRewardEmojiEl?.classList.toggle("hidden", !hasAnimatedEmoji);
+
+  profileRewardEmojiEl?.classList.toggle("hidden", !hasAnimatedEmoji || hasVip);
   profileVipTickEl?.classList.toggle("hidden", !hasVip);
 }
 
