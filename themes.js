@@ -61,17 +61,17 @@ export const THEMES = {
 
   neon_cyberpunk: {
     label: "Neon Cyberpunk",
-    swatch: ["#0d0d1a", "#ff2bd6", "#00f0ff"],
+    swatch: ["#160221", "#39ff88", "#ff2bd6"],
     vars: {
-      "--paper":       "#0d0d1a",
-      "--paper-dark":  "#14142a",
-      "--paper-card":  "#131325",
-      "--ink":         "#00f0ff",
+      "--paper":       "#160221",
+      "--paper-dark":  "#20032e",
+      "--paper-card":  "#1c0328",
+      "--ink":         "#f4e8ff",
       "--ink-light":   "#ff2bd6",
-      "--ink-faint":   "#7d7dab",
-      "--gold":        "#ff2bd6",
-      "--line-color":  "#2a2a55",
-      "--shadow":      "rgba(0, 240, 255, 0.25)",
+      "--ink-faint":   "#8a6aa8",
+      "--gold":        "#39ff88",
+      "--line-color":  "#3d1a52",
+      "--shadow":      "rgba(57, 255, 136, 0.25)",
       "--shadow-deep": "rgba(255, 43, 214, 0.3)"
     }
   },
@@ -112,8 +112,86 @@ export const THEMES = {
 };
 
 const STORAGE_KEY = "chithi_theme";
+const GARDEN_COLORS_KEY = "chithi_garden_colors";
 const DEFAULT_THEME = "default";
 export const THEME_CHANGE_EVENT = "chithi-theme-change";
+export const CUSTOMIZABLE_THEME = "private_garden";
+
+// ── Small hex color helpers (no library needed) ─────────────
+function hexToRgb(hex) {
+  const clean = (hex || "").replace("#", "");
+  const full = clean.length === 3 ? clean.split("").map(c => c + c).join("") : clean;
+  const num = parseInt(full, 16);
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
+function rgbToHex({ r, g, b }) {
+  const toHex = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0");
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+/** Mix hexA toward hexB by `weight` (0 = pure hexA, 1 = pure hexB). */
+function mixHex(hexA, hexB, weight) {
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  return rgbToHex({
+    r: a.r + (b.r - a.r) * weight,
+    g: a.g + (b.g - a.g) * weight,
+    b: a.b + (b.b - a.b) * weight
+  });
+}
+function hexToRgba(hex, alpha) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+function isValidHex(hex) {
+  return typeof hex === "string" && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex);
+}
+
+/**
+ * Build the full Private Garden variable set from just 3 user-picked
+ * colors: background, text (ink), and accent (gold). Everything else
+ * (lighter/darker shades, lines, shadows) is derived automatically so
+ * the theme still looks cohesive no matter what the user picks.
+ * Falls back to the built-in preset if colors are missing/invalid.
+ */
+export function buildPrivateGardenVars(customColors) {
+  const preset = THEMES.private_garden.vars;
+  const bg     = customColors?.bg;
+  const ink    = customColors?.ink;
+  const accent = customColors?.accent;
+
+  if (!isValidHex(bg) || !isValidHex(ink) || !isValidHex(accent)) {
+    return preset;
+  }
+
+  return {
+    "--paper":       bg,
+    "--paper-dark":  mixHex(bg, "#000000", 0.12),
+    "--paper-card":  mixHex(bg, "#ffffff", 0.05),
+    "--ink":         ink,
+    "--ink-light":   mixHex(ink, bg, 0.3),
+    "--ink-faint":   mixHex(ink, bg, 0.55),
+    "--gold":        accent,
+    "--line-color":  mixHex(bg, ink, 0.15),
+    "--shadow":      hexToRgba(accent, 0.2),
+    "--shadow-deep": hexToRgba(mixHex(bg, "#000000", 0.5), 0.4)
+  };
+}
+
+/** Cache custom garden colors locally so they survive a page reload
+ *  before Firestore data arrives (avoids a flash of the preset). */
+export function cacheGardenColorsLocally(colors) {
+  try {
+    localStorage.setItem(GARDEN_COLORS_KEY, JSON.stringify(colors));
+  } catch (_) { /* non-fatal */ }
+}
+
+export function getCachedGardenColors() {
+  try {
+    const raw = localStorage.getItem(GARDEN_COLORS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
 
 export const THEME_UNLOCK_LEVELS = {
   default: 0,
@@ -135,11 +213,17 @@ export function isThemeUnlocked(themeKey, unlockedThemes = [DEFAULT_THEME]) {
   return themeKey === DEFAULT_THEME || unlockedThemes.includes(themeKey);
 }
 
-/** Apply a theme's CSS variables to the document immediately. */
-export function applyTheme(themeKey) {
-  const theme = THEMES[themeKey] || THEMES[DEFAULT_THEME];
+/** Apply a theme's CSS variables to the document immediately.
+ *  Pass `customColors` ({bg, ink, accent}) when themeKey is
+ *  "private_garden" and the user has customized it. */
+export function applyTheme(themeKey, customColors) {
+  const isGarden = themeKey === CUSTOMIZABLE_THEME;
+  const vars = isGarden
+    ? buildPrivateGardenVars(customColors)
+    : (THEMES[themeKey] || THEMES[DEFAULT_THEME]).vars;
+
   const root = document.documentElement;
-  Object.entries(theme.vars).forEach(([key, value]) => {
+  Object.entries(vars).forEach(([key, value]) => {
     root.style.setProperty(key, value);
   });
   root.setAttribute("data-theme", THEMES[themeKey] ? themeKey : DEFAULT_THEME);
@@ -166,7 +250,10 @@ export function getCachedTheme() {
 }
 
 /** Apply + cache in one step (use this whenever the user picks a theme). */
-export function setTheme(themeKey) {
-  applyTheme(themeKey);
+export function setTheme(themeKey, customColors) {
+  applyTheme(themeKey, customColors);
   cacheThemeLocally(themeKey);
+  if (themeKey === CUSTOMIZABLE_THEME && customColors) {
+    cacheGardenColorsLocally(customColors);
+  }
 }

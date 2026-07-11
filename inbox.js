@@ -27,11 +27,14 @@ import {
   THEMES,
   THEME_CHANGE_EVENT,
   THEME_UNLOCK_LEVELS,
+  CUSTOMIZABLE_THEME,
   applyTheme,
   cacheThemeLocally,
   getCachedTheme,
   getUnlockedThemes,
-  isThemeUnlocked
+  isThemeUnlocked,
+  cacheGardenColorsLocally,
+  getCachedGardenColors
 } from "./themes.js";
 
 // ─── DOM references ──────────────────────────────────────────
@@ -90,6 +93,11 @@ const referralProgressFillEl = document.getElementById("referral-progress-fill")
 const referralMilestonesEl = document.getElementById("referral-milestones");
 const themeChoiceGridEl = document.getElementById("theme-choice-grid");
 const themeStatusEl = document.getElementById("theme-status");
+const gardenColorPickerEl = document.getElementById("garden-color-picker");
+const gardenBgInputEl     = document.getElementById("garden-color-bg");
+const gardenInkInputEl    = document.getElementById("garden-color-ink");
+const gardenAccentInputEl = document.getElementById("garden-color-accent");
+let currentGardenColors = null;
 const profileVipTickEl = document.getElementById("profile-vip-tick");
 const profileRewardEmojiEl = document.getElementById("profile-reward-emoji");
 
@@ -269,6 +277,8 @@ async function hydrateReferralState(uid, profile) {
     ? (profile.theme || "default")
     : "default";
 
+  currentGardenColors = profile.privateGardenColors || getCachedGardenColors() || null;
+
   currentProfile = {
     ...profile,
     referralCode,
@@ -279,8 +289,11 @@ async function hydrateReferralState(uid, profile) {
     theme: selectedTheme
   };
 
-  applyTheme(selectedTheme);
+  applyTheme(selectedTheme, selectedTheme === CUSTOMIZABLE_THEME ? currentGardenColors : undefined);
   cacheThemeLocally(selectedTheme);
+  if (selectedTheme === CUSTOMIZABLE_THEME && currentGardenColors) {
+    cacheGardenColorsLocally(currentGardenColors);
+  }
   renderReferralPanel(currentProfile);
   renderQrCode(activeQrLink || userLinkEl?.textContent || "");
   await ensureReferralCodeLookup(uid, currentProfile.username, referralCode);
@@ -1029,16 +1042,56 @@ function renderThemePicker(profile) {
   themeChoiceGridEl.querySelectorAll('input[name="profile-theme"]').forEach((input) => {
     input.addEventListener("change", () => {
       if (!input.disabled) {
-        applyTheme(input.value);
+        const isGarden = input.value === CUSTOMIZABLE_THEME;
+        applyTheme(input.value, isGarden ? currentGardenColors : undefined);
         renderQrCode(activeQrLink || userLinkEl?.textContent || "");
         if (themeStatusEl) {
           themeStatusEl.textContent = `${THEMES[input.value]?.label || "Theme"} preview selected. Save to keep it.`;
           themeStatusEl.className = "field-status ok";
         }
+        updateGardenPickerVisibility(isGarden);
       }
     });
   });
+
+  updateGardenPickerVisibility(activeTheme === CUSTOMIZABLE_THEME && isThemeUnlocked(CUSTOMIZABLE_THEME, unlockedThemes));
 }
+
+/** Show/hide the 3-color picker and prefill it with saved or preset colors. */
+function updateGardenPickerVisibility(show) {
+  if (!gardenColorPickerEl) return;
+  gardenColorPickerEl.classList.toggle("hidden", !show);
+  if (!show) return;
+
+  const preset = THEMES.private_garden.vars;
+  const colors = currentGardenColors || {
+    bg: preset["--paper"],
+    ink: preset["--ink"],
+    accent: preset["--gold"]
+  };
+  if (gardenBgInputEl)     gardenBgInputEl.value = colors.bg;
+  if (gardenInkInputEl)    gardenInkInputEl.value = colors.ink;
+  if (gardenAccentInputEl) gardenAccentInputEl.value = colors.accent;
+}
+
+function readGardenColorsFromInputs() {
+  return {
+    bg: gardenBgInputEl?.value,
+    ink: gardenInkInputEl?.value,
+    accent: gardenAccentInputEl?.value
+  };
+}
+
+[gardenBgInputEl, gardenInkInputEl, gardenAccentInputEl].forEach((input) => {
+  input?.addEventListener("input", () => {
+    currentGardenColors = readGardenColorsFromInputs();
+    applyTheme(CUSTOMIZABLE_THEME, currentGardenColors);
+    if (themeStatusEl) {
+      themeStatusEl.textContent = "Private Garden colors previewed. Save to keep it.";
+      themeStatusEl.className = "field-status ok";
+    }
+  });
+});
 
 function renderProfilePerks(profile) {
   const perks = profile.unlockedPerks || [];
@@ -1069,11 +1122,21 @@ async function saveProfile() {
     return setProfileStatus("That theme is still locked.", true);
   }
 
+  const isGardenSelected = selectedTheme === CUSTOMIZABLE_THEME;
+  const privateGardenColors = isGardenSelected
+    ? readGardenColorsFromInputs()
+    : (currentGardenColors || null);
+
   try {
-    await updateDoc(doc(db, "users", currentUser.uid), { displayName, bio, customEmojis, avatarColor, theme: selectedTheme });
-    currentProfile = { ...currentProfile, displayName, bio, customEmojis, avatarColor, theme: selectedTheme };
+    const updatePayload = { displayName, bio, customEmojis, avatarColor, theme: selectedTheme };
+    if (privateGardenColors) updatePayload.privateGardenColors = privateGardenColors;
+
+    await updateDoc(doc(db, "users", currentUser.uid), updatePayload);
+    currentProfile = { ...currentProfile, displayName, bio, customEmojis, avatarColor, theme: selectedTheme, privateGardenColors };
+    currentGardenColors = privateGardenColors;
     cacheThemeLocally(selectedTheme);
-    applyTheme(selectedTheme);
+    if (isGardenSelected && privateGardenColors) cacheGardenColorsLocally(privateGardenColors);
+    applyTheme(selectedTheme, isGardenSelected ? privateGardenColors : undefined);
     updateFloatingEmojis(customEmojis);
     navUsernameEl.textContent = `@${currentProfile.username}`;
     hydrateProfileForm(currentProfile);

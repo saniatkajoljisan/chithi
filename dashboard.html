@@ -374,6 +374,39 @@
 .pb-paper.letter-bg-rose  { background: #fff6f1; border-color: #f5cfc7; }
 .pb-paper.letter-bg-mint  { background: #f4fff8; border-color: #c2e8cc; }
 .pb-paper.letter-bg-sky   { background: #f5fbff; border-color: #bcd9f0; }
+
+/* Private Garden custom color picker */
+.garden-color-picker {
+  margin-top: 0.85rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--line-color, #e8dcc8);
+  border-radius: 12px;
+}
+.garden-color-row {
+  display: flex;
+  gap: 1.1rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.garden-color-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Lora', serif;
+  font-size: 0.78rem;
+  color: var(--ink-light, #5a4232);
+}
+.garden-color-field input[type="color"] {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
 </style>
 </head>
 <body class="dashboard-page">
@@ -549,6 +582,25 @@
             <span class="form-label">Theme</span>
             <div class="theme-choice-grid" id="theme-choice-grid"></div>
             <div class="field-status" id="theme-status"></div>
+
+            <!-- Private Garden custom color pickers (shown only when that theme is selected) -->
+            <div class="garden-color-picker hidden" id="garden-color-picker">
+              <div class="field-status">Make Private Garden your own — pick 3 colors:</div>
+              <div class="garden-color-row">
+                <label class="garden-color-field">
+                  <span>Background</span>
+                  <input type="color" id="garden-color-bg" value="#0f2a22" />
+                </label>
+                <label class="garden-color-field">
+                  <span>Text</span>
+                  <input type="color" id="garden-color-ink" value="#f8f0d8" />
+                </label>
+                <label class="garden-color-field">
+                  <span>Accent</span>
+                  <input type="color" id="garden-color-accent" value="#f4c95d" />
+                </label>
+              </div>
+            </div>
           </div>
           <div class="profile-edit-actions">
             <button class="btn-primary btn-full" id="btn-save-profile">Save profile</button>
