@@ -199,8 +199,9 @@ async function init() {
     avatarCircle.textContent    = displayName.charAt(0).toUpperCase();
     avatarCircle.style.background = userData.avatarColor || "#2c1e0f";
     avatarCircle.classList.toggle("avatar-framed", perks.includes("avatar_frame"));
-    userRewardEmojiEl?.classList.toggle("hidden", !perks.includes("animated_emoji"));
-    userVipTickEl?.classList.toggle("hidden", !(perks.includes("vip_badge") || perks.includes("golden_tick")));
+    const hasVip = perks.includes("vip_badge") || perks.includes("golden_tick");
+    userRewardEmojiEl?.classList.toggle("hidden", !perks.includes("animated_emoji") || hasVip);
+    userVipTickEl?.classList.toggle("hidden", !hasVip);
     if (userTaglineEl) {
       userTaglineEl.textContent = userData.bio || "They won't know who you are unless you tell them.";
     }
