@@ -61,18 +61,18 @@ export const THEMES = {
 
   neon_cyberpunk: {
     label: "Neon Cyberpunk",
-    swatch: ["#160221", "#39ff88", "#ff2bd6"],
+    swatch: ["#f0f3ff", "#d100e8", "#0a0e2e"],
     vars: {
-      "--paper":       "#160221",
-      "--paper-dark":  "#20032e",
-      "--paper-card":  "#1c0328",
-      "--ink":         "#f4e8ff",
-      "--ink-light":   "#ff2bd6",
-      "--ink-faint":   "#8a6aa8",
-      "--gold":        "#39ff88",
-      "--line-color":  "#3d1a52",
-      "--shadow":      "rgba(57, 255, 136, 0.25)",
-      "--shadow-deep": "rgba(255, 43, 214, 0.3)"
+      "--paper":       "#f0f3ff",
+      "--paper-dark":  "#e0e6ff",
+      "--paper-card":  "#f8faff",
+      "--ink":         "#0a0e2e",
+      "--ink-light":   "#0091c2",
+      "--ink-faint":   "#5c5f8a",
+      "--gold":        "#d100e8",
+      "--line-color":  "#c7cdf5",
+      "--shadow":      "rgba(209, 0, 232, 0.15)",
+      "--shadow-deep": "rgba(0, 145, 194, 0.2)"
     }
   },
 
