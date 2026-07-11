@@ -547,7 +547,19 @@
         <button class="btn-ghost btn-sm" id="btn-edit-profile">Edit profile</button>
       </div>
       <div class="profile-edit hidden" id="profile-edit">
-        <div class="profile-panel-header">
+        <div class="form-group profile-grid-wide">
+            <span class="form-label">Profile photo</span>
+            <div class="avatar-photo-row">
+              <span class="profile-avatar-preview" id="profile-photo-preview">?</span>
+              <div class="avatar-photo-actions">
+                <label class="btn-ghost btn-sm avatar-photo-upload-btn" for="profile-photo-input">Upload photo</label>
+                <input type="file" accept="image/*" id="profile-photo-input" class="hidden-file-input" />
+                <button type="button" class="btn-ghost btn-sm hidden" id="btn-remove-photo">Remove photo</button>
+              </div>
+            </div>
+            <div class="field-status" id="photo-status">JPG/PNG — auto-resized &amp; compressed, no need to shrink it yourself.</div>
+          </div>
+        <!--<div class="profile-panel-header">
           <div class="profile-edit-heading">
             <span class="profile-avatar-preview profile-edit-avatar-preview" id="profile-edit-avatar-preview">?</span>
             <div>
@@ -555,7 +567,7 @@
               <h2 class="panel-title">Customize your public page</h2>
             </div>
           </div>
-        </div>
+        </div>-->
         <div class="profile-grid">
           <div class="form-group">
             <label for="profile-display-name">Display name</label>
