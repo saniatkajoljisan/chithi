@@ -50,8 +50,8 @@ export const THEMES = {
       "--paper-dark":  "#26262b",
       "--paper-card":  "#232328",
       "--ink":         "#f5f0e8",
-      "--ink-light":   "#cfc7ba",
-      "--ink-faint":   "#948b7d",
+      "--ink-light":   "#dcd4c5",
+      "--ink-faint":   "#aca290",
       "--gold":        "#d4a832",
       "--line-color":  "#3a3a40",
       "--shadow":      "rgba(0, 0, 0, 0.4)",
@@ -61,18 +61,18 @@ export const THEMES = {
 
   neon_cyberpunk: {
     label: "Neon Cyberpunk",
-    swatch: ["#f0f3ff", "#d100e8", "#0a0e2e"],
+    swatch: ["#eefcfa", "#1fd67a", "#0b1f1d"],
     vars: {
-      "--paper":       "#f0f3ff",
-      "--paper-dark":  "#e0e6ff",
-      "--paper-card":  "#f8faff",
-      "--ink":         "#0a0e2e",
-      "--ink-light":   "#0091c2",
-      "--ink-faint":   "#5c5f8a",
-      "--gold":        "#d100e8",
-      "--line-color":  "#c7cdf5",
-      "--shadow":      "rgba(209, 0, 232, 0.15)",
-      "--shadow-deep": "rgba(0, 145, 194, 0.2)"
+      "--paper":       "#eefcfa",
+      "--paper-dark":  "#d8f5f0",
+      "--paper-card":  "#f7fffd",
+      "--ink":         "#0b1f1d",
+      "--ink-light":   "#00b8d4",
+      "--ink-faint":   "#5c8783",
+      "--gold":        "#1fd67a",
+      "--line-color":  "#b8e8e0",
+      "--shadow":      "rgba(0, 184, 212, 0.15)",
+      "--shadow-deep": "rgba(31, 214, 122, 0.22)"
     }
   },
 
