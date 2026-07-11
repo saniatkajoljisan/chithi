@@ -542,7 +542,7 @@ async function downloadPoster() {
   const paperColor = themeStyles.getPropertyValue("--paper").trim() || "#fdf8f0";
   const cardColor = themeStyles.getPropertyValue("--paper-card").trim() || "#fffdf7";
   const username = currentProfile?.displayName || currentProfile?.username || "Chithi";
-  const slogan = qrSloganInputEl?.value?.trim() || "Send me your Love ✨";
+  const slogan = qrSloganInputEl?.value?.trim() || "Send me your Love ♥️";
 
   const gradient = ctx.createLinearGradient(0, 0, posterWidth, posterHeight);
   gradient.addColorStop(0, cardColor);
