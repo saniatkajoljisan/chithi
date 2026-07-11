@@ -123,9 +123,9 @@ const reactionMarks = {
   spark: "🤬"
 };
 const REFERRAL_MILESTONES = [
-  { count: 3, tier: "Basic", label: "Basic themes", detail: "Candy Pop + Soft Pastel + Dark" },
+  { count: 3, tier: "Basic", label: "Basic themes", detail: "Candy Pop + Soft Pastel + Dark Mode" },
   { count: 10, tier: "Social", label: "Animated emoji", detail: "Avatar frame + Customised Floating Emoji" },
-  { count: 25, tier: "VIP", label: "VIP badge", detail: "Golden tick + Neon Cyberpunk" },
+  { count: 25, tier: "VIP", label: "VIP badge", detail: "Blue Verified Tick + Neon Cyberpunk Mode" },
   { count: 50, tier: "Private", label: "Private theme", detail: "Exclusive Private Garden" }
 ];
 const DEFAULT_FLOATING_EMOJIS = ["💌", "✨", "💕", "🎈", "📝", "❤️", "📫", "🎉", "💝", "🌸"];
