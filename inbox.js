@@ -160,7 +160,8 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   currentProfile = profile;
   const username = profile.username;
-  await hydrateReferralState(user.uid, profile);
+
+  // Show cached theme/profile fields instantly, don't block on network
   hydrateProfileForm(profile);
 
   // Update nav
@@ -185,8 +186,11 @@ onAuthStateChanged(auth, async (user) => {
     });
   });
 
-  // Load messages
+  // Load messages RIGHT AWAY — don't wait on the referral count sync.
+  // Letters are the main thing people came here for; the referral
+  // panel can finish updating a moment later in the background.
   loadMessages(user.uid);
+  hydrateReferralState(user.uid, profile); // not awaited — runs in parallel
 });
 
 inboxSearchEl?.addEventListener("input", () => { visibleCount = 5; renderMessages(); });

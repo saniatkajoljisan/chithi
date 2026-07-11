@@ -11,7 +11,11 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth }        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentSingleTabManager
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ⬇️  REPLACE THIS ENTIRE OBJECT WITH YOUR OWN CONFIG  ⬇️
 const firebaseConfig = {
@@ -27,7 +31,13 @@ const firebaseConfig = {
 // Initialize Firebase
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db   = getFirestore(app);
+
+// Persistent local cache (IndexedDB) — repeat visits render instantly
+// from cache while Firestore syncs fresh data in the background,
+// instead of always waiting on a network round-trip first.
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentSingleTabManager({}) })
+});
 
 // Export so other scripts can import them
 export { auth, db };
