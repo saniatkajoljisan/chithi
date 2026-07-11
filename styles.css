@@ -1158,7 +1158,17 @@ body.modal-open {
 .referral-panel .link-banner-label {
   color: var(--ink-faint);
 }
-
+.referral-tier {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--paper);
+  font-size: 0.78rem;
+  padding: 0.18rem 0.6rem;
+  box-shadow: 0 2px 8px var(--shadow);
+}
 .referral-code-row {
   border: 1px dashed var(--line-color);
   border-radius: 8px;
