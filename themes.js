@@ -49,7 +49,7 @@ export const THEMES = {
       "--paper":       "#1b1b1f",
       "--paper-dark":  "#26262b",
       "--paper-card":  "#232328",
-      "--ink":         "#fbf9f6",
+      "--ink":         "#aca290",
       "--ink-light":   "#dcd4c5",
       "--ink-faint":   "#aca290",
       "--gold":        "#d4a832",
