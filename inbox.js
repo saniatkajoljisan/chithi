@@ -36,7 +36,7 @@ import {
   cacheGardenColorsLocally,
   getCachedGardenColors
 } from "./themes.js";
-import { applyAvatar, compressImageFile } from "./avatar-helper.js";
+import { applyAvatar, compressImageFile, createCircularPhotoImage } from "./avatar-helper.js";
 
 // ─── DOM references ──────────────────────────────────────────
 const navUsernameEl  = document.getElementById("nav-username");
@@ -106,6 +106,10 @@ const gardenBgInputEl     = document.getElementById("garden-color-bg");
 const gardenInkInputEl    = document.getElementById("garden-color-ink");
 const gardenAccentInputEl = document.getElementById("garden-color-accent");
 let currentGardenColors = null;
+// Cache the circular-masked version of the profile photo used in the QR
+// image — re-masking on every renderQrCode() call (e.g. slogan typing)
+// would otherwise redo canvas work for an image that hasn't changed.
+let qrCirclePhotoCache = { source: null, dataUrl: null };
 const profileVipTickEl = document.getElementById("profile-vip-tick");
 const profileRewardEmojiEl = document.getElementById("profile-reward-emoji");
 
@@ -494,6 +498,24 @@ function createInitialImageData(initials, avatarColor) {
   return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 }
 
+/** Circular-mask the user's photo for the QR image, caching the result
+ *  so repeated QR re-renders (e.g. while typing a slogan) don't redo the
+ *  canvas work for a photo that hasn't changed. Falls back to the
+ *  unmasked photo if canvas masking fails for any reason. */
+async function getCircularPhotoForQr(photoData) {
+  if (qrCirclePhotoCache.source === photoData && qrCirclePhotoCache.dataUrl) {
+    return qrCirclePhotoCache.dataUrl;
+  }
+  try {
+    const circular = await createCircularPhotoImage(photoData);
+    qrCirclePhotoCache = { source: photoData, dataUrl: circular };
+    return circular;
+  } catch (err) {
+    console.warn("Could not circle-mask photo for QR, using it as-is:", err);
+    return photoData;
+  }
+}
+
 async function renderQrCode(link = activeQrLink) {
   if (!qrPreviewEl || !link) return;
   activeQrLink = link;
@@ -516,9 +538,14 @@ async function renderQrCode(link = activeQrLink) {
   const primaryColor = avatarColor || "#b5860d";
   const includeAvatar = qrAvatarToggleEl?.checked !== false;
   const photoData = getEffectivePhotoData();
-  const avatarImage = includeAvatar
-    ? (photoData || createInitialImageData(displayName, avatarColor))
-    : "";
+  let avatarImage = "";
+  if (includeAvatar) {
+    if (photoData) {
+      avatarImage = await getCircularPhotoForQr(photoData);
+    } else {
+      avatarImage = createInitialImageData(displayName, avatarColor);
+    }
+  }
 
   const qrOptions = {
     width: 280,

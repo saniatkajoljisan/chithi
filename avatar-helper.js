@@ -149,3 +149,57 @@ function estimateBytes(dataUrl) {
   const base64 = commaIdx === -1 ? dataUrl : dataUrl.slice(commaIdx + 1);
   return Math.round(base64.length * 0.75);
 }
+
+/**
+ * Turn a photo data URL into a circular PNG (white ring + cover-fit photo,
+ * clipped to a circle), matching the look of the initials-avatar QR image.
+ * Needed because embedding the raw rectangular photo into the QR image
+ * shows up as a square — QR libraries paste the image as-is and don't
+ * respect CSS border-radius the way on-page avatar circles do.
+ *
+ * @param {string} photoData  Data URL of the (already compressed) photo.
+ * @param {number} [size=200] Output canvas size in px.
+ * @returns {Promise<string>} PNG data URL of the circular result.
+ */
+export function createCircularPhotoImage(photoData, size = 200) {
+  return new Promise((resolve, reject) => {
+    if (!photoData) { reject(new Error("No photo to render.")); return; }
+
+    const img = new Image();
+    img.onerror = () => reject(new Error("Could not load photo for QR image."));
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        const r = size / 2;
+
+        // White ring, same proportions as the initials-avatar QR image.
+        ctx.beginPath();
+        ctx.arc(r, r, r - 2, 0, Math.PI * 2);
+        ctx.fillStyle = "#fffdf7";
+        ctx.fill();
+
+        // Clip to a smaller inset circle, then cover-fit the photo into it.
+        const inset = r * 0.86;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(r, r, inset, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+
+        const scale = Math.max((inset * 2) / img.width, (inset * 2) / img.height);
+        const drawW = img.width * scale;
+        const drawH = img.height * scale;
+        ctx.drawImage(img, r - drawW / 2, r - drawH / 2, drawW, drawH);
+        ctx.restore();
+
+        resolve(canvas.toDataURL("image/png"));
+      } catch (err) {
+        reject(err);
+      }
+    };
+    img.src = photoData;
+  });
+}
