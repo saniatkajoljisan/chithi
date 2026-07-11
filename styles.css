@@ -1276,6 +1276,10 @@ body.modal-open {
   line-height: 0;
   flex-shrink: 0;
 }
+.user-greeting .vip-tick {
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}
 .reward-emoji {
   display: inline-flex;
   font-size: 1.05rem;
