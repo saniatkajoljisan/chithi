@@ -1279,6 +1279,7 @@ body.modal-open {
 .user-greeting .vip-tick {
   margin-left: 0.25rem;
   vertical-align: middle;
+  transform: translateY(-1px);
 }
 .reward-emoji {
   display: inline-flex;
