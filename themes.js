@@ -44,12 +44,12 @@ export const THEMES = {
 
   dark_mode: {
     label: "Dark Mode",
-    swatch: ["#1b1b1f", "#d4a832", "#f5f0e8"],
+    swatch: ["#1b1b1f", "#d4a832", "#fbf9f6"],
     vars: {
       "--paper":       "#1b1b1f",
       "--paper-dark":  "#26262b",
       "--paper-card":  "#232328",
-      "--ink":         "#f5f0e8",
+      "--ink":         "#fbf9f6",
       "--ink-light":   "#dcd4c5",
       "--ink-faint":   "#aca290",
       "--gold":        "#d4a832",
