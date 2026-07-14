@@ -535,7 +535,7 @@
             <div class="referral-progress-fill" id="referral-progress-fill"></div>
           </div>
         </div>
-        <div class="referral-milestones" id="referral-milestones"></div>
+        <!--<div class="referral-milestones" id="referral-milestones"></div>-->
       </div>
     </section>
 
@@ -549,7 +549,7 @@
       <div class="profile-edit hidden" id="profile-edit">
         <div class="form-group profile-grid-wide">
             <span class="form-label">Profile photo or Avatar</span>
-            <h2 class="panel-title">Customize your public page</h2>
+            <h2 class="panel-title">Customize your public page</h2><br>
             <div class="avatar-photo-row">
               <span class="profile-avatar-preview" id="profile-photo-preview">?</span>
               <div class="avatar-photo-actions">
@@ -559,6 +559,16 @@
               </div>
             </div>
             <!--<div class="field-status" id="photo-status">JPG/PNG — auto-resized &amp; compressed, no need to shrink it yourself.</div>-->
+          </div>
+          <div class="form-group">
+            <span class="form-label">Avatar color</span>
+            <div class="color-choice-row">
+              <label class="color-choice"><input type="radio" name="avatar-color" value="#2c1e0f" checked /><span style="background:#2c1e0f"></span></label>
+              <label class="color-choice"><input type="radio" name="avatar-color" value="#8f3f46" /><span style="background:#8f3f46"></span></label>
+              <label class="color-choice"><input type="radio" name="avatar-color" value="#3f6f55" /><span style="background:#3f6f55"></span></label>
+              <label class="color-choice"><input type="radio" name="avatar-color" value="#416b92" /><span style="background:#416b92"></span></label>
+            </div>
+            <div class="field-status" id="avatar-color-status">Used when you don't have a profile photo.</div>
           </div>
         <!--<div class="profile-panel-header">
           <div class="profile-edit-heading">
@@ -583,16 +593,7 @@
             <input type="text" id="profile-emojis" maxlength="48" placeholder="💌 ✨ 💕 🎈 🌸" />
             <div class="field-status" id="emoji-status">Use up to 12 emojis, separated by spaces.</div>
           </div>
-          <div class="form-group">
-            <span class="form-label">Avatar color</span>
-            <div class="color-choice-row">
-              <label class="color-choice"><input type="radio" name="avatar-color" value="#2c1e0f" checked /><span style="background:#2c1e0f"></span></label>
-              <label class="color-choice"><input type="radio" name="avatar-color" value="#8f3f46" /><span style="background:#8f3f46"></span></label>
-              <label class="color-choice"><input type="radio" name="avatar-color" value="#3f6f55" /><span style="background:#3f6f55"></span></label>
-              <label class="color-choice"><input type="radio" name="avatar-color" value="#416b92" /><span style="background:#416b92"></span></label>
-            </div>
-            <div class="field-status" id="avatar-color-status">Used when you don't have a profile photo.</div>
-          </div>
+          
           <!--<div class="form-group profile-grid-wide">
             <span class="form-label">Profile photo</span>
             <div class="avatar-photo-row">
