@@ -47,6 +47,15 @@ const isLogin  = document.getElementById("btn-login")   !== null;
 const googleProvider = new GoogleAuthProvider();
 const REF_STORAGE_KEY = "chithi_referral_code";
 
+// Owner/admin UID — must match the hardcoded UID in firestore.rules'
+// isAdmin() function. Logging in with this account skips straight to
+// the admin panel instead of the normal user dashboard.
+const ADMIN_UID = "yal0GiGvl8Qo43LNp2eMif5wzM52";
+
+function goToHome(uid) {
+  window.location.href = uid === ADMIN_UID ? "admin.html" : "dashboard.html";
+}
+
 if (isSignup) captureReferralCode();
 
 // ─── Redirect if already logged in ──────────────────────────
@@ -55,8 +64,8 @@ onAuthStateChanged(auth, async (user) => {
     // Check if they have a username already
     const profileSnap = await getDoc(doc(db, "users", user.uid));
     if (profileSnap.exists() && profileSnap.data().username) {
-      // Already fully set up → go to dashboard
-      window.location.href = "dashboard.html";
+      // Already fully set up → go to dashboard (or admin panel)
+      goToHome(user.uid);
     } else if (isSignup) {
       // Partially registered → show username step
       showStep("step-username");
@@ -170,7 +179,7 @@ if (isLogin) {
     setLoading("btn-login", "login-spinner", "login-btn-text", true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "dashboard.html";
+      goToHome(auth.currentUser.uid);
     } catch (err) {
       showError("auth-error", friendlyError(err.code));
       setLoading("btn-login", "login-spinner", "login-btn-text", false);
@@ -215,7 +224,7 @@ async function handleGoogleAuth(mode) {
     const profileSnap = await getDoc(doc(db, "users", user.uid));
 
     if (profileSnap.exists() && profileSnap.data().username) {
-      window.location.href = "dashboard.html";
+      goToHome(user.uid);
       return;
     }
 
