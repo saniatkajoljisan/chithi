@@ -267,7 +267,7 @@ function renderMessageRows(rows, containerEl) {
             </div>
             ${m.replyText ? `
             <div class="msg-reply-row">
-              <div class="reply-avatar" style="background:${avatarColor};">${escapeHtml(initial)}</div>
+              <div class="reply-avatar" data-avatar-uid="${m.toUserId}" style="background:${avatarColor};">${escapeHtml(initial)}</div>
               <div class="reply-bubble">
                 <div class="reply-bubble-name">${escapeHtml(recipient)}</div>
                 <div class="reply-bubble-text">${escapeHtml(m.replyText)}</div>
@@ -317,8 +317,30 @@ document.getElementById("admin-main").addEventListener("click", (e) => {
   const row = e.target.closest(".msg-row");
   if (!row || e.target.closest("button")) return;
   const detail = document.getElementById(`detail-${row.dataset.id}`);
-  detail?.classList.toggle("hidden");
+  if (!detail) return;
+  detail.classList.toggle("hidden");
+  if (!detail.classList.contains("hidden")) {
+    applyReplyAvatarPhoto(detail);
+  }
 });
+
+// Paint the recipient's real profile photo onto the reply avatar the
+// first time a detail panel is opened (lazy, so we don't embed every
+// recipient's base64 photo into the page for rows the admin never expands).
+function applyReplyAvatarPhoto(detail) {
+  const avatarEl = detail.querySelector(".reply-avatar[data-avatar-uid]");
+  if (!avatarEl || avatarEl.dataset.photoApplied) return;
+  avatarEl.dataset.photoApplied = "1";
+
+  const uid = avatarEl.dataset.avatarUid;
+  const photoData = usersById[uid]?.photoData;
+  if (photoData) {
+    avatarEl.style.backgroundImage = `url("${photoData}")`;
+    avatarEl.style.backgroundSize = "cover";
+    avatarEl.style.backgroundPosition = "center";
+    avatarEl.textContent = "";
+  }
+}
 
 // ─── Delete / moderation actions (event delegation) ───────────
 document.getElementById("admin-main").addEventListener("click", (e) => {
