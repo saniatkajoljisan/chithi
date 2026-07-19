@@ -214,6 +214,8 @@ function renderReported() {
 // Shared renderer for a list of message docs
 const REACTION_EMOJI = { heart: "❤️", smile: "🤣", cry: "😭", spark: "🤬" };
 const REACTION_LABEL = { heart: "Love", smile: "Smile", cry: "Emotional", spark: "Angry" };
+const ALLOWED_FONTS = new Set(["hand-caveat", "hand-patrick", "hand-kalam", "normal"]);
+const ALLOWED_BGS   = new Set(["paper", "rose", "mint", "sky"]);
 
 function renderMessageRows(rows, containerEl) {
   if (!rows.length) {
@@ -222,9 +224,15 @@ function renderMessageRows(rows, containerEl) {
   }
 
   containerEl.innerHTML = rows.map(m => {
-    const recipient = usersById[m.toUserId]?.username || "(unknown user)";
+    const recipientUser = usersById[m.toUserId];
+    const recipient = recipientUser?.username || "(unknown user)";
     const sender = m.isAnonymous || !m.senderName ? "Anonymous" : m.senderName;
     const preview = (m.text || "").length > 140 ? m.text.slice(0, 140) + "…" : (m.text || "");
+
+    const fontKey = ALLOWED_FONTS.has(m.fontKey) ? m.fontKey : "hand-caveat";
+    const bgKey   = ALLOWED_BGS.has(m.bgKey) ? m.bgKey : "paper";
+    const initial = (recipient || "?").charAt(0).toUpperCase();
+    const avatarColor = recipientUser?.avatarColor || "#2c1e0f";
 
     return `
       <div>
@@ -246,26 +254,28 @@ function renderMessageRows(rows, containerEl) {
           </div>
         </div>
         <div class="admin-detail hidden" id="detail-${m.id}">
-          <div class="admin-detail-block">
-            <div class="admin-detail-label">Full letter</div>
-            <div class="admin-detail-text">${escapeHtml(m.text || "")}</div>
+          <div class="msg-thread">
+            <div class="msg-bubble-row">
+              <div class="msg-bubble letter-bg-${bgKey}">
+                <div class="msg-bubble-text font-${fontKey}">${escapeHtml(m.text || "")}</div>
+                <div class="msg-time msg-bubble-time">${formatDateTime(m.createdAt)}</div>
+              </div>
+              ${m.receiverReaction ? `
+              <div class="msg-reaction-float">
+                <span class="reaction-emoji">${REACTION_EMOJI[m.receiverReaction] || "✦"}</span>
+              </div>` : ""}
+            </div>
+            ${m.replyText ? `
+            <div class="msg-reply-row">
+              <div class="reply-avatar" style="background:${avatarColor};">${escapeHtml(initial)}</div>
+              <div class="reply-bubble">
+                <div class="reply-bubble-name">${escapeHtml(recipient)}</div>
+                <div class="reply-bubble-text">${escapeHtml(m.replyText)}</div>
+                <div class="msg-time reply-time">${formatDateTime(m.repliedAt || m.createdAt)}</div>
+              </div>
+            </div>` : `
+            <div class="no-reply-note">No reply yet.</div>`}
           </div>
-          ${m.replyText ? `
-          <div class="admin-detail-block">
-            <div class="admin-detail-label">Reply from ${escapeHtml(recipient)}</div>
-            <div class="admin-detail-text">${escapeHtml(m.replyText)}</div>
-            <div class="admin-detail-meta">${formatTime(m.repliedAt || m.createdAt)}</div>
-          </div>` : `
-          <div class="admin-detail-block">
-            <div class="admin-detail-label">Reply</div>
-            <div class="admin-detail-meta">No reply yet.</div>
-          </div>`}
-          ${m.receiverReaction ? `
-          <div class="admin-detail-block">
-            <div class="admin-detail-label">Reaction</div>
-            <span class="admin-detail-reaction">${REACTION_EMOJI[m.receiverReaction] || "✦"}</span>
-            <span class="admin-detail-meta">${REACTION_LABEL[m.receiverReaction] || "Reacted"}</span>
-          </div>` : ""}
         </div>
       </div>
     `;
@@ -438,6 +448,20 @@ function formatTime(timestamp) {
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const year  = String(d.getFullYear()).slice(-2);
   return `${day}/${month}/${year}`;
+}
+
+// Full date + time, used inside the expanded bubble thread.
+function formatDateTime(timestamp) {
+  if (!timestamp) return "";
+  const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  const day   = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year  = String(d.getFullYear()).slice(-2);
+  const hours = d.getHours();
+  const mins  = String(d.getMinutes()).padStart(2, "0");
+  const ampm  = hours >= 12 ? "PM" : "AM";
+  const h12   = String(hours % 12 || 12).padStart(2, "0");
+  return `${day}/${month}/${year} ${h12}:${mins} ${ampm}`;
 }
 
 function escapeHtml(str) {

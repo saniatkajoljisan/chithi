@@ -260,6 +260,123 @@
     gap: 0.5rem;
     margin-top: 0.9rem;
   }
+
+  /* ── Messenger-style thread inside expanded admin detail ──
+     Mirrors track.html / delete.html bubble styling, sized down
+     to sit compactly inside a list row instead of a full page. */
+  .admin-detail .msg-thread {
+    display: flex;
+    flex-direction: column;
+    margin: 0.2rem 0 0;
+  }
+  .admin-detail .msg-bubble-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    position: relative;
+    padding-bottom: 10px;
+  }
+  .admin-detail .msg-bubble {
+    position: relative;
+    max-width: 92%;
+    border-radius: 16px 16px 4px 16px;
+    padding: 0.85rem 1rem 0.7rem;
+    text-align: left;
+    box-shadow: 0 2px 8px var(--shadow);
+    word-break: break-word;
+    overflow: hidden;
+  }
+  .admin-detail .msg-bubble.letter-bg-paper { background: #fffdf7; border: 1px solid #e8dcc8; }
+  .admin-detail .msg-bubble.letter-bg-rose  { background: linear-gradient(135deg, #fff6f1, #ffe2dc); border: 1px solid #f5c5bc; }
+  .admin-detail .msg-bubble.letter-bg-mint  { background: linear-gradient(135deg, #f4fff8, #d9f1df); border: 1px solid #b5dfc0; }
+  .admin-detail .msg-bubble.letter-bg-sky   { background: linear-gradient(135deg, #f5fbff, #dbeeff); border: 1px solid #aacff5; }
+  .admin-detail .msg-bubble-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #2c1e0f;
+    white-space: pre-wrap;
+  }
+  .admin-detail .msg-bubble-text.font-hand-caveat  { font-family: 'Caveat', cursive; font-size: 1.14rem; }
+  .admin-detail .msg-bubble-text.font-hand-patrick { font-family: 'Patrick Hand', cursive; font-size: 1.05rem; }
+  .admin-detail .msg-bubble-text.font-hand-kalam   { font-family: 'Kalam', cursive; font-size: 1rem; }
+  .admin-detail .msg-bubble-text.font-normal       { font-family: 'Lora', Georgia, serif; font-size: 0.94rem; line-height: 1.6; }
+  .admin-detail .msg-reaction-float {
+    display: inline-flex;
+    align-items: center;
+    background: var(--paper-card);
+    border: 1.5px solid #e8dcc8;
+    border-radius: 999px;
+    padding: 0.16rem 0.4rem;
+    font-size: 1.05rem;
+    box-shadow: 0 2px 6px var(--shadow);
+    position: absolute;
+    bottom: -2px;
+    right: 14px;
+  }
+  .admin-detail .msg-reply-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-top: 8px;
+    align-self: flex-start;
+    max-width: 92%;
+  }
+  .admin-detail .reply-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    align-self: flex-end;
+    box-shadow: 0 2px 5px var(--shadow);
+    background: #2c1e0f;
+    background-size: cover;
+    background-position: center;
+  }
+  .admin-detail .reply-bubble {
+    background: #f0ece4;
+    border: 1px solid #e8dcc8;
+    border-radius: 16px 16px 16px 4px;
+    padding: 0.65rem 0.9rem;
+    flex: 1;
+  }
+  .admin-detail .reply-bubble-name {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #8c7a6b;
+    font-family: 'Lora', serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.2rem;
+  }
+  .admin-detail .reply-bubble-text {
+    font-size: 0.92rem;
+    color: #2c1e0f;
+    line-height: 1.55;
+    font-family: 'Kalam', cursive;
+    word-break: break-word;
+  }
+  .admin-detail .msg-time {
+    font-size: 0.65rem;
+    color: #a08c7a;
+    font-family: 'Lora', serif;
+    margin-top: 0.4rem;
+  }
+  .admin-detail .msg-bubble-time { text-align: left; }
+  .admin-detail .reply-time { text-align: right; }
+  .admin-detail .no-reply-note {
+    font-family: var(--font-readable);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-top: 0.4rem;
+  }
+
+  @media (max-width: 560px) {
     .admin-row { flex-direction: column; align-items: stretch; }
     .admin-row-actions { justify-content: flex-end; }
   }
