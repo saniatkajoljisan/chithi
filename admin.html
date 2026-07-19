@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Chithi</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+
+<style>
+  /* ── Admin-only layout — reuses design tokens from styles.css ── */
+  .admin-main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 1.6rem 1.2rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .admin-gate {
+    max-width: 420px;
+    margin: 4rem auto;
+    text-align: center;
+    padding: 2rem 1.6rem;
+  }
+
+  .admin-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.4rem;
+    border-bottom: 1.5px solid var(--line-color);
+    padding-bottom: 0.6rem;
+  }
+  .admin-tab {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    color: var(--ink-light);
+    background: transparent;
+    border: 1.5px solid transparent;
+    border-radius: var(--radius);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .admin-tab:hover { background: var(--paper-dark); }
+  .admin-tab.active {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+  }
+  .admin-tab .tab-count {
+    font-size: 0.76rem;
+    opacity: 0.85;
+    margin-left: 0.3rem;
+  }
+
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+
+  .admin-toolbar {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .admin-toolbar input[type="search"],
+  .admin-toolbar select {
+    font-family: var(--font-readable);
+    font-size: 0.9rem;
+    padding: 0.55rem 0.85rem;
+    border: 1.5px solid var(--line-color);
+    border-radius: var(--radius);
+    background: var(--paper-card);
+    color: var(--ink);
+  }
+  .admin-toolbar input[type="search"] { flex: 1; min-width: 180px; }
+
+  .admin-summary-row {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+  .admin-stat {
+    flex: 1;
+    min-width: 130px;
+    background: var(--paper-card);
+    border: 1.5px solid var(--line-color);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .admin-stat-label {
+    font-family: var(--font-readable);
+    font-size: 0.74rem;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .admin-stat-value {
+    font-family: var(--font-script);
+    font-size: 1.6rem;
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .admin-list { display: flex; flex-direction: column; gap: 0.7rem; }
+
+  .admin-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
+    background: var(--paper-card);
+    border: 1.5px solid var(--line-color);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .admin-row-main { min-width: 0; flex: 1; }
+  .admin-row-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.98rem;
+    color: var(--ink);
+    flex-wrap: wrap;
+  }
+  .admin-row-title strong { font-family: var(--font-script); font-size: 1.1rem; }
+  .admin-row-sub {
+    font-family: var(--font-readable);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    margin-top: 0.2rem;
+  }
+  .admin-row-snippet {
+    font-family: var(--font-readable);
+    font-size: 0.88rem;
+    color: var(--ink-light);
+    margin-top: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 480px;
+  }
+  .admin-badge {
+    font-family: var(--font-readable);
+    font-size: 0.68rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
+  }
+  .admin-badge.reported { background: rgba(192,57,43,0.12); color: var(--red-dark); }
+  .admin-badge.read     { background: rgba(39,174,96,0.12); color: var(--success); }
+  .admin-badge.unread   { background: rgba(181,134,13,0.12); color: var(--gold); }
+
+  .admin-row-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .admin-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--ink-faint);
+    font-family: var(--font-readable);
+  }
+
+  /* Confirm modal */
+  .admin-confirm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .admin-confirm-modal.open { display: flex; }
+  .admin-confirm-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(30,18,8,0.55);
+    backdrop-filter: blur(4px);
+  }
+  .admin-confirm-card {
+    position: relative;
+    z-index: 1;
+    background: var(--paper-card);
+    border-radius: 16px;
+    max-width: 400px;
+    width: 100%;
+    padding: 1.6rem;
+    box-shadow: 0 24px 64px var(--shadow-deep);
+  }
+  .admin-confirm-card p { color: var(--ink-light); margin: 0.6rem 0 1.2rem; }
+  .admin-confirm-actions { display: flex; gap: 0.6rem; }
+  .admin-confirm-actions button { flex: 1; }
+
+  @media (max-width: 560px) {
+    .admin-row { flex-direction: column; align-items: stretch; }
+    .admin-row-actions { justify-content: flex-end; }
+  }
+</style>
+</head>
+<body class="dashboard-page">
+
+<div class="bg-lines"></div>
+
+<!-- Navbar -->
+<header class="dash-nav">
+  <a href="index.html" class="logo">
+    <span class="logo-icon">💌</span>
+    <span class="logo-text">Chithi</span>
+    <span style="font-family: var(--font-readable); font-size:0.78rem; color: var(--ink-faint); margin-left:0.4rem;">Admin</span>
+  </a>
+  <div class="dash-nav-right">
+    <button class="btn-ghost btn-sm" id="btn-logout">Sign Out</button>
+  </div>
+</header>
+
+<!-- Access denied gate -->
+<div id="admin-gate" class="auth-card admin-gate hidden">
+  <h2 style="margin-bottom:0.6rem;">Not authorized</h2>
+  <p style="margin-bottom:1.2rem;">This page is only for the site admin.</p>
+  <a href="dashboard.html" class="btn-primary">Back to your inbox →</a>
+</div>
+
+<!-- Loading -->
+<div id="admin-loading" class="admin-main text-center">
+  <p style="margin-top:2rem; color: var(--ink-faint);">Checking access…</p>
+</div>
+
+<!-- Main admin content -->
+<main class="admin-main hidden" id="admin-main">
+
+  <div class="admin-summary-row">
+    <div class="admin-stat">
+      <div class="admin-stat-label">Users</div>
+      <div class="admin-stat-value" id="stat-users">–</div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-label">Letters</div>
+      <div class="admin-stat-value" id="stat-letters">–</div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-label">Reported</div>
+      <div class="admin-stat-value" id="stat-reported">–</div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-label">Referrals</div>
+      <div class="admin-stat-value" id="stat-referrals">–</div>
+    </div>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="users">Users</button>
+    <button class="admin-tab" data-tab="letters">Letters</button>
+    <button class="admin-tab" data-tab="reported">Reported</button>
+    <button class="admin-tab" data-tab="referrals">Referrals</button>
+  </div>
+
+  <!-- USERS TAB -->
+  <section class="admin-panel active" id="panel-users">
+    <div class="admin-toolbar">
+      <input type="search" id="users-search" placeholder="Search by username or email…" autocomplete="off" />
+      <select id="users-sort">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="referrals">Most referrals</option>
+      </select>
+    </div>
+    <div class="admin-list" id="users-list"></div>
+  </section>
+
+  <!-- LETTERS TAB -->
+  <section class="admin-panel" id="panel-letters">
+    <div class="admin-toolbar">
+      <input type="search" id="letters-search" placeholder="Search letter text or recipient username…" autocomplete="off" />
+      <select id="letters-filter">
+        <option value="all">All letters</option>
+        <option value="unread">Unread</option>
+        <option value="read">Read</option>
+      </select>
+    </div>
+    <div class="admin-list" id="letters-list"></div>
+  </section>
+
+  <!-- REPORTED TAB -->
+  <section class="admin-panel" id="panel-reported">
+    <div class="admin-list" id="reported-list"></div>
+  </section>
+
+  <!-- REFERRALS TAB -->
+  <section class="admin-panel" id="panel-referrals">
+    <div class="admin-list" id="referrals-list"></div>
+  </section>
+
+</main>
+
+<!-- Confirm delete modal -->
+<div class="admin-confirm-modal" id="confirm-modal">
+  <div class="admin-confirm-backdrop" id="confirm-backdrop"></div>
+  <div class="admin-confirm-card">
+    <h3 id="confirm-title">Are you sure?</h3>
+    <p id="confirm-body">This action can't be undone.</p>
+    <div class="admin-confirm-actions">
+      <button class="btn-ghost" id="confirm-cancel">Cancel</button>
+      <button class="btn-danger" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="clean-urls.js"></script>
+<script type="module" src="firebase-config.js"></script>
+<script type="module" src="admin.js"></script>
+</body>
+</html>
