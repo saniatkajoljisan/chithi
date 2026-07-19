@@ -161,6 +161,13 @@
     gap: 0.5rem;
     flex-shrink: 0;
   }
+  /* styles.css gives .btn-danger / .btn-ghost width:100% by default
+     (built for full-width buttons elsewhere) — override that here so
+     the small action buttons in each row stay compact. */
+  .admin-row-actions button,
+  .admin-confirm-actions button {
+    width: auto;
+  }
 
   .admin-empty {
     text-align: center;
