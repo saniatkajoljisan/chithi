@@ -21,6 +21,7 @@ import {
   getDocs,
   doc,
   deleteDoc,
+  updateDoc,
   query,
   orderBy,
   limit
@@ -35,6 +36,7 @@ const mainEl    = document.getElementById("admin-main");
 
 const statUsersEl     = document.getElementById("stat-users");
 const statLettersEl   = document.getElementById("stat-letters");
+const statLettersSubEl = document.getElementById("stat-letters-sub");
 const statReportedEl  = document.getElementById("stat-reported");
 const statReferralsEl = document.getElementById("stat-referrals");
 
@@ -111,9 +113,14 @@ async function loadAll() {
 }
 
 function renderStats() {
+  const repliesCount  = allMessages.filter(m => m.replyText).length;
+  const reactedCount  = allMessages.filter(m => m.receiverReaction).length;
+  const reportedCount = allMessages.filter(m => m.isReported).length;
+
   statUsersEl.textContent = allUsers.length;
-  statLettersEl.textContent = allMessages.length;
-  statReportedEl.textContent = allMessages.filter(m => m.isReported).length;
+  statLettersEl.textContent = allMessages.length + repliesCount;
+  statLettersSubEl.textContent = `${allMessages.length} letters · ${repliesCount} replies · ${reactedCount} reacted`;
+  statReportedEl.textContent = reportedCount;
   statReferralsEl.textContent = allReferrals.length;
 }
 
@@ -182,8 +189,10 @@ function renderLetters() {
     if (filter === "read" && !m.isRead) return false;
     if (!term) return true;
     const recipient = usersById[m.toUserId]?.username || "";
+    const sender = m.isAnonymous ? "" : (m.senderName || "");
     return (m.text || "").toLowerCase().includes(term) ||
-           recipient.toLowerCase().includes(term);
+           recipient.toLowerCase().includes(term) ||
+           sender.toLowerCase().includes(term);
   });
 
   renderMessageRows(rows, lettersListEl);
@@ -203,6 +212,9 @@ function renderReported() {
 }
 
 // Shared renderer for a list of message docs
+const REACTION_EMOJI = { heart: "❤️", smile: "🤣", cry: "😭", spark: "🤬" };
+const REACTION_LABEL = { heart: "Love", smile: "Smile", cry: "Emotional", spark: "Angry" };
+
 function renderMessageRows(rows, containerEl) {
   if (!rows.length) {
     containerEl.innerHTML = `<div class="admin-empty">No letters match.</div>`;
@@ -211,20 +223,49 @@ function renderMessageRows(rows, containerEl) {
 
   containerEl.innerHTML = rows.map(m => {
     const recipient = usersById[m.toUserId]?.username || "(unknown user)";
+    const sender = m.isAnonymous || !m.senderName ? "Anonymous" : m.senderName;
     const preview = (m.text || "").length > 140 ? m.text.slice(0, 140) + "…" : (m.text || "");
+
     return `
-      <div class="admin-row" data-id="${m.id}">
-        <div class="admin-row-main">
-          <div class="admin-row-title">
-            <span>To <strong>${escapeHtml(recipient)}</strong></span>
-            ${m.isReported ? '<span class="admin-badge reported">Reported</span>' : ""}
-            <span class="admin-badge ${m.isRead ? "read" : "unread"}">${m.isRead ? "Read" : "Unread"}</span>
+      <div>
+        <div class="admin-row msg-row" data-id="${m.id}">
+          <div class="admin-row-main">
+            <div class="admin-row-title">
+              <span>${escapeHtml(sender)} → To <strong>${escapeHtml(recipient)}</strong></span>
+              ${m.isReported ? '<span class="admin-badge reported">Reported</span>' : ""}
+              <span class="admin-badge ${m.isRead ? "read" : "unread"}">${m.isRead ? "Read" : "Unread"}</span>
+              ${m.replyText ? '<span class="admin-badge replied">Replied</span>' : ""}
+              ${m.receiverReaction ? `<span class="admin-badge reacted">${REACTION_EMOJI[m.receiverReaction] || "✦"} ${REACTION_LABEL[m.receiverReaction] || "Reacted"}</span>` : ""}
+            </div>
+            <div class="admin-row-sub">${formatTime(m.createdAt)}</div>
+            <div class="admin-row-snippet">${escapeHtml(preview)}</div>
           </div>
-          <div class="admin-row-sub">${formatTime(m.createdAt)}</div>
-          <div class="admin-row-snippet">${escapeHtml(preview)}</div>
+          <div class="admin-row-actions">
+            ${m.isReported ? `<button class="btn-ghost btn-sm" data-action="dismiss-report" data-id="${m.id}">Dismiss report</button>` : ""}
+            <button class="btn-danger btn-sm" data-action="delete-message" data-id="${m.id}">Delete</button>
+          </div>
         </div>
-        <div class="admin-row-actions">
-          <button class="btn-danger btn-sm" data-action="delete-message" data-id="${m.id}">Delete</button>
+        <div class="admin-detail hidden" id="detail-${m.id}">
+          <div class="admin-detail-block">
+            <div class="admin-detail-label">Full letter</div>
+            <div class="admin-detail-text">${escapeHtml(m.text || "")}</div>
+          </div>
+          ${m.replyText ? `
+          <div class="admin-detail-block">
+            <div class="admin-detail-label">Reply from ${escapeHtml(recipient)}</div>
+            <div class="admin-detail-text">${escapeHtml(m.replyText)}</div>
+            <div class="admin-detail-meta">${formatTime(m.repliedAt || m.createdAt)}</div>
+          </div>` : `
+          <div class="admin-detail-block">
+            <div class="admin-detail-label">Reply</div>
+            <div class="admin-detail-meta">No reply yet.</div>
+          </div>`}
+          ${m.receiverReaction ? `
+          <div class="admin-detail-block">
+            <div class="admin-detail-label">Reaction</div>
+            <span class="admin-detail-reaction">${REACTION_EMOJI[m.receiverReaction] || "✦"}</span>
+            <span class="admin-detail-meta">${REACTION_LABEL[m.receiverReaction] || "Reacted"}</span>
+          </div>` : ""}
         </div>
       </div>
     `;
@@ -261,7 +302,15 @@ function renderReferrals() {
   `).join("");
 }
 
-// ─── Delete actions (event delegation) ────────────────────────
+// ─── Expand/collapse a letter's full detail on row click ─────
+document.getElementById("admin-main").addEventListener("click", (e) => {
+  const row = e.target.closest(".msg-row");
+  if (!row || e.target.closest("button")) return;
+  const detail = document.getElementById(`detail-${row.dataset.id}`);
+  detail?.classList.toggle("hidden");
+});
+
+// ─── Delete / moderation actions (event delegation) ───────────
 document.getElementById("admin-main").addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-action]");
   if (!btn) return;
@@ -281,6 +330,9 @@ document.getElementById("admin-main").addEventListener("click", (e) => {
   } else if (action === "delete-referral") {
     const id = btn.dataset.id;
     askConfirm("Delete this referral record?", "This removes the referral link between these two accounts.", () => deleteReferral(id));
+  } else if (action === "dismiss-report") {
+    const id = btn.dataset.id;
+    dismissReport(id);
   }
 });
 
@@ -315,6 +367,20 @@ async function deleteUserCascade(uid) {
   } catch (err) {
     console.error("Delete user error:", err);
     alert("Could not delete this user. Check console for details.");
+  }
+}
+
+async function dismissReport(id) {
+  try {
+    await updateDoc(doc(db, "messages", id), { isReported: false });
+    const m = allMessages.find(x => x.id === id);
+    if (m) m.isReported = false;
+    renderStats();
+    renderLetters();
+    renderReported();
+  } catch (err) {
+    console.error("Dismiss report error:", err);
+    alert("Could not dismiss this report. Check console for details.");
   }
 }
 

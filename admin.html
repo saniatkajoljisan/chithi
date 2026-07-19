@@ -199,7 +199,60 @@
   .admin-confirm-actions { display: flex; gap: 0.6rem; }
   .admin-confirm-actions button { flex: 1; }
 
-  @media (max-width: 560px) {
+  .admin-stat-sub {
+    font-family: var(--font-readable);
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    margin-top: 0.1rem;
+  }
+
+  .admin-badge.replied  { background: rgba(159,143,239,0.14); color: #6a5acd; }
+  .admin-badge.reacted  { background: rgba(255,111,174,0.14); color: #b5486f; }
+
+  .msg-row { cursor: pointer; }
+  .admin-row-actions { cursor: default; }
+
+  .admin-detail {
+    background: var(--paper-dark);
+    border: 1.5px solid var(--line-color);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    margin-top: -0.7rem;
+    padding: 1rem 1.15rem 1.1rem;
+    font-family: var(--font-readable);
+  }
+  .admin-detail.hidden { display: none; }
+  .admin-detail-block { margin-bottom: 0.8rem; }
+  .admin-detail-block:last-child { margin-bottom: 0; }
+  .admin-detail-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    margin-bottom: 0.3rem;
+  }
+  .admin-detail-text {
+    font-size: 0.95rem;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--paper-card);
+    border: 1px solid var(--line-color);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+  }
+  .admin-detail-reaction {
+    font-size: 1.3rem;
+  }
+  .admin-detail-meta {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+  }
+  .admin-detail-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
     .admin-row { flex-direction: column; align-items: stretch; }
     .admin-row-actions { justify-content: flex-end; }
   }
@@ -242,8 +295,9 @@
       <div class="admin-stat-value" id="stat-users">–</div>
     </div>
     <div class="admin-stat">
-      <div class="admin-stat-label">Letters</div>
+      <div class="admin-stat-label">Letters + Replies</div>
       <div class="admin-stat-value" id="stat-letters">–</div>
+      <div class="admin-stat-sub" id="stat-letters-sub"></div>
     </div>
     <div class="admin-stat">
       <div class="admin-stat-label">Reported</div>

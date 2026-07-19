@@ -122,7 +122,7 @@ service cloud.firestore {
       // The recipient can update inbox-only metadata without changing the
       // original letter text, sender, token, or owner.
       allow update: if
-        request.auth != null &&
+        (request.auth != null &&
         resource.data.toUserId == request.auth.uid &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'isRead', 'isFavorite', 'isReported', 'replyText', 'repliedAt', 'receiverReaction'
@@ -137,7 +137,11 @@ service cloud.firestore {
           (request.resource.data.replyText is string &&
            request.resource.data.replyText.size() <= 280)) &&
         (!request.resource.data.keys().hasAny(['receiverReaction']) ||
-          request.resource.data.receiverReaction in ['', 'heart', 'smile', 'cry', 'spark']);
+          request.resource.data.receiverReaction in ['', 'heart', 'smile', 'cry', 'spark'])) ||
+        // Admin moderation: allowed to clear/set only the isReported flag
+        (isAdmin() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isReported']) &&
+          request.resource.data.isReported is bool);
     }
   }
 }
