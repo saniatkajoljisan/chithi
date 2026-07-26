@@ -95,7 +95,7 @@ service cloud.firestore {
         request.resource.data.deleteToken == messageId &&
         request.resource.data.text is string &&
         request.resource.data.text.size() > 0 &&
-        request.resource.data.text.size() <= 2500 &&
+        request.resource.data.text.size() <= 999 &&
         request.resource.data.isAnonymous is bool &&
         request.resource.data.deleteToken is string;
 
