@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refer & Unlock — Chithi</title>
+  <meta name="description" content="Invite friends to Chithi and watch your paper plane travel further — unlocking new themes, badges and perks along the way." />
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+
+<style>
+  /* ══════════════════════════════════════════════════════════
+     REFER PAGE — signature element is the "Flight Path": a
+     dotted air-route (echoing the paper-plane intro on
+     login/signup) that carries the visitor's plane from stop
+     to stop as they invite people. Everything else stays quiet
+     paper/ink so the path stays the one bold idea on the page.
+     ══════════════════════════════════════════════════════════ */
+
+  .refer-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.4rem 1.2rem 5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .refer-section { margin-top: 3.2rem; }
+  .refer-section:first-child { margin-top: 0; }
+
+  .refer-eyebrow {
+    display: inline-block;
+    font-family: var(--font-readable);
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--line-color);
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .refer-hero h1 {
+    font-family: var(--font-script);
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 0.7rem;
+  }
+  .refer-hero .refer-sub {
+    font-family: var(--font-readable);
+    font-size: 1.02rem;
+    color: var(--ink-light);
+    max-width: 46ch;
+    line-height: 1.6;
+  }
+
+  /* ── Personal link box ─────────────────────────────────── */
+  .refer-link-box {
+    margin-top: 1.6rem;
+    background: var(--paper-card);
+    border: 1.5px solid var(--line-color);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.2rem;
+    box-shadow: 0 3px 14px var(--shadow);
+  }
+  .refer-link-label {
+    font-family: var(--font-readable);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    margin-bottom: 0.4rem;
+  }
+  .refer-link-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .refer-link-text {
+    flex: 1;
+    min-width: 180px;
+    font-family: var(--font-readable);
+    font-size: 0.92rem;
+    color: var(--ink);
+    word-break: break-all;
+  }
+  .refer-link-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+  .refer-link-actions button { width: auto; }
+  .refer-link-meta {
+    margin-top: 0.7rem;
+    font-family: var(--font-readable);
+    font-size: 0.84rem;
+    color: var(--ink-faint);
+  }
+  .refer-link-meta strong { color: var(--ink); }
+
+  .refer-guest-card {
+    margin-top: 1.6rem;
+    background: var(--paper-card);
+    border: 1.5px solid var(--line-color);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem;
+    box-shadow: 0 3px 14px var(--shadow);
+  }
+  .refer-guest-card p {
+    font-family: var(--font-readable);
+    color: var(--ink-light);
+    font-size: 0.94rem;
+    margin-bottom: 0.9rem;
+  }
+  .refer-guest-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .refer-guest-actions a { width: auto; }
+
+  /* ── How it works: 3 steps ─────────────────────────────── */
+  .refer-section h2 {
+    font-family: var(--font-script);
+    font-size: 1.7rem;
+    margin-bottom: 1.2rem;
+  }
+  .refer-steps-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+    align-items: start;
+  }
+  .refer-step {
+    text-align: center;
+    padding: 0 0.4rem;
+  }
+  .refer-step-icon {
+    font-size: 1.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--paper-card);
+    border: 1.5px solid var(--line-color);
+    box-shadow: 0 3px 10px var(--shadow);
+    margin-bottom: 0.7rem;
+  }
+  .refer-step h3 {
+    font-family: var(--font-body);
+    font-size: 1.02rem;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+  .refer-step p {
+    font-family: var(--font-readable);
+    font-size: 0.84rem;
+    color: var(--ink-faint);
+    line-height: 1.5;
+  }
+  .refer-step-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--line-color);
+    font-size: 1.4rem;
+    padding-top: 1.6rem;
+  }
+  @media (max-width: 640px) {
+    .refer-steps-row { grid-template-columns: 1fr; gap: 1.4rem; }
+    .refer-step-connector { display: none; }
+  }
+
+  /* ── The Flight Path diagram ────────────────────────────── */
+  .refer-path-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1000 / 260;
+    margin-top: 0.6rem;
+  }
+  .refer-path-wrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  #flight-route {
+    fill: none;
+    stroke: var(--line-color);
+    stroke-width: 2.5;
+    stroke-dasharray: 7 8;
+  }
+  #flight-route-fill {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 3;
+    stroke-dasharray: 7 8;
+    transition: stroke-dashoffset 1.1s cubic-bezier(0.65,0,0.35,1);
+  }
+  .flight-stop-dot {
+    fill: var(--paper-card);
+    stroke: var(--line-color);
+    stroke-width: 2;
+    transition: fill 0.4s ease, stroke 0.4s ease;
+  }
+  .flight-stop-dot.unlocked { fill: var(--gold); stroke: var(--gold); }
+
+  .refer-plane {
+    position: absolute;
+    font-size: 1.5rem;
+    transform: translate(-50%, -50%);
+    transition: left 1.1s cubic-bezier(0.65,0,0.35,1), top 1.1s cubic-bezier(0.65,0,0.35,1);
+    filter: drop-shadow(0 3px 5px var(--shadow-deep));
+  }
+
+  .refer-stop-label {
+    position: absolute;
+    transform: translate(-50%, 0);
+    text-align: center;
+    width: 128px;
+    font-family: var(--font-readable);
+  }
+  .refer-stop-label .stop-count {
+    font-family: var(--font-script);
+    font-size: 1.3rem;
+    color: var(--ink);
+    display: block;
+  }
+  .refer-stop-label .stop-name {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+  }
+  .refer-stop-label.unlocked .stop-count { color: var(--gold); }
+
+  .refer-next-hint {
+    text-align: center;
+    margin-top: 1.6rem;
+    font-family: var(--font-readable);
+    font-size: 0.92rem;
+    color: var(--ink-light);
+  }
+  .refer-next-hint strong { color: var(--gold); }
+
+  /* ── Reward cards ───────────────────────────────────────── */
+  .refer-reward-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.9rem;
+  }
+  @media (max-width: 640px) { .refer-reward-grid { grid-template-columns: 1fr; } }
+
+  .refer-reward-card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1.5px solid var(--line-color);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem 1.1rem;
+    box-shadow: 0 3px 12px var(--shadow);
+    opacity: 0.62;
+    transition: opacity 0.4s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .refer-reward-card.unlocked {
+    opacity: 1;
+    border-color: var(--gold);
+  }
+  .refer-reward-card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px var(--shadow-deep); }
+
+  .refer-reward-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.55rem;
+  }
+  .refer-reward-badge {
+    font-family: var(--font-readable);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    background: var(--paper-dark);
+    color: var(--ink-faint);
+  }
+  .refer-reward-card.unlocked .refer-reward-badge {
+    background: var(--gold);
+    color: #fff;
+  }
+  .refer-reward-icon { font-size: 1.5rem; }
+  .refer-reward-card h3 {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    margin-bottom: 0.35rem;
+  }
+  .refer-reward-card p {
+    font-family: var(--font-readable);
+    font-size: 0.85rem;
+    color: var(--ink-light);
+    line-height: 1.5;
+    margin-bottom: 0.7rem;
+  }
+  .refer-swatch-row { display: flex; gap: 0.35rem; }
+  .refer-swatch {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.08);
+  }
+
+  /* ── FAQ ────────────────────────────────────────────────── */
+  .refer-faq details {
+    border-bottom: 1px solid var(--line-color);
+    padding: 0.9rem 0;
+  }
+  .refer-faq summary {
+    font-family: var(--font-body);
+    font-size: 0.98rem;
+    color: var(--ink);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .refer-faq summary::-webkit-details-marker { display: none; }
+  .refer-faq summary::after {
+    content: "+";
+    font-family: var(--font-readable);
+    font-size: 1.2rem;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  .refer-faq details[open] summary::after { content: "–"; }
+  .refer-faq p {
+    font-family: var(--font-readable);
+    font-size: 0.88rem;
+    color: var(--ink-light);
+    margin-top: 0.6rem;
+    line-height: 1.6;
+    max-width: 62ch;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #flight-route-fill, .refer-plane { transition: none !important; }
+  }
+</style>
+</head>
+<body class="dashboard-page">
+
+<div class="bg-lines"></div>
+
+<!-- Navbar -->
+<header class="dash-nav">
+  <a href="index.html" class="logo">
+    <span class="logo-icon">💌</span>
+    <span class="logo-text">Chithi</span>
+  </a>
+  <div class="dash-nav-right" id="nav-right">
+    <!-- Filled by JS depending on auth state -->
+  </div>
+</header>
+
+<main class="refer-main">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="refer-section refer-hero">
+    <span class="refer-eyebrow">Referral Program</span>
+    <h1>Your Flight Path</h1>
+    <p class="refer-sub">Every friend who joins Chithi through your link sends your paper plane a little further — and unlocks a new stop along the way.</p>
+
+    <!-- Logged-in link box -->
+    <div class="refer-link-box hidden" id="refer-link-box">
+      <div class="refer-link-label">Your personal link</div>
+      <div class="refer-link-row">
+        <span class="refer-link-text" id="refer-link-text">Loading…</span>
+        <div class="refer-link-actions">
+          <button class="btn-copy" id="btn-copy-refer">Copy</button>
+          <button class="btn-copy" id="btn-share-refer">Share</button>
+        </div>
+      </div>
+      <div class="refer-link-meta" id="refer-link-meta"></div>
+    </div>
+
+    <!-- Guest CTA -->
+    <div class="refer-guest-card hidden" id="refer-guest-card">
+      <p>Sign in to see your own flight path progress and get your personal invite link.</p>
+      <div class="refer-guest-actions">
+        <a class="btn-primary btn-sm" href="signup.html">Create free account →</a>
+        <a class="btn-ghost btn-sm" href="login.html">Sign in</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="refer-section">
+    <h2>How it takes off</h2>
+    <div class="refer-steps-row">
+      <div class="refer-step">
+        <div class="refer-step-icon">🔗</div>
+        <h3>Share your link</h3>
+        <p>Copy your personal Chithi link and drop it in your bio, story, or a group chat.</p>
+      </div>
+      <div class="refer-step-connector">✈</div>
+      <div class="refer-step">
+        <div class="refer-step-icon">📝</div>
+        <h3>A friend joins</h3>
+        <p>They sign up and pick a username. That's it — no letter has to be sent.</p>
+      </div>
+      <div class="refer-step-connector">✈</div>
+      <div class="refer-step">
+        <div class="refer-step-icon">✈️</div>
+        <h3>Your plane moves on</h3>
+        <p>Your count goes up and your plane travels to the next stop, for good.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FLIGHT PATH DIAGRAM ═══ -->
+  <section class="refer-section">
+    <h2>Track your route</h2>
+    <div class="refer-path-wrap" id="path-wrap">
+      <svg viewBox="0 0 1000 240" preserveAspectRatio="xMidYMid meet">
+        <path id="flight-route"
+          d="M40,160 C170,160 170,80 300,80 C430,80 430,190 560,190 C680,190 680,70 800,70 C880,70 880,150 960,150" />
+        <path id="flight-route-fill"
+          d="M40,160 C170,160 170,80 300,80 C430,80 430,190 560,190 C680,190 680,70 800,70 C880,70 880,150 960,150" />
+        <circle class="flight-stop-dot" id="dot-0" cx="40"  cy="160" r="7"></circle>
+        <circle class="flight-stop-dot" id="dot-1" cx="300" cy="80"  r="7"></circle>
+        <circle class="flight-stop-dot" id="dot-2" cx="560" cy="190" r="7"></circle>
+        <circle class="flight-stop-dot" id="dot-3" cx="800" cy="70"  r="7"></circle>
+        <circle class="flight-stop-dot" id="dot-4" cx="960" cy="150" r="7"></circle>
+      </svg>
+
+      <div class="refer-stop-label" id="label-0" style="left:4%; top:78%;">
+        <span class="stop-count">0</span><span class="stop-name">Start</span>
+      </div>
+      <div class="refer-stop-label" id="label-1" style="left:30%; top:14%;">
+        <span class="stop-count">3</span><span class="stop-name">Basic</span>
+      </div>
+      <div class="refer-stop-label" id="label-2" style="left:56%; top:88%;">
+        <span class="stop-count">10</span><span class="stop-name">Social</span>
+      </div>
+      <div class="refer-stop-label" id="label-3" style="left:80%; top:10%;">
+        <span class="stop-count">25</span><span class="stop-name">VIP</span>
+      </div>
+      <div class="refer-stop-label" id="label-4" style="left:96%; top:68%;">
+        <span class="stop-count">50</span><span class="stop-name">Private</span>
+      </div>
+
+      <div class="refer-plane" id="refer-plane" style="left:4%; top:66.7%;">✈️</div>
+    </div>
+    <p class="refer-next-hint" id="refer-next-hint">Sign in to track your progress along the route.</p>
+  </section>
+
+  <!-- ═══ REWARD CARDS ═══ -->
+  <section class="refer-section">
+    <h2>What's waiting at each stop</h2>
+    <div class="refer-reward-grid" id="reward-grid">
+      <!-- Filled by JS using live THEMES swatch colours -->
+    </div>
+  </section>
+
+  <!-- ═══ FAQ ═══ -->
+  <section class="refer-section refer-faq">
+    <h2>Good to know</h2>
+    <details>
+      <summary>Does sending or receiving letters count as a referral?</summary>
+      <p>No. A referral only counts once someone creates a full account and picks a username through your link — letters aren't part of it.</p>
+    </details>
+    <details>
+      <summary>Can I refer myself, or refer the same person twice?</summary>
+      <p>No. Each account can only ever be counted as one referral, and an account can't refer itself.</p>
+    </details>
+    <details>
+      <summary>Do my unlocked rewards ever expire?</summary>
+      <p>No. Once a stop is unlocked, it stays on your account for good — you can keep switching between every theme you've unlocked at any time from your dashboard.</p>
+    </details>
+    <details>
+      <summary>What happens after the 50-referral stop?</summary>
+      <p>You've completed the current flight path! Keep an eye on your dashboard — new stops may be added as Chithi grows.</p>
+    </details>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p class="footer-sub">
+    <a href="about-us.html">About</a> •
+    <a href="privacy.html">Privacy</a> •
+    <a href="terms.html">Terms</a> •
+    <a href="track.html">Track Letter</a>
+  </p>
+  <p>
+    Creation of
+    <span class="heart">
+      <a href="https://www.facebook.com/saniat.kajol.jisan" target="_blank" rel="noopener noreferrer">SK</a> ♥
+    </span>
+    for honest conversations — © Chithi <span id="year"></span>
+  </p>
+</footer>
+
+<script src="clean-urls.js"></script>
+<script type="module">
+  import { auth, db } from "./firebase-config.js";
+  import {
+    onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import {
+    doc, getDoc, collection, query, where, getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { THEMES, applyTheme, getCachedTheme, CUSTOMIZABLE_THEME, getCachedGardenColors } from "./themes.js";
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Same theme the visitor already uses elsewhere on the site.
+  applyTheme(getCachedTheme(), getCachedGardenColors());
+
+  // ── Milestones — mirrors the reward logic used on the dashboard ──
+  const MILESTONES = [
+    { count: 0,  key: "start",  tier: "Start",   label: "Start",   icon: "🚀", title: "Where every path begins",
+      detail: "Share your link and your journey starts here — no referrals needed.", themeKeys: [] },
+    { count: 3,  key: "basic",  tier: "Basic",   label: "Basic",   icon: "🎨", title: "3 new looks",
+      detail: "Candy Pop, Soft Pastel & Dark Mode themes unlock for your page.", themeKeys: ["candy_pop", "soft_pastel", "dark_mode"] },
+    { count: 10, key: "social", tier: "Social",  label: "Social",  icon: "🖼️", title: "Frame + custom emoji",
+      detail: "An avatar frame, plus your own set of floating emoji on your public page.", themeKeys: [] },
+    { count: 25, key: "vip",    tier: "VIP",     label: "VIP",     icon: "✅", title: "Verified + Neon Cyberpunk",
+      detail: "A blue verified tick next to your name, and the Neon Cyberpunk theme.", themeKeys: ["neon_cyberpunk"] },
+    { count: 50, key: "private",tier: "Private", label: "Private", icon: "🌿", title: "Design your own theme",
+      detail: "Unlock Private Garden — pick your own paper, ink and accent colours.", themeKeys: ["private_garden"] }
+  ];
+
+  // Percentages must match the SVG circles exactly (viewBox is 1000x240):
+  // dot-0 (40,160) · dot-1 (300,80) · dot-2 (560,190) · dot-3 (800,70) · dot-4 (960,150)
+  const dotPositions = [
+    { x: 4,  y: 66.7 },
+    { x: 30, y: 33.3 },
+    { x: 56, y: 79.2 },
+    { x: 80, y: 29.2 },
+    { x: 96, y: 62.5 }
+  ];
+
+  const planeEl   = document.getElementById("refer-plane");
+  const fillPath  = document.getElementById("flight-route-fill");
+  const hintEl    = document.getElementById("refer-next-hint");
+  const rewardGrid= document.getElementById("reward-grid");
+  const navRight  = document.getElementById("nav-right");
+  const linkBox   = document.getElementById("refer-link-box");
+  const guestCard = document.getElementById("refer-guest-card");
+
+  // Prep the dashed "progress" path so we can wipe it in with stroke-dashoffset.
+  const totalLen = fillPath.getTotalLength();
+  fillPath.style.strokeDasharray = `${totalLen}`;
+  fillPath.style.strokeDashoffset = `${totalLen}`;
+
+  function setProgress(count) {
+    const capped = Math.max(0, Math.min(count, 50));
+    // Find which segment we're in (0-3, 3-10, 10-25, 25-50) for a smooth,
+    // evenly-spaced position along the route (this is a route map, not a
+    // literal ruler — each stop is an equal hop, like a subway line).
+    const stops = [0, 3, 10, 25, 50];
+    let segIndex = 0;
+    for (let i = 0; i < stops.length - 1; i++) {
+      if (capped >= stops[i]) segIndex = i;
+    }
+    const segStart = stops[segIndex];
+    const segEnd   = stops[Math.min(segIndex + 1, stops.length - 1)];
+    const segFrac  = segEnd > segStart ? (capped - segStart) / (segEnd - segStart) : 1;
+    const overallFrac = (segIndex + Math.min(segFrac, 1)) / (stops.length - 1);
+
+    // Draw-in the gold progress line.
+    fillPath.style.strokeDashoffset = `${totalLen * (1 - overallFrac)}`;
+
+    // Move the plane along the interpolated position between its two stops.
+    const a = dotPositions[segIndex];
+    const b = dotPositions[Math.min(segIndex + 1, dotPositions.length - 1)];
+    const px = a.x + (b.x - a.x) * Math.min(segFrac, 1);
+    const py = a.y + (b.y - a.y) * Math.min(segFrac, 1);
+    planeEl.style.left = `${px}%`;
+    planeEl.style.top  = `${py}%`;
+
+    // Light up stop dots + labels already reached.
+    MILESTONES.forEach((m, i) => {
+      const reached = capped >= m.count;
+      document.getElementById(`dot-${i}`)?.classList.toggle("unlocked", reached);
+      document.getElementById(`label-${i}`)?.classList.toggle("unlocked", reached);
+    });
+
+    const next = MILESTONES.find(m => capped < m.count);
+    if (hintEl) {
+      hintEl.innerHTML = next
+        ? `<strong>${next.count - capped}</strong> more referral${(next.count - capped) === 1 ? "" : "s"} to unlock <strong>${next.tier}</strong>`
+        : `You've reached the final stop — every reward on the route is yours. 🎉`;
+    }
+  }
+
+  function renderRewardCards(count) {
+    rewardGrid.innerHTML = MILESTONES.filter(m => m.count > 0).map(m => {
+      const unlocked = count >= m.count;
+      const swatches = m.themeKeys.map(k => THEMES[k]?.swatch?.[0]).filter(Boolean);
+      return `
+        <div class="refer-reward-card ${unlocked ? "unlocked" : ""}">
+          <div class="refer-reward-top">
+            <span class="refer-reward-icon">${m.icon}</span>
+            <span class="refer-reward-badge">${unlocked ? "Unlocked" : `${m.count}+ referrals`}</span>
+          </div>
+          <h3>${m.title}</h3>
+          <p>${m.detail}</p>
+          ${swatches.length ? `<div class="refer-swatch-row">${swatches.map(c => `<span class="refer-swatch" style="background:${c}"></span>`).join("")}</div>` : ""}
+        </div>
+      `;
+    }).join("");
+  }
+
+  function buildReferUrl(code) {
+    return window.ChithiUrl?.page
+      ? `${window.ChithiUrl.page("signup")}?ref=${code}`
+      : `${window.location.origin}${window.location.pathname.replace(/refer(\.html)?$/, "")}signup.html?ref=${code}`;
+  }
+
+  function buildReferralCode(username) {
+    return `${String(username || "CHITHI").replace(/_/g, "").toUpperCase()}2k26`.slice(0, 28);
+  }
+
+  async function loadSignedInState(user) {
+    navRight.innerHTML = `
+      <a href="dashboard.html" class="btn-ghost btn-sm">Back to Inbox</a>
+      <button class="btn-ghost btn-sm" id="btn-logout">Sign Out</button>
+    `;
+    document.getElementById("btn-logout")?.addEventListener("click", () => signOut(auth));
+
+    const profileSnap = await getDoc(doc(db, "users", user.uid));
+    if (!profileSnap.exists()) {
+      window.location.href = "signup.html";
+      return;
+    }
+    const profile = profileSnap.data();
+    const referralCode = profile.referralCode || buildReferralCode(profile.username);
+
+    let count = Number(profile.referralCount) || 0;
+    try {
+      const snap = await getDocs(query(collection(db, "referrals"), where("referrerUid", "==", user.uid)));
+      count = snap.size;
+    } catch (_) { /* fall back to cached profile.referralCount */ }
+
+    linkBox.classList.remove("hidden");
+    guestCard.classList.add("hidden");
+
+    const referUrl = buildReferUrl(referralCode);
+    document.getElementById("refer-link-text").textContent = referUrl;
+    document.getElementById("refer-link-meta").innerHTML =
+      `<strong>${count}</strong> referral${count === 1 ? "" : "s"} so far · code <strong>${referralCode}</strong>`;
+
+    document.getElementById("btn-copy-refer").addEventListener("click", (e) => {
+      navigator.clipboard.writeText(referUrl).then(() => {
+        const btn = e.currentTarget;
+        const orig = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = orig; }, 1600);
+      });
+    });
+
+    document.getElementById("btn-share-refer").addEventListener("click", () => {
+      if (navigator.share) {
+        navigator.share({ title: "Join me on Chithi", text: "Send me an anonymous letter on Chithi 💌", url: referUrl }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(referUrl);
+      }
+    });
+
+    renderRewardCards(count);
+    requestAnimationFrame(() => setProgress(count));
+  }
+
+  function loadGuestState() {
+    navRight.innerHTML = `
+      <a href="login.html" class="btn-ghost btn-sm">Sign In</a>
+      <a href="signup.html" class="btn-primary btn-sm">Create Account</a>
+    `;
+    linkBox.classList.add("hidden");
+    guestCard.classList.remove("hidden");
+    renderRewardCards(0);
+    requestAnimationFrame(() => setProgress(0));
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) loadSignedInState(user);
+    else loadGuestState();
+  });
+</script>
+</body>
+</html>
