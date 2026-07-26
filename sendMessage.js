@@ -276,7 +276,7 @@ btnSend?.addEventListener("click", async () => {
 
   // Validate
   if (!text) return showError("Please write something before sending.");
-  if (text.length > 2500) return showError("Message is too long (max 2500 characters).");
+  if (text.length > 999) return showError("Message is too long (max 999 characters).");
   if (containsBlockedWord(text) || containsBlockedWord(senderName)) {
     return showError("Please keep the letter respectful before sending.");
   }
