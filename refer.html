@@ -227,6 +227,13 @@
     transition: color 0.4s ease;
     will-change: left, top;
   }
+  /* Rotation lives on the icon itself (not the positioned wrapper above),
+     so the -50%/-50% centering transform and the heading rotation never
+     fight each other in the same transform list. */
+  .refer-plane i {
+    display: inline-block;
+    transition: transform 0.12s linear;
+  }
 
   .refer-stop-label {
     position: absolute;
@@ -470,7 +477,7 @@
         <span class="stop-count">50</span><span class="stop-name">Private</span>
       </div>
 
-      <div class="refer-plane" id="refer-plane" style="left:4%; top:66.7%;"><i class="fa-solid fa-paper-plane"></i></div>
+      <div class="refer-plane" id="refer-plane" style="left:4%; top:66.7%;"><i class="fa-solid fa-paper-plane" id="refer-plane-icon"></i></div>
     </div>
     <p class="refer-next-hint" id="refer-next-hint">Sign in to see how far your own plane has flown.</p>
   </section>
@@ -510,8 +517,7 @@
   <p class="footer-sub">
     <a href="about-us.html">About</a> •
     <a href="privacy.html">Privacy</a> •
-    <a href="terms.html">Terms</a> • 
-    <a href="refer.html">Refer</a> •
+    <a href="terms.html">Terms</a> •
     <a href="track.html">Track Letter</a>
   </p>
   <p>
@@ -553,7 +559,13 @@
       detail: "Private Garden unlocks — pick your own paper, ink and accent colours, just for you.", themeKeys: ["private_garden"] }
   ];
 
-  const planeEl   = document.getElementById("refer-plane");
+  const planeEl     = document.getElementById("refer-plane");
+  const planeIconEl = document.getElementById("refer-plane-icon");
+  // fa-paper-plane's glyph faces up-and-to-the-right by default (~45° above
+  // horizontal). We rotate it by (travel angle + this offset) so its nose
+  // always points the way it's actually flying. If it ever looks backwards
+  // or sideways on your machine/font version, try 135, -45, or -135 here.
+  const PLANE_ICON_OFFSET_DEG = 45;
   const fillPath  = document.getElementById("flight-route-fill");
   const hintEl    = document.getElementById("refer-next-hint");
   const rewardGrid= document.getElementById("reward-grid");
@@ -610,6 +622,25 @@
     planeEl.style.left = `${(pt.x / 1000) * 100}%`;
     planeEl.style.top  = `${(pt.y / 240) * 100}%`;
     fillPath.style.strokeDashoffset = `${fillLen * (1 - len / routeLen)}`;
+
+    // ── Face the plane along the real direction of travel ──
+    // Sample a short stretch of the curve just behind and just ahead of the
+    // plane's current position and use that as the tangent (heading).
+    const SAMPLE = 2; // viewBox units on each side
+    const lenA = Math.max(0, len - SAMPLE);
+    const lenB = Math.min(routeLen, len + SAMPLE);
+    if (lenB > lenA) {
+      const ptA = pointAtLength(lenA);
+      const ptB = pointAtLength(lenB);
+      // The wrapper's aspect-ratio (1000/260) doesn't quite match the SVG
+      // viewBox (1000/240) used for left/top %, so raw viewBox dx/dy would
+      // give a slightly skewed angle. Scale dy by 260/240 first so the
+      // angle we compute matches what's actually on screen.
+      const dx = ptB.x - ptA.x;
+      const dy = (ptB.y - ptA.y) * (260 / 240);
+      const travelAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+      planeIconEl.style.transform = `rotate(${travelAngle + PLANE_ICON_OFFSET_DEG}deg)`;
+    }
 
     // Light up each stop the plane has already flown past.
     MILESTONES.forEach((m, i) => {
