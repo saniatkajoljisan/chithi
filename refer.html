@@ -8,6 +8,7 @@
   <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
 <style>
   /* ══════════════════════════════════════════════════════════
@@ -219,9 +220,11 @@
 
   .refer-plane {
     position: absolute;
-    font-size: 1.5rem;
+    font-size: 1.45rem;
+    color: var(--gold);
     transform: translate(-50%, -50%);
     filter: drop-shadow(0 3px 5px var(--shadow-deep));
+    transition: color 0.4s ease;
     will-change: left, top;
   }
 
@@ -377,13 +380,13 @@
 
   <!-- ═══ HERO ═══ -->
   <section class="refer-section refer-hero">
-    <span class="refer-eyebrow">Referral Program</span>
+    <span class="refer-eyebrow">Invite Friends</span>
     <h1>Your Flight Path</h1>
-    <p class="refer-sub">Every friend who joins Chithi through your link sends your paper plane a little further — and unlocks a new stop along the way.</p>
+    <p class="refer-sub">Every friend you bring to Chithi nudges your paper plane a little further — and opens up something new along the way.</p>
 
     <!-- Logged-in link box -->
     <div class="refer-link-box hidden" id="refer-link-box">
-      <div class="refer-link-label">Your personal link</div>
+      <div class="refer-link-label">Your link to share</div>
       <div class="refer-link-row">
         <span class="refer-link-text" id="refer-link-text">Loading…</span>
         <div class="refer-link-actions">
@@ -396,7 +399,7 @@
 
     <!-- Guest CTA -->
     <div class="refer-guest-card hidden" id="refer-guest-card">
-      <p>Sign in to see your own flight path progress and get your personal invite link.</p>
+      <p>Sign in and we'll show you how far your plane has already flown — plus your own link to start sending it further.</p>
       <div class="refer-guest-actions">
         <a class="btn-primary btn-sm" href="signup.html">Create free account →</a>
         <a class="btn-ghost btn-sm" href="login.html">Sign in</a>
@@ -411,26 +414,26 @@
       <div class="refer-step">
         <div class="refer-step-icon">🔗</div>
         <h3>Share your link</h3>
-        <p>Copy your personal Chithi link and drop it in your bio, story, or a group chat.</p>
+        <p>Grab your link and drop it wherever your friends will actually see it — your bio, a story, a group chat.</p>
       </div>
       <div class="refer-step-connector">✈</div>
       <div class="refer-step">
         <div class="refer-step-icon">📝</div>
-        <h3>A friend joins</h3>
-        <p>They sign up and pick a username. That's it — no letter has to be sent.</p>
+        <h3>A friend joins in</h3>
+        <p>All they need to do is sign up and pick a username. No letter has to be sent for it to count.</p>
       </div>
       <div class="refer-step-connector">✈</div>
       <div class="refer-step">
         <div class="refer-step-icon">✈️</div>
-        <h3>Your plane moves on</h3>
-        <p>Your count goes up and your plane travels to the next stop, for good.</p>
+        <h3>Your plane flies on</h3>
+        <p>Your plane moves a little closer to the next stop — and whatever it unlocks is yours to keep.</p>
       </div>
     </div>
   </section>
 
   <!-- ═══ FLIGHT PATH DIAGRAM ═══ -->
   <section class="refer-section">
-    <h2>Track your route</h2>
+    <h2>See how far you've flown</h2>
     <div class="refer-path-wrap" id="path-wrap">
       <svg viewBox="0 0 1000 240" preserveAspectRatio="xMidYMid meet">
         <path id="flight-route"
@@ -467,14 +470,14 @@
         <span class="stop-count">50</span><span class="stop-name">Private</span>
       </div>
 
-      <div class="refer-plane" id="refer-plane" style="left:4%; top:66.7%;">✈️</div>
+      <div class="refer-plane" id="refer-plane" style="left:4%; top:66.7%;"><i class="fa-solid fa-paper-plane"></i></div>
     </div>
-    <p class="refer-next-hint" id="refer-next-hint">Sign in to track your progress along the route.</p>
+    <p class="refer-next-hint" id="refer-next-hint">Sign in to see how far your own plane has flown.</p>
   </section>
 
   <!-- ═══ REWARD CARDS ═══ -->
   <section class="refer-section">
-    <h2>What's waiting at each stop</h2>
+    <h2>What you'll find at each stop</h2>
     <div class="refer-reward-grid" id="reward-grid">
       <!-- Filled by JS using live THEMES swatch colours -->
     </div>
@@ -485,19 +488,19 @@
     <h2>Good to know</h2>
     <details>
       <summary>Does sending or receiving letters count as a referral?</summary>
-      <p>No. A referral only counts once someone creates a full account and picks a username through your link — letters aren't part of it.</p>
+      <p>Nope — a referral only counts once someone signs up and picks a username through your link. Letters don't come into it at all.</p>
     </details>
     <details>
       <summary>Can I refer myself, or refer the same person twice?</summary>
-      <p>No. Each account can only ever be counted as one referral, and an account can't refer itself.</p>
+      <p>Each account can only ever count once, and you can't refer yourself. But every real friend you bring in adds to your total.</p>
     </details>
     <details>
       <summary>Do my unlocked rewards ever expire?</summary>
-      <p>No. Once a stop is unlocked, it stays on your account for good — you can keep switching between every theme you've unlocked at any time from your dashboard.</p>
+      <p>Never. Once you've unlocked a stop, it's yours for good — you can switch between any of your unlocked themes any time from your dashboard.</p>
     </details>
     <details>
       <summary>What happens after the 50-referral stop?</summary>
-      <p>You've completed the current flight path! Keep an eye on your dashboard — new stops may be added as Chithi grows.</p>
+      <p>You've flown the whole route! Keep an eye on your dashboard though — we may add new stops as Chithi grows.</p>
     </details>
   </section>
 
@@ -507,8 +510,7 @@
   <p class="footer-sub">
     <a href="about-us.html">About</a> •
     <a href="privacy.html">Privacy</a> •
-    <a href="terms.html">Terms</a> • 
-    <a href="refer.html">Refer</a> •
+    <a href="terms.html">Terms</a> •
     <a href="track.html">Track Letter</a>
   </p>
   <p>
@@ -539,15 +541,15 @@
   // ── Milestones — mirrors the reward logic used on the dashboard ──
   const MILESTONES = [
     { count: 0,  key: "start",  tier: "Start",   label: "Start",   icon: "🚀", title: "Where every path begins",
-      detail: "Share your link and your journey starts here — no referrals needed.", themeKeys: [] },
-    { count: 3,  key: "basic",  tier: "Basic",   label: "Basic",   icon: "🎨", title: "3 new looks",
-      detail: "Candy Pop, Soft Pastel & Dark Mode themes unlock for your page.", themeKeys: ["candy_pop", "soft_pastel", "dark_mode"] },
-    { count: 10, key: "social", tier: "Social",  label: "Social",  icon: "🖼️", title: "Frame + custom emoji",
-      detail: "An avatar frame, plus your own set of floating emoji on your public page.", themeKeys: [] },
-    { count: 25, key: "vip",    tier: "VIP",     label: "VIP",     icon: "✅", title: "Verified + Neon Cyberpunk",
-      detail: "A blue verified tick next to your name, and the Neon Cyberpunk theme.", themeKeys: ["neon_cyberpunk"] },
-    { count: 50, key: "private",tier: "Private", label: "Private", icon: "🌿", title: "Design your own theme",
-      detail: "Unlock Private Garden — pick your own paper, ink and accent colours.", themeKeys: ["private_garden"] }
+      detail: "Share your link and you're already on your way — no referrals needed to start.", themeKeys: [] },
+    { count: 3,  key: "basic",  tier: "Basic",   label: "Basic",   icon: "🎨", title: "3 fresh looks",
+      detail: "Candy Pop, Soft Pastel and Dark Mode — three new themes to try on your page.", themeKeys: ["candy_pop", "soft_pastel", "dark_mode"] },
+    { count: 10, key: "social", tier: "Social",  label: "Social",  icon: "🖼️", title: "A frame and your own emoji",
+      detail: "Your avatar gets a frame, and you get to pick your own floating emoji for your page.", themeKeys: [] },
+    { count: 25, key: "vip",    tier: "VIP",     label: "VIP",     icon: "✅", title: "A verified tick + Neon Cyberpunk",
+      detail: "A blue tick next to your name, plus the Neon Cyberpunk theme to match.", themeKeys: ["neon_cyberpunk"] },
+    { count: 50, key: "private",tier: "Private", label: "Private", icon: "🌿", title: "A theme that's truly yours",
+      detail: "Private Garden unlocks — pick your own paper, ink and accent colours, just for you.", themeKeys: ["private_garden"] }
   ];
 
   const planeEl   = document.getElementById("refer-plane");
@@ -621,8 +623,8 @@
     const next = MILESTONES.find(m => capped < m.count);
     if (hintEl) {
       hintEl.innerHTML = next
-        ? `<strong>${next.count - capped}</strong> more referral${(next.count - capped) === 1 ? "" : "s"} to unlock <strong>${next.tier}</strong>`
-        : `You've reached the final stop — every reward on the route is yours. 🎉`;
+        ? `Just <strong>${next.count - capped}</strong> more referral${(next.count - capped) === 1 ? "" : "s"} and <strong>${next.tier}</strong> is yours`
+        : `You've flown the whole route — every reward along the way is yours. 🎉`;
     }
   }
 
@@ -713,7 +715,7 @@
     const referUrl = buildReferUrl(referralCode);
     document.getElementById("refer-link-text").textContent = referUrl;
     document.getElementById("refer-link-meta").innerHTML =
-      `<strong>${count}</strong> referral${count === 1 ? "" : "s"} so far · code <strong>${referralCode}</strong>`;
+      `You've brought in <strong>${count}</strong> friend${count === 1 ? "" : "s"} so far · your code is <strong>${referralCode}</strong>`;
 
     document.getElementById("btn-copy-refer").addEventListener("click", (e) => {
       navigator.clipboard.writeText(referUrl).then(() => {
