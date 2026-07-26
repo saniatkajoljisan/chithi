@@ -201,8 +201,8 @@
     position: absolute;
     font-size: 1.5rem;
     transform: translate(-50%, -50%);
-    transition: left 1.1s cubic-bezier(0.65,0,0.35,1), top 1.1s cubic-bezier(0.65,0,0.35,1);
     filter: drop-shadow(0 3px 5px var(--shadow-deep));
+    will-change: left, top;
   }
 
   .refer-stop-label {
@@ -334,9 +334,8 @@
     max-width: 62ch;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    #flight-route-fill, .refer-plane { transition: none !important; }
-  }
+  /* Reduced-motion handling is done in JS (skips straight to the final
+     position instead of animating) — see prefersReducedMotion below. */
 </style>
 </head>
 <body class="dashboard-page">
@@ -418,6 +417,13 @@
           d="M40,160 C170,160 170,80 300,80 C430,80 430,190 560,190 C680,190 680,70 800,70 C880,70 880,150 960,150" />
         <path id="flight-route-fill"
           d="M40,160 C170,160 170,80 300,80 C430,80 430,190 560,190 C680,190 680,70 800,70 C880,70 880,150 960,150" />
+        <!-- Invisible per-stop segments (same curve, split into 4 pieces) —
+             used only in JS to find the exact x/y at any point along the
+             real line via getPointAtLength(), never rendered. -->
+        <path id="seg-path-0" fill="none" stroke="none" d="M40,160 C170,160 170,80 300,80" />
+        <path id="seg-path-1" fill="none" stroke="none" d="M300,80 C430,80 430,190 560,190" />
+        <path id="seg-path-2" fill="none" stroke="none" d="M560,190 C680,190 680,70 800,70" />
+        <path id="seg-path-3" fill="none" stroke="none" d="M800,70 C880,70 880,150 960,150" />
         <circle class="flight-stop-dot" id="dot-0" cx="40"  cy="160" r="7"></circle>
         <circle class="flight-stop-dot" id="dot-1" cx="300" cy="80"  r="7"></circle>
         <circle class="flight-stop-dot" id="dot-2" cx="560" cy="190" r="7"></circle>
@@ -523,16 +529,6 @@
       detail: "Unlock Private Garden — pick your own paper, ink and accent colours.", themeKeys: ["private_garden"] }
   ];
 
-  // Percentages must match the SVG circles exactly (viewBox is 1000x240):
-  // dot-0 (40,160) · dot-1 (300,80) · dot-2 (560,190) · dot-3 (800,70) · dot-4 (960,150)
-  const dotPositions = [
-    { x: 4,  y: 66.7 },
-    { x: 30, y: 33.3 },
-    { x: 56, y: 79.2 },
-    { x: 80, y: 29.2 },
-    { x: 96, y: 62.5 }
-  ];
-
   const planeEl   = document.getElementById("refer-plane");
   const fillPath  = document.getElementById("flight-route-fill");
   const hintEl    = document.getElementById("refer-next-hint");
@@ -541,50 +537,104 @@
   const linkBox   = document.getElementById("refer-link-box");
   const guestCard = document.getElementById("refer-guest-card");
 
-  // Prep the dashed "progress" path so we can wipe it in with stroke-dashoffset.
-  const totalLen = fillPath.getTotalLength();
-  fillPath.style.strokeDasharray = `${totalLen}`;
-  fillPath.style.strokeDashoffset = `${totalLen}`;
+  // The route is split into 4 real segments (Start→3, 3→10, 10→25, 25→50).
+  // We measure each one's true on-screen arc length so the plane can be
+  // placed with getPointAtLength() — i.e. it always sits exactly ON the
+  // dashed line, following every curve, instead of cutting corners in a
+  // straight percentage-based guess.
+  const stops    = [0, 3, 10, 25, 50];
+  const segPaths = [0, 1, 2, 3].map(i => document.getElementById(`seg-path-${i}`));
+  const segLens  = segPaths.map(p => p.getTotalLength());
+  const cumLens  = [0];
+  segLens.forEach(len => cumLens.push(cumLens[cumLens.length - 1] + len));
+  const routeLen = cumLens[cumLens.length - 1]; // full Start→50 length
 
-  function setProgress(count) {
+  const fillLen = fillPath.getTotalLength();
+  fillPath.style.strokeDasharray = `${fillLen}`;
+  fillPath.style.strokeDashoffset = `${fillLen}`;
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let flightFrame = null;
+
+  /** Referral count (0-50) → absolute length travelled along the real curve. */
+  function countToLength(count) {
     const capped = Math.max(0, Math.min(count, 50));
-    // Find which segment we're in (0-3, 3-10, 10-25, 25-50) for a smooth,
-    // evenly-spaced position along the route (this is a route map, not a
-    // literal ruler — each stop is an equal hop, like a subway line).
-    const stops = [0, 3, 10, 25, 50];
     let segIndex = 0;
     for (let i = 0; i < stops.length - 1; i++) {
       if (capped >= stops[i]) segIndex = i;
     }
     const segStart = stops[segIndex];
-    const segEnd   = stops[Math.min(segIndex + 1, stops.length - 1)];
+    const segEnd   = stops[segIndex + 1] ?? segStart;
     const segFrac  = segEnd > segStart ? (capped - segStart) / (segEnd - segStart) : 1;
-    const overallFrac = (segIndex + Math.min(segFrac, 1)) / (stops.length - 1);
+    return cumLens[segIndex] + Math.min(segFrac, 1) * segLens[segIndex];
+  }
 
-    // Draw-in the gold progress line.
-    fillPath.style.strokeDashoffset = `${totalLen * (1 - overallFrac)}`;
+  /** Exact {x, y} in viewBox units at a given length along the whole route —
+   *  found by walking the matching segment's own geometry. */
+  function pointAtLength(len) {
+    const clamped = Math.max(0, Math.min(len, routeLen));
+    for (let i = 0; i < segPaths.length; i++) {
+      if (clamped <= cumLens[i + 1] || i === segPaths.length - 1) {
+        const localLen = Math.max(0, Math.min(clamped - cumLens[i], segLens[i]));
+        return segPaths[i].getPointAtLength(localLen);
+      }
+    }
+  }
 
-    // Move the plane along the interpolated position between its two stops.
-    const a = dotPositions[segIndex];
-    const b = dotPositions[Math.min(segIndex + 1, dotPositions.length - 1)];
-    const px = a.x + (b.x - a.x) * Math.min(segFrac, 1);
-    const py = a.y + (b.y - a.y) * Math.min(segFrac, 1);
-    planeEl.style.left = `${px}%`;
-    planeEl.style.top  = `${py}%`;
+  function placePlaneAtLength(len) {
+    const pt = pointAtLength(len);
+    planeEl.style.left = `${(pt.x / 1000) * 100}%`;
+    planeEl.style.top  = `${(pt.y / 240) * 100}%`;
+    fillPath.style.strokeDashoffset = `${fillLen * (1 - len / routeLen)}`;
 
-    // Light up stop dots + labels already reached.
+    // Light up each stop the plane has already flown past.
     MILESTONES.forEach((m, i) => {
-      const reached = capped >= m.count;
+      const reached = len >= cumLens[i] - 0.5;
       document.getElementById(`dot-${i}`)?.classList.toggle("unlocked", reached);
       document.getElementById(`label-${i}`)?.classList.toggle("unlocked", reached);
     });
+  }
 
+  function updateHint(count) {
+    const capped = Math.max(0, Math.min(count, 50));
     const next = MILESTONES.find(m => capped < m.count);
     if (hintEl) {
       hintEl.innerHTML = next
         ? `<strong>${next.count - capped}</strong> more referral${(next.count - capped) === 1 ? "" : "s"} to unlock <strong>${next.tier}</strong>`
         : `You've reached the final stop — every reward on the route is yours. 🎉`;
     }
+  }
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  /** Fly the plane from the very start all the way to `count`, following
+   *  the real line — slow and deliberate, and replayed on every page load
+   *  since it always starts the animation back at 0. */
+  function setProgress(count, durationMs = 3200) {
+    const targetLen = countToLength(count);
+
+    if (prefersReducedMotion) {
+      placePlaneAtLength(targetLen);
+      updateHint(count);
+      return;
+    }
+
+    if (flightFrame) cancelAnimationFrame(flightFrame);
+    placePlaneAtLength(0);
+    const start = performance.now();
+
+    function step(now) {
+      const raw = Math.min((now - start) / durationMs, 1);
+      placePlaneAtLength(targetLen * easeInOutCubic(raw));
+      if (raw < 1) {
+        flightFrame = requestAnimationFrame(step);
+      } else {
+        updateHint(count);
+      }
+    }
+    flightFrame = requestAnimationFrame(step);
   }
 
   function renderRewardCards(count) {
