@@ -89,6 +89,26 @@
   }
   .refer-link-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
   .refer-link-actions button { width: auto; }
+
+  /* This page's cards sit on the light paper-card background, so — unlike
+     the dashboard's dark link-banner — buttons here need dark ink text,
+     not the shared .btn-copy (which is white-on-transparent by design). */
+  .refer-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--paper-dark);
+    color: var(--ink) !important;
+    border: 1.5px solid var(--line-color);
+    border-radius: 8px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .refer-copy-btn:hover { background: var(--gold); border-color: var(--gold); color: #fff !important; }
   .refer-link-meta {
     margin-top: 0.7rem;
     font-family: var(--font-readable);
@@ -367,8 +387,8 @@
       <div class="refer-link-row">
         <span class="refer-link-text" id="refer-link-text">Loading…</span>
         <div class="refer-link-actions">
-          <button class="btn-copy" id="btn-copy-refer">Copy</button>
-          <button class="btn-copy" id="btn-share-refer">Share</button>
+          <button class="refer-copy-btn" id="btn-copy-refer">Copy</button>
+          <button class="refer-copy-btn" id="btn-share-refer">Share</button>
         </div>
       </div>
       <div class="refer-link-meta" id="refer-link-meta"></div>
